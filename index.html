@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>image Set Manager</title>
+
+    <link rel="stylesheet" href="./bower_components/jquery-ui/themes/base/jquery-ui.min.css">
+    <link rel="stylesheet" href="./bower_components/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./bower_components/themify-icons/css/themify-icons.css">
+    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./bower_components/angular-ui-select/dist/select.min.css">
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <script src="./bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="./bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="./bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- <script src="./bower_components/async/dist/async.min.js"></script> -->
+    <script src="./bower_components/angular/angular.min.js"></script>
+    <script src="./bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="./bower_components/d3/d3.min.js"></script>
+    <script src="./bower_components/katex/dist/katex.min.js"></script>
+    <script src="./bower_components/clipboard/dist/clipboard.min.js"></script>
+    <script src="./bower_components/ngclipboard/dist/ngclipboard.min.js"></script>
+    <script src="./bower_components/spin.js/spin.js"></script>
+    <script src="./bower_components/ng-file-upload/ng-file-upload.min.js"></script>
+    <script src="./bower_components/angular-modal-service/dst/angular-modal-service.min.js"></script>
+    <script src="./bower_components/angular-ui-select/dist/select.min.js"></script>
+    <script src="./bower_components/lodash/dist/lodash.min.js"></script>
+    <script src="./bower_components/misc-component/dist/misc-components.js"></script>
+    <script src="./bower_components/plot-toolkit/dist/library/library.dll.js"></script>
+    <script src="./vendor/simple-statistics.min.js"></script>
+
+    <script src="./bower_components/plot-toolkit/dist/plot-toolkit.js"></script>
+
+    <script src="./dist/multi-well-histogram.js"></script>
+
+</head>
+
+<body ng-app="myApp" style="font-size: 12px;">
+    <div style="width: 1100px; height:600px; margin: 10px;">
+
+        <multi-well-histogram
+            token="'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBodWMiLCJ3aG9hbWkiOiJtYWluLXNlcnZpY2UiLCJyb2xlIjoyLCJjb21wYW55IjoiSTJHIiwiaWF0IjoxNTU5NjE2MzY0LCJleHAiOjE1NjA0ODAzNjR9.1pCPi_CptaT-pwYIBgzzVJnp7JgijfiWksN6iui-3Gg'"
+            well-spec="[{idWell:91}]" zoneset-name="'111'" 
+            selection-type="'family-group'" selection-value='"Gamma Ray"'>
+        </multi-well-histogram>
+    </div>
+    <script>
+        angular.module("myApp", ["multiWellHistogram"]);
+    </script>
+</body>
+
+</html>

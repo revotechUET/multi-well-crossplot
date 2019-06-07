@@ -1,0 +1,20 @@
+{
+  "name": "multi-well-crossplot",
+  "description": "",
+  "main": "",
+  "authors": [
+    "Hung <hungnk1996@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "misc-component": "https://github.com/tunghoang/misc-component.git",
+    "plot-toolkit": "https://github.com/tunghoang/plot-toolkit.git"
+  }
+}

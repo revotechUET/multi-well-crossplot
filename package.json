@@ -1,0 +1,14 @@
+{
+  "name": "multi-well-crossplot",
+  "version": "0.0.1",
+  "scripts": {
+    "run-dev": "webpack -w --mode=development"
+  },
+  "devDependencies": {
+    "css-loader": "^2.1.1",
+    "html-loader": "^0.5.5",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
+    "style-loader": "^0.23.1"
+  }
+}
