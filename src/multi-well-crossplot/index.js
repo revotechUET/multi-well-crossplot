@@ -86,11 +86,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 getZonesetsFromWells(self.treeConfig);
                 updateDefaultConfig();
             }, true);
-            // $scope.$watch(() => (
-            //     `${self.getLeft()}-${self.getRight()}-${self.getLoga()}-${self.selectionXValue}-${self.selectionYValue}`
-            // ), () => {
-            //     _crossplotGen = null;
-            // });
         }, 500);
 
         self.defaultConfig = self.defaultConfig || {};
@@ -192,6 +187,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				wellSpec.yAxis.idCurve = node.idCurve;
 				wellSpec.yAxis.idDataset = node.idDataset;
 				break;
+			default:
+				console.log('---no axis support')
 		}
     }
     this.refresh = function(){
@@ -214,17 +211,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		}
 		callback && callback();
 		wiLoading.hide();
-        // for (let w of self.wellSpec) {
-        //     promises.push(
-        //         wiApi.getWellPromise(w.idWell || w)
-        //             .then(well => ($timeout(() => self.treeConfig.push(well))))
-        //     );
-        // }
-        /*Promise.all(promises)
-            .then(() => callback && callback())
-            .catch(e => console.error(e))
-            .finally(() => wiLoading.hide());
-		*/
     }
     function getZonesetsFromWells(wells) {
         let zsList;
@@ -390,29 +376,28 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     function updateDefaultConfig() {
         clearDefaultConfig();
-        let curve = getCurve(self.treeConfig[0]);
-        if (!curve) return;
-        let family = wiApi.getFamily(curve.idFamily);
-        if (!family) return;
-        self.defaultConfig.left = family.family_spec[0].minScale;
-        self.defaultConfig.right = family.family_spec[0].maxScale;
+		setDefaultConfig('xAxis');
+		setDefaultConfig('yAxis');
 
-		let datasetTopArr = [];
-		let datasetBottomArr = [];
-		self.wellSpec.forEach(ws => {
-			if (ws.xAxis) {
-				datasetTopArr.push(ws.xAxis.datasetTop);
-				datasetBottomArr.push(ws.xAxis.datasetBottom);
+		function setDefaultConfig(axis) {
+			let curve = getCurve(self.treeConfig[0], axis);
+			if (!curve) return;
+			let family = wiApi.getFamily(curve.idFamily);
+			if (!family) return;
+			switch (axis) {
+				case 'xAxis':
+					self.defaultConfig.left = family.family_spec[0].minScale;
+					self.defaultConfig.right = family.family_spec[0].maxScale;
+					break;
+				case 'yAxis':
+					self.defaultConfig.top = family.family_spec[0].minScale;
+					self.defaultConfig.bottom = family.family_spec[0].maxScale;
+					break;
+				default:
+					console.log('---give me axis');
 			}
-			if (ws.yAxis) {
-				datasetTopArr.push(ws.yAxis.datasetTop);
-				datasetBottomArr.push(ws.yAxis.datasetBottom);
-			}
-		})
-		self.defaultConfig.top = d3.min(datasetTopArr);
-		self.defaultConfig.bottom = d3.max(datasetBottomArr);
-		console.log(self.defaultConfig);
-        self.defaultConfig.loga = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+			self.defaultConfig.loga = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+		}
     }
 
     function genZonationAllZS(top, bottom, color = 'blue') {
