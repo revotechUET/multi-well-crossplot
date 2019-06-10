@@ -4,19 +4,10 @@
         <div class="main-body">
             <div class="label-list-view ng-scope" 
                 style="display :flex; background: #f4f4f4; padding: 12px 15px; justify-content: flex-start;">
-                <!-- <span ng-click="self.save()" style="background: #fff;
-                padding: 3px 17px;
-                border-radius: 2px;
-                border: 1px solid #e4e4e4;">Save</span> -->
                 <span ng-click="self.refresh()" class="reload-16x16" style="cursor: pointer; margin-right: 10px;"></span>
-                <span ng-click="self.save()" class="save-16x16" style="cursor: pointer; margin-right: 10px;"></span>
-                <!-- <span ng-click="" class="save-as-16x16" style="cursor: pointer; margin-right: 10px;"></span> -->
+                <span ng-click="self.saveToAsset()" class="save-16x16" style="cursor: pointer; margin-right: 10px;"></span>
             </div>
 
-			<!-- <div style="display: flex; padding: 0 16px 7px 16px;">
-				<span ng-click="self.save()" class="button-with-lable-layer"
-					style="margin-left: 0; flex: 0">Save</span>
-			</div> -->
             <div class="main-body-center border-style" style="position: relative;">
                 <layer-collection v-padding="50" h-padding='60'>
                     <axis-layer min-val="self.getLeft()"
@@ -31,7 +22,7 @@
                     <canvas-barchart-layer
                         ng-show="!bins._notUsed"
                         ng-if="self.getDisplayMode() == 'bar' && self.getStackMode() == 'none'"
-                        ng-repeat="bins in self.histogramList" min-val="self.getLeft()" max-val="self.getRight()"
+                        ng-repeat="bins in self.crossplotList" min-val="self.getLeft()" max-val="self.getRight()"
                         min-y='self.minY || 0' max-y='self.maxY || 100' loga="self.getLoga()" autofit='false'
                         bins="bins" bin-gap="self.getBinGap()" color-func="self.colorFn">
                     </canvas-barchart-layer>
@@ -39,21 +30,21 @@
                         ng-show="!groupOfBins._notUsed"
                         ng-if="self.getDisplayMode() == 'bar' && 
                         self.getStackMode() == 'well'"
-                        ng-repeat="groupOfBins in self.histogramList" min-val="self.getLeft()"
+                        ng-repeat="groupOfBins in self.crossplotList" min-val="self.getLeft()"
                         max-val="self.getRight()" min-y='self.minY || 0' max-y='self.maxY || 100'
                         loga="self.getLoga()" autofit='false' bins="groupOfBins" bin-gap="self.getBinGap()"
                         color-func="self.colorFn" multiple='true'>
                     </canvas-barchart-layer>
                     <canvas-barchart-layer 
-                        ng-show="!self.histogramList._notUsed"
+                        ng-show="!self.crossplotList._notUsed"
                         ng-if="self.getDisplayMode() == 'bar' && 
                         self.getStackMode() == 'all'" min-val="self.getLeft()"
                         max-val="self.getRight()" min-y='self.minY || 0' max-y='self.maxY || 100'
-                        loga="self.getLoga()" autofit='false' bins="self.histogramList" bin-gap="self.getBinGap()"
+                        loga="self.getLoga()" autofit='false' bins="self.crossplotList" bin-gap="self.getBinGap()"
                         color-func="self.colorFn" multiple='true'>
                     </canvas-barchart-layer>
                     <line-point-layer ng-if="self.getDisplayMode() === 'line' && !bins._notUsed"
-                        ng-repeat="bins in self.histogramList" min-val="self.getLeft()" max-val="self.getRight()"
+                        ng-repeat="bins in self.crossplotList" min-val="self.getLeft()" max-val="self.getRight()"
                         min-y='self.minY || 0' max-y='self.maxY || 100' loga="self.getLoga()" autofit='false'
                         get-x='self.getBinX' get-y='self.getBinY' line-data="bins" line-color="bins.color"
                         line-width='2' line-dash="'2 0'" color-func="self.colorFn">
@@ -80,7 +71,7 @@
                 </div> -->
 
                 <div style="overflow: auto; position: absolute;">
-                    <wi-table-view ng-if="self.histogramList.length" row-count="self.getZoneNames().length"
+                    <wi-table-view ng-if="self.crossplotList.length" row-count="self.getZoneNames().length"
                         col-count="self.getHeaders().length" col-headers="self.getHeaders()"
                         row-headers="self.getZoneNames()" accessor="self.statsValue">
                     </wi-table-view>
@@ -99,8 +90,6 @@
                         style="margin-right: 8px;">Zone</span>
                     <span ng-class="{'active' : isSet(3)}" ng-click="setTab(3)" class="tab-with-lable"
                         style="margin-right: 8px;">Config</span>
-                    <span ng-class="{'active' : isSet(4)}" ng-click="setTab(4)" class="tab-with-lable">Stats</span>
-                    <span ng-class="{'active' : isSet(5)}" ng-click="setTab(5)" class="tab-with-lable">Layers</span>
                 </div>
 
                 <div ng-show="isSet(1)" style="overflow: auto;flex: 1;display:flex;flex-direction:column;">
@@ -119,46 +108,65 @@
                         </div>
 
                     </div>
+                    <div style="padding-bottom: 0;" class="lable-option-sidebar">
+                        <div class="selection-sidebar">
+                            <span>X Axis</span>
+                            <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList'
+                                current-select="self.selectionXValue" on-item-changed="self.onInputXSelectionChanged">
+                            </wi-dropdown-list>
+                        </div>
+                    </div>
                     <div class="lable-option-sidebar">
                         <div class="selection-sidebar">
-                            <span>X-Axis</span>
+                            <span>Y Axis</span>
                             <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList'
-                                current-select="self.selectionValue" on-item-changed="self.onInputSelectionChanged">
+                                current-select="self.selectionYValue" on-item-changed="self.onInputYSelectionChanged">
                             </wi-dropdown-list>
                         </div>
                     </div>
                     <div style="overflow: auto; display:flex; flex-direction: column;">
-                        <div style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;"
+                        <div style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px; cursor: pointer;"
                             ng-repeat='well in self.treeConfig'>
                             <div
-                                style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;">
-
+                                style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;" class="axis-bar" ng-class='{"selected": well.isSettingAxis == "xAxis"}'
+								ng-click="well.isSettingAxis = 'xAxis'">
                                 <div style="display: flex; align-items: center;">
-
                                     <i class="header-icon"
                                         ng-class="{'fa fa-caret-down': !well._hidden, 'fa fa-caret-right': well._hidden}"
                                         ng-click="well._hidden = !well._hidden"></i>
-                                    <div ng-bind="well.name"> </div>
-
+                                    <div ng-bind="'X-Axis'"> </div>
                                 </div>
-
                                 <div style="display: flex; align-items: center;">
                                     <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;"
-                                        ng-bind="self.getWellSpec(well).datasetName"></div>
+                                        ng-bind="self.getWellSpec(well).xAxis.datasetName"></div>
                                     <div style="border-radius: 2px;padding: 1px 10px;"
-                                        ng-bind="self.getCurve(well).name"></div>
-                                    <span ng-class="{'red-color fa fa-eye-slash': well._notUsed, 'blue-color fa fa-eye': !well._notUsed }"
-                                        ng-click="self.toggleWell(well)"
+                                        ng-bind="self.getCurve(well, 'xAxis').name"></div>
+                                    <span ng-class="{'red-color fa fa-eye-slash': well._notUsed, 'blue-color fa fa-eye': !well._notUsed }" ng-click="self.toggleWell(well)"
                                         style="cursor: pointer; margin-right: 10px;">
                                     </span>
                                     <span class="fa fa-times-circle" ng-click="self.removeWell(well)"
                                         style="color: rgb(163, 163, 163);cursor: pointer;">
                                     </span>
                                 </div>
-
                             </div>
-                            <wi-tree-view ng-hide="well._hidden" tree-root="well" get-label="self.getLabel"
-                                filter="self.selectionValue" get-icon="self.getIcon" get-children="self.getChildren"
+                            <div
+										style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center; cursor: pointer;" class="axis-bar" ng-class='{"selected": well.isSettingAxis == "yAxis"}'
+										ng-click="well.isSettingAxis = 'yAxis'">
+                                <div style="display: flex; align-items: center;">
+                                    <i class="header-icon" ng-click="well._hidden = !well._hidden"></i>
+                                    <div ng-bind="'Y-Axis'"> </div>
+                                </div>
+                                <div style="display: flex; align-items: center;">
+                                    <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;"
+                                        ng-bind="self.getWellSpec(well).yAxis.datasetName"></div>
+                                    <div style="border-radius: 2px;padding: 1px 10px;"
+                                        ng-bind="self.getCurve(well, 'yAxis').name"></div>
+                                    <span style="cursor: pointer; width: 32.5px;">
+                                    </span>
+                                </div>
+                            </div>
+                            <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
+                                filter="well.isSettingAxis == 'xAxis' ? self.selectionXValue : self.selectionYValue" get-icon="self.getIcon" get-children="self.getChildren"
                                 keep-children='true' uncollapsible='true' run-match="self.runMatch"
                                 hide-unmatched="true" hide-search='true' click-fn='self.clickFunction'>
                             </wi-tree-view>
@@ -210,6 +218,22 @@
                         <div class="lable-option-sidebar">
                             <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
                                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                                    item-label="'Top'" item-value="self.getConfigTop" set-value="self.setConfigTop"
+                                    enabled="true" label-style="{}"
+                                    content-style="{flex:1,float:'none','text-align':'right'}">
+                                </editable>
+                            </div>
+                            <div style="margin-bottom: 15px; "></div>
+                            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+                                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                                    item-label="'Bottom'" item-value="self.getConfigBottom"
+                                    set-value="self.setConfigBottom" enabled="true" label-style="{}"
+                                    content-style="{flex:1,float:'none','text-align':'right'}">
+                                </editable>
+                            </div>
+                            <div style="margin-bottom: 15px; "></div>
+                            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+                                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                                     item-label="'Left'" item-value="self.getConfigLeft" set-value="self.setConfigLeft"
                                     enabled="true" label-style="{}"
                                     content-style="{flex:1,float:'none','text-align':'right'}">
@@ -220,15 +244,6 @@
                                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                                     item-label="'Right'" item-value="self.getConfigRight"
                                     set-value="self.setConfigRight" enabled="true" label-style="{}"
-                                    content-style="{flex:1,float:'none','text-align':'right'}">
-                                </editable>
-                            </div>
-                            <div style="margin-bottom: 15px; "></div>
-
-                            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                    item-label="'Divisions'" item-value="self.getConfigDivisions"
-                                    set-value="self.setConfigDivisions" enabled="true" label-style="{}"
                                     content-style="{flex:1,float:'none','text-align':'right'}">
                                 </editable>
                             </div>
@@ -248,6 +263,14 @@
                                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                                     item-label="'X Label'" item-value="self.getConfigXLabel"
                                     set-value="self.setConfigXLabel" enabled="true" label-style="{}"
+                                    content-style="{flex:1,float:'none','text-align':'right'}">
+                                </editable>
+                            </div>
+                            <div style="margin-bottom: 15px; "></div>
+                            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+                                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                                    item-label="'Y Label'" item-value="self.getConfigYLabel"
+                                    set-value="self.setConfigYLabel" enabled="true" label-style="{}"
                                     content-style="{flex:1,float:'none','text-align':'right'}">
                                 </editable>
                             </div>
@@ -344,7 +367,7 @@
                         </div>
                         <div class="lable-option-sidebar"
                             style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-                            <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Histogram Mode
+                            <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Crossplot Mode
                                 <div
                                     style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
                                 </div>
@@ -397,48 +420,8 @@
                         </div>
                     </div>
                 </div>
-                <div ng-show="isSet(4)" onmouseover="this.style.overflow='overlay'"
-                    onmouseout="this.style.overflow='hidden'" style="flex:1; padding: 15px;">
-                    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Table Header
-                        <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                        </div>
-                    </div>
-                    <div style="display: flex; flex-wrap: wrap;">
-                        <span ng-repeat="header in self.statisticHeaders track by $index" class="select-table-header"
-                            ng-class="{'active' : self.statisticHeaderMasks[$index]}"
-                            ng-click="self.statisticHeaderMasks[$index]= !self.statisticHeaderMasks[$index]">
-                            {{header}}</span>
-                    </div>
-<!-- 
-                    <div style="overflow: auto;">
-                        <wi-table-view ng-if="self.histogramList.length" row-count="self.getZoneNames().length"
-                            col-count="self.getHeaders().length" col-headers="self.getHeaders()"
-                            row-headers="self.getZoneNames()" accessor="self.statsValue">
-                        </wi-table-view>
-                    </div> -->
-                </div>
-                <div ng-show="isSet(5)" style="overflow: auto; flex: 1; display: flex; flex-direction: column;">
-                    <div style="display: flex; padding: 16px 16px 0px 16px;">
-                        <span ng-click="self.hideSelectedLayer()" class="button-with-lable-layer"
-                            style="margin-left: 0px;">Hide</span>
-                        <span ng-click="self.showSelectedLayer()" class="button-with-lable-layer"
-                            style="margin-left: 10px;">Show</span>
-                        <span ng-click="self.hideAllLayer()" class="button-with-lable-layer"
-                            style="margin-left: 10px;">Hide All</span>
-                        <span ng-click="self.showAllLayer()" class="button-with-lable-layer"
-                            style="margin-left: 10px;">Show All</span>
-                    </div>
-                    <div ng-show="self.histogramList"
-                        style="border: 1px solid #eee; margin: 15px 15px 5px 15px; overflow: hidden;">
-                        <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
-                            filter="self.layerFilter" get-icon="self.getLayerIcon" get-children="self.noChildren"
-                            keep-children='true' run-match="self.runLayerMatch" hide-unmatched="true"
-                            hide-search='false' click-fn='self.click2ToggleLayer'>
-                        </wi-tree-view>
-                    </div>
-                </div>
                 <div style="display: flex;">
-                    <span class="button-update" ng-click="self.genHistogramList()">
+                    <span class="button-update" ng-click="">
                         Update
                     </span>
                 </div>

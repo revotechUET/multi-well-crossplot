@@ -33,21 +33,21 @@
 
     <script src="./bower_components/plot-toolkit/dist/plot-toolkit.js"></script>
 
-    <script src="./dist/multi-well-histogram.js"></script>
+    <script src="./dist/multi-well-crossplot.js"></script>
 
 </head>
 
 <body ng-app="myApp" style="font-size: 12px;">
     <div style="width: 1100px; height:600px; margin: 10px;">
 
-        <multi-well-histogram
-            token="'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBodWMiLCJ3aG9hbWkiOiJtYWluLXNlcnZpY2UiLCJyb2xlIjoyLCJjb21wYW55IjoiSTJHIiwiaWF0IjoxNTU5NjE2MzY0LCJleHAiOjE1NjA0ODAzNjR9.1pCPi_CptaT-pwYIBgzzVJnp7JgijfiWksN6iui-3Gg'"
-            well-spec="[{idWell:91}]" zoneset-name="'111'" 
-            selection-type="'family-group'" selection-value='"Gamma Ray"'>
-        </multi-well-histogram>
+        <multi-well-crossplot
+            token="'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBodWMiLCJ3aG9hbWkiOiJtYWluLXNlcnZpY2UiLCJyb2xlIjoyLCJjb21wYW55IjoiSTJHIiwiaWF0IjoxNTU5OTE3NzY1LCJleHAiOjE1NjA3ODE3NjV9.wVL1tesRJZr5irbKLpuYGd_afQZNwC3LmkR-4rnpS4s'"
+			well-spec="[{idWell:91}, {idWell: 103}]" zoneset-name="'111'" 
+            selection-type="'family-group'" selection-x-value='"Gamma Ray"' selection-y-value='"Slowness"'>
+        </multi-well-crossplot>
     </div>
     <script>
-        angular.module("myApp", ["multiWellHistogram"]);
+        angular.module("myApp", ["multiWellCrossplot"]);
     </script>
 </body>
 
