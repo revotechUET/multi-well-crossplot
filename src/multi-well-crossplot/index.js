@@ -22,7 +22,8 @@ app.component(componentName, {
         selectionXValue: "<",
         selectionYValue: "<",
 		idCrossplot: "<",
-		config: '<'
+		config: '<',
+		onSave: '<'
     },
     transclude: true
 });
@@ -188,7 +189,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				wellSpec.yAxis.idDataset = node.idDataset;
 				break;
 			default:
-				console.log('---no axis support')
+				console.error('---no axis support')
 		}
     }
     this.refresh = function(){
@@ -394,7 +395,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 					self.defaultConfig.bottom = family.family_spec[0].maxScale;
 					break;
 				default:
-					console.log('---give me axis');
+					console.error('---give me axis');
 			}
 			self.defaultConfig.loga = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
 		}
@@ -454,23 +455,31 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				inputName: 'Crossplot Name',
 				input: self.getConfigTitle(),
 			}, function(name) {
+				content.config.title = name;
+				wiLoading.show($element.find('.main')[0]);
 				wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
 					self.setConfigTitle(null, name);
 					self.idCrossplot = res.idParameterSet;
+					wiLoading.hide();
 					console.log(res);
+					self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
 				})
 					.catch(e => {
 						console.error(e);
+						wiLoading.hide();
 						self.saveToAsset();
 					})
 			});
 		}
 		else {
+			wiLoading.show($element.find('.main')[0]);
 			content.idParameterSet = self.idParameterSet;
 			wiApi.editAssetPromise(self.idCrossplot, content).then(res => {
 				console.log(res);
+				wiLoading.hide();
 			})
 				.catch(e => {
+					wiLoading.hide();
 					console.error(e);
 				});
 		}
