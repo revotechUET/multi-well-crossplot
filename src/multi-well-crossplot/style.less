@@ -277,7 +277,7 @@ multi-well-crossplot {
 		.label-list-view {
 			padding        : 16px 15px;
 			font-weight    : bold;
-			background     : #f4f4f4;
+			background     : #fff;
 			// border      : 1px solid #eee;
 			display        : flex;
 			align-items    : center;
@@ -358,19 +358,15 @@ multi-well-crossplot {
 
 		.tab-with-lable {
 			cursor       : pointer;
-			background   : #f4f4f4;
-			font-size    : 12px;
-			padding      : 12px 10px 8px 10px;
-			border-bottom: 2px solid #f4f4f4;
+			opacity: 0.3;
 			transition   : all 0.2s ease-in;
-			flex         : 1;
+			transform: rotate(90deg);
+			margin: 25px 0px;
+			width: 40px;
 			font-weight: bold;
-			text-align   : center;
-
 			&.active {
-				// background   : #fff;
-				color           : #0077be;
-				border-bottom   : 2px solid #0077be;
+				opacity: 1;
+				color: #0077be;
 				transition      : all 0.2s ease-in;
 			}
 		}
@@ -440,12 +436,12 @@ multi-well-crossplot {
 	}
 
 	::-webkit-scrollbar {
-		background: #f4f4f4;
+		background: #fff;
 		width     : 5px;
 	}
 
 	::-webkit-scrollbar-thumb {
-		background-color: #dcdcdc;
+		background-color: #fff;
 	}
 
 	.fix-header-table {
