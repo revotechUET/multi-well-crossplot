@@ -645,15 +645,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 	this.layers = [];
 	this.genLayers = async function() {
 		self.layers = self.layers || []	;
-		for (let i = 0; i < self.treeConfig.length; i++) {
-			let well = self.treeConfig[i];
+		self.treeConfig.forEach(async well => {
 			if (well._notUsed) {
-				continue;
+				return;
 			}
 			let curveX = self.getCurve(well, 'xAxis');
 			let curveY = self.getCurve(well, 'yAxis');
 			if (!curveX || !curveY) {
-				continue;
+				return;
 			}
 
 			let curveDataX = await wiApi.getCachedCurveDataPromise(curveX.idCurve);
@@ -662,9 +661,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 			$timeout(() => {
 				self.layers.push({
 					dataX: curveDataX.map(d => d.x),
-					dataY: curveDataY.map(d => d.x)
+					dataY: curveDataY.map(d => d.x),
+					color: well.color
 				})
 			})
-		}
+		})
 	}
 }
