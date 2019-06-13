@@ -12,37 +12,27 @@
 
             <div class="main-body-center border-style" style="position: relative;">
                 <layer-collection v-padding="50" h-padding='60'>
-                    <axis-layer min-val="self.getLeft()" max-val="self.config.right || self.defaultConfig.right || 1"
-                        loga="self.getLoga()" n-ticks="self.config.majorTicks || 10"
-                        minor-ticks="self.config.minorTicks || 1" precision="4" grid="!!self.config.grid" placement="1">
+                    <axis-layer min-val="self.getLeft()" max-val="self.getRight()"
+                        loga="self.getLogaX()" n-ticks="self.getMajorX() * self.getMinorX()"
+                        minor-ticks="self.getMinorX()" precision="4" grid="!!self.config.grid" placement="1">
                     </axis-layer>
-                    <axis-layer min-val='self.minY || 0' max-val='self.maxY || 100' n-ticks="10" minor-ticks="1"
+                    <axis-layer min-val='self.getBottom()' max-val='self.getTop()' n-ticks="self.getMajorY() * self.getMinorY()" minor-ticks="self.getMinorY()" loga="self.getLogaY()"
                         precision="4" grid="!!self.config.grid" axis-direction="'up'" placement="0"></axis-layer>
-                    <axis-layer min-val="0" max-val="100" n-ticks="10" minor-ticks="1" precision="4"
-                        grid="!!self.config.grid" axis-direction="'up'" placement="1"></axis-layer>
-                    <canvas-barchart-layer ng-show="!bins._notUsed"
-                        ng-if="self.getDisplayMode() == 'bar' && self.getStackMode() == 'none'"
-                        ng-repeat="bins in self.crossplotList" min-val="self.getLeft()" max-val="self.getRight()"
-                        min-y='self.minY || 0' max-y='self.maxY || 100' loga="self.getLoga()" autofit='false'
-                        bins="bins" bin-gap="self.getBinGap()" color-func="self.colorFn">
-                    </canvas-barchart-layer>
-                    <canvas-barchart-layer ng-show="!groupOfBins._notUsed" ng-if="self.getDisplayMode() == 'bar' && 
-                        self.getStackMode() == 'well'" ng-repeat="groupOfBins in self.crossplotList"
-                        min-val="self.getLeft()" max-val="self.getRight()" min-y='self.minY || 0'
-                        max-y='self.maxY || 100' loga="self.getLoga()" autofit='false' bins="groupOfBins"
-                        bin-gap="self.getBinGap()" color-func="self.colorFn" multiple='true'>
-                    </canvas-barchart-layer>
-                    <canvas-barchart-layer ng-show="!self.crossplotList._notUsed" ng-if="self.getDisplayMode() == 'bar' && 
-                        self.getStackMode() == 'all'" min-val="self.getLeft()" max-val="self.getRight()"
-                        min-y='self.minY || 0' max-y='self.maxY || 100' loga="self.getLoga()" autofit='false'
-                        bins="self.crossplotList" bin-gap="self.getBinGap()" color-func="self.colorFn" multiple='true'>
-                    </canvas-barchart-layer>
-                    <line-point-layer ng-if="self.getDisplayMode() === 'line' && !bins._notUsed"
-                        ng-repeat="bins in self.crossplotList" min-val="self.getLeft()" max-val="self.getRight()"
-                        min-y='self.minY || 0' max-y='self.maxY || 100' loga="self.getLoga()" autofit='false'
-                        get-x='self.getBinX' get-y='self.getBinY' line-data="bins" line-color="bins.color"
-                        line-width='2' line-dash="'2 0'" color-func="self.colorFn">
-                    </line-point-layer>
+					<line-formula-layer
+                    min-val='self.getLeft()' max-val="self.getRight()"
+                    min-draw='self.getLeft()' max-draw="self.getRight()"
+					min-y="self.getBottom()"
+					min-draw-y="self.getBottom()"
+					max-y="self.getTop()" 
+					max-draw-y="self.getTop()"
+					ortho-loga="self.getLogaY()" loga="self.getLogaX()"                
+					formula="udl"
+                    eqn-offsets="['50px', '0%']"
+                    line-color="udl.lineStyle.lineColor" 
+					line-dash="udl.lineStyle.lineStyle.join(' ')"
+					line-width="udl.lineStyle.lineWidth"	
+					ng-repeat="udl in self.udls" show-equation='true'>
+					</line-formula-layer>
                 </layer-collection>
                 <p style="position: absolute;left: 50%; transform: translateX(-50%); bottom: 0">
                     {{self.getConfigXLabel()}} </p>
@@ -50,20 +40,8 @@
                     style="position: absolute; top: 23px; right: 45%;text-transform: uppercase; font-weight: bold; transform: translateY(-50%);">
                     {{self.getConfigTitle()}}</p>
                 <p style="position: absolute;top: 23px;left: 15px; transform: translateY(-50%);">Frequency</p>
-                <p style="position: absolute;top: 23px; right: 15px;transform: translateY(-50%);">Percentage (%)</p>
             </div>
             <div class="statistic-table">
-                <!-- <div style="font-size: 12px; display: flex; margin-bottom: 10px;">Statistics
-                    <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                    </div>
-                </div> -->
-                <!-- <div style="display: flex; flex-wrap: wrap;">
-                    <span ng-repeat="header in self.statisticHeaders track by $index" class="select-table-header"
-                        ng-class="{'active' : self.statisticHeaderMasks[$index]}"
-                        ng-click="self.statisticHeaderMasks[$index]= !self.statisticHeaderMasks[$index]">
-                        {{header}}</span>
-                </div> -->
-
                 <div style="overflow: auto; position: absolute;">
                     <wi-table-view ng-if="self.crossplotList.length" row-count="self.getZoneNames().length"
                         col-count="self.getHeaders().length" col-headers="self.getHeaders()"
@@ -199,222 +177,221 @@
 
                         </div>
                         <div ng-show="isSet(3)" style="
-                        overflow: hidden;
+                        overflow: auto;
                         flex: 1;
                         display: flex;
                         flex-direction: column;">
                             <div class="lable-option-sidebar" style="margin-top: 10px;">
-                                <span>OPTIONS</span>
+                                <span>General Options</span>
                             </div>
-                            <div style="overflow: auto;">
-                                <div class="lable-option-sidebar">
-                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                            item-label="'Top'" item-value="self.getConfigTop"
-                                            set-value="self.setConfigTop" enabled="true" label-style="{}"
-                                            content-style="{flex:1,float:'none','text-align':'right'}">
-                                        </editable>
-                                    </div>
-                                    <div style="margin-bottom: 15px; "></div>
-                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                            item-label="'Bottom'" item-value="self.getConfigBottom"
-                                            set-value="self.setConfigBottom" enabled="true" label-style="{}"
-                                            content-style="{flex:1,float:'none','text-align':'right'}">
-                                        </editable>
-                                    </div>
-                                    <div style="margin-bottom: 15px; "></div>
-                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                            item-label="'Left'" item-value="self.getConfigLeft"
-                                            set-value="self.setConfigLeft" enabled="true" label-style="{}"
-                                            content-style="{flex:1,float:'none','text-align':'right'}">
-                                        </editable>
-                                    </div>
-                                    <div style="margin-bottom: 15px; "></div>
-                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                            item-label="'Right'" item-value="self.getConfigRight"
-                                            set-value="self.setConfigRight" enabled="true" label-style="{}"
-                                            content-style="{flex:1,float:'none','text-align':'right'}">
-                                        </editable>
-                                    </div>
-                                    <div style="margin-bottom: 15px; "></div>
+							<div class="lable-option-sidebar">
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Title'" item-value="self.getConfigTitle"
+										set-value="self.setConfigTitle" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
 
-                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                            item-label="'Title'" item-value="self.getConfigTitle"
-                                            set-value="self.setConfigTitle" enabled="true" label-style="{}"
-                                            content-style="{flex:1,float:'none','text-align':'right'}">
-                                        </editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+							</div>
 
-                                    </div>
-                                    <div style="margin-bottom: 15px; "></div>
+                            <div class="lable-option-sidebar" style="margin-top: 10px;">
+                                <span>X Axis Options</span>
+                            </div>
+							<div class="lable-option-sidebar">
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Left'" item-value="self.getConfigLeft"
+										set-value="self.setConfigLeft" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Right'" item-value="self.getConfigRight"
+										set-value="self.setConfigRight" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Major X'" item-value="self.getConfigMajorX"
+										set-value="self.setConfigMajorX" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Minor X'" item-value="self.getConfigMinorX"
+										set-value="self.setConfigMinorX" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
 
-                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                            item-label="'X Label'" item-value="self.getConfigXLabel"
-                                            set-value="self.setConfigXLabel" enabled="true" label-style="{}"
-                                            content-style="{flex:1,float:'none','text-align':'right'}">
-                                        </editable>
-                                    </div>
-                                    <div style="margin-bottom: 15px; "></div>
-                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                            item-label="'Y Label'" item-value="self.getConfigYLabel"
-                                            set-value="self.setConfigYLabel" enabled="true" label-style="{}"
-                                            content-style="{flex:1,float:'none','text-align':'right'}">
-                                        </editable>
-                                    </div>
-                                </div>
-                                <div class="lable-option-sidebar"
-                                    style="padding: 20px 20px; display: flex; justify-content: space-between;   flex-direction: column;">
-                                    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Scale and Grid
-                                        <div
-                                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span ng-class="{'active' : self.config.loga}"
-                                            ng-click="self.config.loga = !self.config.loga" class="button-with-lable"
-                                            style="margin-right: 8px;">Log Scale</span>
-                                        <span ng-class="{'active' : self.config.grid}"
-                                            ng-click="self.config.grid = !self.config.grid" class="button-with-lable"
-                                            style="margin-right: 8px;">Show Grid</span>
-                                        <span ng-class="{'active' : self.config.flipHorizontal}"
-                                            ng-click="self.config.flipHorizontal = !self.config.flipHorizontal"
-                                            class="button-with-lable">Flip-H</span>
-                                    </div>
-                                </div>
-                                <div class="lable-option-sidebar"
-                                    style="padding: 20px 20px; display: flex; justify-content: space-between; flex-direction: column;">
-                                    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Display Mode
-                                        <div
-                                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <span ng-class="{'active' : self.config.displayMode === 'bar'}"
-                                            ng-click="self.config.displayMode='bar'" class="button-with-lable"
-                                            style="margin-right: 8px;"> Bar Mode</span>
-                                        <span ng-class="{'active' : self.config.displayMode === 'line'}"
-                                            ng-click="self.config.displayMode='line'" class="button-with-lable">Line
-                                            Mode</span>
-                                    </div>
-
-                                </div>
-                                <div class="lable-option-sidebar"
-                                    style="padding: 20px 20px; display: flex; justify-content: space-between; flex-direction: column;">
-                                    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Assistive Lines
-                                        <div
-                                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span ng-class="{'active' : self.config.showCumulative}"
-                                            ng-click="self.config.showCumulative = !self.config.showCumulative"
-                                            class="button-with-lable" style="margin-right: 8px;"> Show Cumulative</span>
-                                        <span ng-class="{'active' : self.config.showGaussian}"
-                                            ng-click="self.config.showGaussian = !self.config.showGaussian"
-                                            class="button-with-lable" style="margin-right: 8px;"> Show Gaussian</span>
-                                    </div>
-                                </div>
-                                <div class="lable-option-sidebar"
-                                    style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-                                    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Color Mode
-                                        <div
-                                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span ng-class="{'active' : self.config.colorMode === 'zone'}"
-                                            ng-click="self.config.colorMode='zone'" class="button-with-lable"
-                                            style="margin-right: 8px;"> Zone Color</span>
-                                        <span ng-class="{'active' : self.config.colorMode === 'well'}"
-                                            style="margin-right: 8px;" ng-click="self.config.colorMode='well'"
-                                            class="button-with-lable">Well Color</span>
-                                        <span ng-class="{'active' : self.config.colorMode === 'user'}"
-                                            ng-click="self.config.colorMode='user'" class="button-with-lable">User
-                                            Defined</span>
-                                    </div>
-                                </div>
-                                <div class="lable-option-sidebar"
-                                    style="padding: 20px 20px; display: flex; justify-content: space-between; flex-direction: column;">
-                                    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Stack Mode
-                                        <div
-                                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span ng-class="{'active' : self.config.stackMode === 'none'}"
-                                            ng-click="self.config.stackMode='none'" class="button-with-lable"
-                                            style="margin-right: 8px;">No Stack</span>
-                                        <span ng-class="{'active' : self.config.stackMode === 'well'}"
-                                            style="margin-right: 8px;" ng-click="self.config.stackMode='well'"
-                                            class="button-with-lable">Well</span>
-                                        <span ng-class="{'active' : self.config.stackMode === 'all'}"
-                                            ng-click="self.config.stackMode='all'" class="button-with-lable">All</span>
-                                    </div>
-                                </div>
-                                <div class="lable-option-sidebar"
-                                    style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-                                    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Crossplot Mode
-                                        <div
-                                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span ng-class="{'active' : self.selectConfig === 'option1'}"
-                                            ng-click="self.selectConfig='option1'" class="button-with-lable"
-                                            style="margin-right: 8px;"> Frequency count</span>
-                                        <span ng-class="{'active' : self.selectConfig === 'option2'}"
-                                            ng-click="self.selectConfig='option2'"
-                                            class="button-with-lable">Percentile</span>
-                                    </div>
-
-                                </div>
-                                <div class="lable-option-sidebar"
-                                    style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-                                    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Depth Limitation
-                                        Mode
-                                        <div
-                                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div ng-show="self.config.limitType === 'interval'">
-                                            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                                <editable
-                                                    style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                                    item-label="'Top'" item-value="self.getConfigLimitTop"
-                                                    set-value="self.setConfigLimitTop" enabled="true" label-style="{}"
-                                                    content-style="{flex:1,float:'none','text-align':'right'}">
-                                                </editable>
-                                            </div>
-                                            <div style="margin-bottom: 15px; "></div>
-                                            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
-                                                <editable
-                                                    style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                                    item-label="'Bottom'" item-value="self.getConfigLimitBottom"
-                                                    set-value="self.setConfigLimitBottom" enabled="true"
-                                                    label-style="{}"
-                                                    content-style="{flex:1,float:'none','text-align':'right'}">
-                                                </editable>
-                                            </div>
-                                            <div style="margin-bottom: 15px; "></div>
-                                        </div>
-                                        <span ng-class="{'active' : self.config.limitType === 'interval'}"
-                                            ng-click="self. config.limitType = 'interval'" class="button-with-lable"
-                                            style="margin-right: 8px;"> Interval Depth</span>
-                                        <span ng-class="{'active' : self.config.limitType === 'zonal'}"
-                                            ng-click="self.config.limitType = 'zonal'" class="button-with-lable">Zonal
-                                            Depth</span>
-                                        <div style="margin-bottom: 15px; "></div>
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'X Label'" item-value="self.getConfigXLabel"
+										set-value="self.setConfigXLabel" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+							</div>
 
 
-                                    </div>
-                                </div>
+                            <div class="lable-option-sidebar" style="margin-top: 10px;">
+                                <span>Y Axis Options</span>
+                            </div>
+							<div class="lable-option-sidebar">
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Top'" item-value="self.getConfigTop"
+										set-value="self.setConfigTop" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Bottom'" item-value="self.getConfigBottom"
+										set-value="self.setConfigBottom" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+								<div style="margin-bottom: 15px; "></div>
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Major Y'" item-value="self.getConfigMajorY"
+										set-value="self.setConfigMajorY" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Minor Y'" item-value="self.getConfigMinorY"
+										set-value="self.setConfigMinorY" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Y Label'" item-value="self.getConfigYLabel"
+										set-value="self.setConfigYLabel" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+							</div>
+
+							<div class="lable-option-sidebar"
+								style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
+								<div style="font-size: 10px;display: flex;margin-bottom: 16px;">Log scales
+									<div
+										style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+									</div>
+								</div>
+								<div>
+									<span ng-class="{'active' : self.getLogaX()}"
+										style="margin-right: 8px;" ng-click="self.config.logaX=!self.config.logaX"
+										class="button-with-lable">Loga X</span>
+									<span ng-class="{'active' : self.getLogaY()}"
+										style="margin-right: 8px;" ng-click="self.config.logaY=!self.config.logaY"
+										class="button-with-lable">Loga Y</span>
+								</div>
+							</div>
+
+
+							<div class="lable-option-sidebar"
+								style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
+								<div style="font-size: 10px;display: flex;margin-bottom: 16px;">Color Mode
+									<div
+										style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+									</div>
+								</div>
+								<div>
+									<span ng-class="{'active' : self.config.colorMode === 'zone'}"
+										ng-click="self.config.colorMode='zone'" class="button-with-lable"
+										style="margin-right: 8px;"> Zone Color</span>
+									<span ng-class="{'active' : self.config.colorMode === 'well'}"
+										style="margin-right: 8px;" ng-click="self.config.colorMode='well'"
+										class="button-with-lable">Well Color</span>
+									<span ng-class="{'active' : self.config.colorMode === 'user'}"
+										ng-click="self.config.colorMode='user'" class="button-with-lable">User
+										Defined</span>
+								</div>
+							</div>
+							<div class="lable-option-sidebar"
+								style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
+								<div style="font-size: 10px;display: flex;margin-bottom: 16px;">Depth Limitation
+									Mode
+									<div
+										style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+									</div>
+								</div>
+								<div>
+									<div ng-show="self.config.limitType === 'interval'">
+										<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+											<editable
+												style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+												item-label="'Top'" item-value="self.getConfigLimitTop"
+												set-value="self.setConfigLimitTop" enabled="true" label-style="{}"
+												content-style="{flex:1,float:'none','text-align':'right'}">
+											</editable>
+										</div>
+										<div style="margin-bottom: 15px; "></div>
+										<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+											<editable
+												style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+												item-label="'Bottom'" item-value="self.getConfigLimitBottom"
+												set-value="self.setConfigLimitBottom" enabled="true"
+												label-style="{}"
+												content-style="{flex:1,float:'none','text-align':'right'}">
+											</editable>
+										</div>
+										<div style="margin-bottom: 15px; "></div>
+									</div>
+									<span ng-class="{'active' : self.config.limitType === 'interval'}"
+										ng-click="self. config.limitType = 'interval'" class="button-with-lable"
+										style="margin-right: 8px;"> Interval Depth</span>
+									<span ng-class="{'active' : self.config.limitType === 'zonal'}"
+										ng-click="self.config.limitType = 'zonal'" class="button-with-lable">Zonal
+										Depth</span>
+									<div style="margin-bottom: 15px; "></div>
+
+
+								</div>
+							</div>
+                        </div>
+                        <div ng-show="isSet(6)"
+                            style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+							<button class='btn btn-default' ng-click="self.addUDL()">Add</button>
+                            <div class="lable-option-sidebar" ng-repeat="udl in self.udls">
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Fn'" item-value="self.getFnUDL" params="$index"
+										set-value="self.setFnUDL" enabled="true" label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
+								<div style="font-size: 10px;display: flex;margin-bottom: 16px;">Line Style
+									<div
+										style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+									</div>
+								</div>
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<line-style bind-line-style="udl.lineStyle"></line-style>
+								</div>
+								<div style="margin-bottom: 15px; "></div>
                             </div>
                         </div>
                         <div style="display: flex;">
@@ -429,15 +406,19 @@
                         flex-direction: column;
                         justify-content: start;
                         padding: 0px;">
-                        <div class="tab-with-lable" ng-class="{'active' : isSet(1)}" ng-click="setTab(1)">Tab 1
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(1)}" ng-click="setTab(1)">Wells
                         </div>
-                        <div class="tab-with-lable" ng-class="{'active' : isSet(2)}" ng-click="setTab(2)">Tab 2
+						<div class="tab-with-lable" ng-class="{'active' : isSet(2)}" ng-click="setTab(2)">Zone
                         </div>
-                        <div class="tab-with-lable" ng-class="{'active' : isSet(3)}" ng-click="setTab(3)">Tab 3
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(3)}" ng-click="setTab(3)">Config
                         </div>
-                        <div class="tab-with-lable" ng-class="{'active' : isSet(4)}" ng-click="setTab(4)">Tab 4
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(4)}" ng-click="setTab(4)">Z Axis
                         </div>
-                        <div class="tab-with-lable" ng-class="{'active' : isSet(5)}" ng-click="setTab(5)">Tab 5
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(5)}" ng-click="setTab(5)">Print Setting
+                        </div>
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">User Defined Line
+                        </div>
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">Regression Line
                         </div>
                     </div>
                 </div>

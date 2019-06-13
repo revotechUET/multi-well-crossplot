@@ -6,8 +6,11 @@ const _DECIMAL_LEN = 4;
 
 var app = angular.module(componentName, [
     'sideBar', 'wiTreeView', 'wiTableView',
-    'wiApi', 'editable', 'wiDialog',
-    'wiDroppable', 'wiDropdownList','plot-toolkit','wiLoading'
+    'wiApi', 'editable', 
+	'wiDialog',
+    'wiDroppable', 'wiDropdownList', 
+	'plot-toolkit', 
+	'wiLoading', 'line-style'
 ]);
 app.component(componentName, {
     template: require('./template.html'),
@@ -23,7 +26,8 @@ app.component(componentName, {
         selectionYValue: "<",
 		idCrossplot: "<",
 		config: '<',
-		onSave: '<'
+		onSave: '<',
+		udls: '<'
     },
     transclude: true
 });
@@ -94,7 +98,18 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.selectionType = self.selectionType || 'family-group';
         self.zoneTree = [];
         self.zonesetName = self.zonesetName || "ZonationAll";
-        self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5};
+        self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
+		self.udls = self.udls || [];
+		// self.familyFormulaList = [
+		// 	{
+		// 		data:{label:'Linear'}, 
+		// 		properties:{name:'Linear'} 
+		// 	},
+		// 	{
+		// 		data:{label:'Exponential'}, 
+		// 		properties:{name:'Exponential'} 
+		// 	}
+		// ];
     }
 
     this.onInputXSelectionChanged = function(selectedItemProps) {
@@ -337,6 +352,34 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.setConfigRight = function(notUse, newValue) {
         self.config.right = parseFloat(newValue);
     }
+    this.getConfigMajorX = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.majorX) ? "[empty]": wiApi.bestNumberFormat(self.config.majorX, 3);
+    }
+    this.setConfigMajorX = function(notUse, newValue) {
+        self.config.majorX = parseFloat(newValue);
+    }
+    this.getConfigMajorY = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.majorY) ? "[empty]": wiApi.bestNumberFormat(self.config.majorY, 3);
+    }
+    this.setConfigMajorY = function(notUse, newValue) {
+        self.config.majorY = parseFloat(newValue);
+    }
+    this.getConfigMinorX = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.minorX) ? "[empty]": wiApi.bestNumberFormat(self.config.minorX, 3);
+    }
+    this.setConfigMinorX = function(notUse, newValue) {
+        self.config.minorX = parseFloat(newValue);
+    }
+    this.getConfigMinorY = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.minorY) ? "[empty]": wiApi.bestNumberFormat(self.config.minorY, 3);
+    }
+    this.setConfigMinorY = function(notUse, newValue) {
+        self.config.minorY = parseFloat(newValue);
+    }
     this.getConfigTop = function() {
         self.config = self.config || {};
         return isNaN(self.config.top) ? "[empty]": wiApi.bestNumberFormat(self.config.top, 3);
@@ -360,17 +403,41 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.getConfigXLabel = function() {
         self.config = self.config || {};
-        return (self.config.xLabel || "").length ? self.config.xLabel : self.selectionXValue;
+        return (self.config.xLabel || "").length ? self.config.xLabel : self.getCurve(self.treeConfig[0], 'xAxis').name;
     }
     this.setConfigXLabel = function(notUse, newValue) {
         self.config.xLabel = newValue;
     }
     this.getConfigYLabel = function() {
         self.config = self.config || {};
-        return (self.config.yLabel || "").length ? self.config.yLabel : self.selectionYValue;
+        return (self.config.yLabel || "").length ? self.config.yLabel : self.getCurve(self.treeConfig[0], 'yAxis').name;
     }
     this.setConfigYLabel = function(notUse, newValue) {
         self.config.yLabel = newValue;
+    }
+    this.getFnUDL = function(index) {
+        return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+    }
+    this.setFnUDL = function(index, newValue) {
+        self.udls[index].text = newValue;
+    }
+    this.getLineStyleUDL = function(index) {
+        return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+    }
+    this.setLineStyleUDL = function(index, newValue) {
+        self.udls[index].text = newValue;
+    }
+    this.getLineWidthUDL = function(index) {
+        return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+    }
+    this.setLineWidthUDL = function(index, newValue) {
+        self.udls[index].text = newValue;
+    }
+    this.getLineColorUDL = function(index) {
+        return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+    }
+    this.setLineColorUDL = function(index, newValue) {
+        self.udls[index].text = newValue;
     }
     function clearDefaultConfig() {
         self.defaultConfig = {};
@@ -389,15 +456,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				case 'xAxis':
 					self.defaultConfig.left = family.family_spec[0].minScale;
 					self.defaultConfig.right = family.family_spec[0].maxScale;
+					self.defaultConfig.logaX = (family.family_spec[0].displayType.toLowerCase() === 'logarithmic');
 					break;
 				case 'yAxis':
-					self.defaultConfig.top = family.family_spec[0].minScale;
-					self.defaultConfig.bottom = family.family_spec[0].maxScale;
+					self.defaultConfig.top = family.family_spec[0].maxScale;
+					self.defaultConfig.bottom = family.family_spec[0].minScale;
+					self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
 					break;
 				default:
 					console.error('---give me axis');
 			}
-			self.defaultConfig.loga = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
 		}
     }
 
@@ -418,11 +486,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return curveData.filter(d => ((zone.startDepth - d.depth)*(zone.endDepth - d.depth) <= 0));
     }
 
-    this.getTop = () => ( self.config.top || self.defaultConfig.top || 0 )
-    this.getBottom = () => ( self.config.bottom || self.defaultConfig.bottom || 0 )
-    this.getLeft = () => ( self.config.left || self.defaultConfig.left || 0 )
-    this.getRight = () => ( self.config.right || self.defaultConfig.right || 0 )
-    this.getLoga = () => (self.config.loga || self.defaultConfig.loga || 0)
+    this.getTop = () => (isNaN(self.config.top) ? (self.defaultConfig.top || 0) : self.config.top)
+    this.getBottom = () => (isNaN(self.config.bottom) ? (self.defaultConfig.bottom || 0) : self.config.bottom)
+    this.getLeft = () => (isNaN(self.config.left) ? (self.defaultConfig.left || 0) : self.config.left)
+    this.getRight = () => (isNaN(self.config.right) ? (self.defaultConfig.right || 0) : self.config.right)
+    this.getMajorX = () => ( self.config.majorX || self.defaultConfig.majorX || 5 )
+    this.getMajorY = () => ( self.config.majorY || self.defaultConfig.majorY || 5 )
+    this.getMinorX = () => ( self.config.minorX || self.defaultConfig.minorX || 1 )
+    this.getMinorY = () => ( self.config.minorY || self.defaultConfig.minorY || 1 )
+    this.getLogaX = () => (self.config.logaX || self.defaultConfig.logaX || 0)
+    this.getLogaY = () => (self.config.logaY || self.defaultConfig.logaY || 0)
     this.getColorMode = () => (self.config.colorMode || self.defaultConfig.colorMode || 'zone')
     this.getColor = (zone, well) => {
         let cMode = self.getColorMode();
@@ -532,5 +605,19 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             self.wellSpec.splice(index, 1);
         }
     }
-    
+  
+	self.addUDL = function() {
+		let udl = {};
+		udl.text = "";
+		udl.fn = (function(x) { 
+			return eval(this.text);
+		}).bind(udl);
+		udl.lineStyle = {
+		    lineColor: 'green',
+		    lineWidth: 1,
+		    lineStyle: [10, 0]
+		};
+		udl.latex = "y = x^2";
+		self.udls.push(udl);
+	}
 }
