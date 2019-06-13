@@ -24,8 +24,12 @@ app.component(componentName, {
         selectionType: "<",
         selectionXValue: "<",
         selectionYValue: "<",
+        selectionZ1Value: "<",
+        selectionZ2Value: "<",
+        selectionZ3Value: "<",
 		idCrossplot: "<",
 		config: '<',
+		printSettings: '<',
 		onSave: '<',
 		udls: '<'
     },
@@ -80,10 +84,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 getSelectionList(self.selectionType, self.treeConfig);
                 updateDefaultConfig();
             });
-            $scope.$watch(() => (self.selectionXValue), () => {
-                updateDefaultConfig();
-            });
-            $scope.$watch(() => (self.selectionYValue), () => {
+			$scope.$watch(() => {
+				return `${self.selectionXValue}-${self.selectionYValue}`;
+			}, () => {
                 updateDefaultConfig();
             });
             $scope.$watch(() => (self.treeConfig.map(w => w.idWell)), () => {
@@ -99,17 +102,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.zoneTree = [];
         self.zonesetName = self.zonesetName || "ZonationAll";
         self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
+		self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left'};
 		self.udls = self.udls || [];
-		// self.familyFormulaList = [
-		// 	{
-		// 		data:{label:'Linear'}, 
-		// 		properties:{name:'Linear'} 
-		// 	},
-		// 	{
-		// 		data:{label:'Exponential'}, 
-		// 		properties:{name:'Exponential'} 
-		// 	}
-		// ];
     }
 
     this.onInputXSelectionChanged = function(selectedItemProps) {
@@ -119,6 +113,34 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.onInputYSelectionChanged = function(selectedItemProps) {
         self.selectionYValue = (selectedItemProps || {}).name;
     }
+
+    this.onInputZ1SelectionChanged = function(selectedItemProps) {
+        self.selectionZ1Value = (selectedItemProps || {}).name;
+    }
+
+    this.onInputZ2SelectionChanged = function(selectedItemProps) {
+        self.selectionZ2Value = (selectedItemProps || {}).name;
+    }
+
+    this.onInputZ3SelectionChanged = function(selectedItemProps) {
+        self.selectionZ3Value = (selectedItemProps || {}).name;
+    }
+
+	this.getFilterForWell = (axis) => {
+		switch(axis) {
+			case 'xAxis':
+				return self.selectionXValue;
+			case 'yAxis':
+				return self.selectionYValue;
+			case 'z1Axis':
+				return self.selectionZ1Value;
+			case 'z2Axis':
+				return self.selectionZ2Value;
+			case 'z3Axis':
+				return self.selectionZ3Value;
+			default:
+		}
+	}
 
     function getSelectionList(selectionType, wellArray) {
         let selectionHash = {};
@@ -204,7 +226,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				wellSpec.yAxis.idDataset = node.idDataset;
 				break;
 			default:
-				console.error('---no axis support')
 		}
     }
     this.refresh = function(){
@@ -219,6 +240,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 			try {
 				let well = await wiApi.getCachedWellPromise(w.idWell || w);
 				well.isSettingAxis = 'xAxis';
+				well.isSettingZAxis = 'z1Axis'
 				$timeout(() => self.treeConfig.push(well));
 			}
 			catch(e) {
@@ -273,7 +295,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let wellSpec = getWellSpec(well);
         if (!Object.keys(wellSpec).length) return {};
 		let axis = requiredAxis || well.isSettingAxis;
-        let curves = getCurvesInWell(well).filter(c => self.runMatch(c, axis == 'xAxis' ? self.selectionXValue : self.selectionYValue));
+        let curves = getCurvesInWell(well).filter(c => self.runMatch(c, self.getFilterForWell(axis)));
         let curve = wellSpec[axis] && wellSpec[axis].idCurve ? curves.find(c => c.idCurve === wellSpec[axis].idCurve) : curves[0];
         if (!curve) {
 			wellSpec[axis] = {};
@@ -403,14 +425,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.getConfigXLabel = function() {
         self.config = self.config || {};
-        return (self.config.xLabel || "").length ? self.config.xLabel : self.getCurve(self.treeConfig[0], 'xAxis').name;
+        return (self.config.xLabel || "").length ? self.config.xLabel : ((self.getCurve(self.treeConfig[0], 'xAxis')||{}).name || '[Unknown]');
     }
     this.setConfigXLabel = function(notUse, newValue) {
         self.config.xLabel = newValue;
     }
     this.getConfigYLabel = function() {
         self.config = self.config || {};
-        return (self.config.yLabel || "").length ? self.config.yLabel : self.getCurve(self.treeConfig[0], 'yAxis').name;
+        return (self.config.yLabel || "").length ? self.config.yLabel : ((self.getCurve(self.treeConfig[0], 'yAxis') || {}).name || '[Unknown]');
     }
     this.setConfigYLabel = function(notUse, newValue) {
         self.config.yLabel = newValue;
@@ -612,12 +634,37 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		udl.fn = (function(x) { 
 			return eval(this.text);
 		}).bind(udl);
+		udl.latex = "y = x^2";
 		udl.lineStyle = {
-		    lineColor: 'green',
+		    lineColor: 'red',
 		    lineWidth: 1,
 		    lineStyle: [10, 0]
 		};
-		udl.latex = "y = x^2";
 		self.udls.push(udl);
+	}
+	this.layers = [];
+	this.genLayers = async function() {
+		self.layers = self.layers || []	;
+		for (let i = 0; i < self.treeConfig.length; i++) {
+			let well = self.treeConfig[i];
+			if (well._notUsed) {
+				continue;
+			}
+			let curveX = self.getCurve(well, 'xAxis');
+			let curveY = self.getCurve(well, 'yAxis');
+			if (!curveX || !curveY) {
+				continue;
+			}
+
+			let curveDataX = await wiApi.getCachedCurveDataPromise(curveX.idCurve);
+			let curveDataY = await wiApi.getCachedCurveDataPromise(curveY.idCurve);
+
+			$timeout(() => {
+				self.layers.push({
+					dataX: curveDataX.map(d => d.x),
+					dataY: curveDataY.map(d => d.x)
+				})
+			})
+		}
 	}
 }

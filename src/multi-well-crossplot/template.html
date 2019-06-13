@@ -18,6 +18,14 @@
                     </axis-layer>
                     <axis-layer min-val='self.getBottom()' max-val='self.getTop()' n-ticks="self.getMajorY() * self.getMinorY()" minor-ticks="self.getMinorY()" loga="self.getLogaY()"
                         precision="4" grid="!!self.config.grid" axis-direction="'up'" placement="0"></axis-layer>
+					<scatter-layer min-val="self.getLeft()" max-val="self.getRight()" 
+					min-y="self.getBottom()" max-y="self.getTop()" 
+					loga="self.getLogaX()" ortho-loga="self.getLogaY()"
+                    my-data-x="layer.dataX" my-data-y="layer.dataY" 
+					symbol="'diamond'" symbol-size="10" symbol-fill-style="'red'" symbol-stroke-style="'red'"
+					ng-repeat="layer in self.layers"
+					>
+					</scatter-layer>
 					<line-formula-layer
                     min-val='self.getLeft()' max-val="self.getRight()"
                     min-draw='self.getLeft()' max-draw="self.getRight()"
@@ -39,7 +47,7 @@
                 <p
                     style="position: absolute; top: 23px; right: 45%;text-transform: uppercase; font-weight: bold; transform: translateY(-50%);">
                     {{self.getConfigTitle()}}</p>
-                <p style="position: absolute;top: 23px;left: 15px; transform: translateY(-50%);">Frequency</p>
+				<p style="position: absolute;top: 23px;left: 15px; transform: translateY(-50%);">{{self.getConfigYLabel()}}</p>
             </div>
             <div class="statistic-table">
                 <div style="overflow: auto; position: absolute;">
@@ -93,19 +101,14 @@
                                 <div style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px; cursor: pointer;"
                                     ng-repeat='well in self.treeConfig'>
                                     <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;"
-                                        class="axis-bar" ng-class='{"selected": well.isSettingAxis == "xAxis"}'
-                                        ng-click="well.isSettingAxis = 'xAxis'">
+                                        class="axis-bar">
                                         <div style="display: flex; align-items: center;">
                                             <i class="header-icon"
                                                 ng-class="{'fa fa-caret-down': !well._hidden, 'fa fa-caret-right': well._hidden}"
                                                 ng-click="well._hidden = !well._hidden"></i>
-                                            <div ng-bind="'X-Axis'"> </div>
+											<div ng-bind="well.name"></div>
                                         </div>
                                         <div style="display: flex; align-items: center;">
-                                            <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;"
-                                                ng-bind="self.getWellSpec(well).xAxis.datasetName"></div>
-                                            <div style="border-radius: 2px;padding: 1px 10px;"
-                                                ng-bind="self.getCurve(well, 'xAxis').name"></div>
                                             <span
                                                 ng-class="{'red-color fa fa-eye-slash': well._notUsed, 'blue-color fa fa-eye': !well._notUsed }"
                                                 ng-click="self.toggleWell(well)"
@@ -116,11 +119,25 @@
                                             </span>
                                         </div>
                                     </div>
+                                    <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;"
+                                        class="axis-bar" ng-class='{"selected": well.isSettingAxis == "xAxis"}'
+                                        ng-click="well.isSettingAxis = 'xAxis'">
+                                        <div style="display: flex; align-items: center;">
+                                            <i class="header-icon"></i>
+                                            <div ng-bind="'X-Axis'"> </div>
+                                        </div>
+                                        <div style="display: flex; align-items: center;">
+                                            <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;"
+                                                ng-bind="self.getWellSpec(well).xAxis.datasetName"></div>
+                                            <div style="border-radius: 2px;padding: 1px 10px;"
+                                                ng-bind="self.getCurve(well, 'xAxis').name"></div>
+                                        </div>
+                                    </div>
                                     <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center; cursor: pointer;"
                                         class="axis-bar" ng-class='{"selected": well.isSettingAxis == "yAxis"}'
                                         ng-click="well.isSettingAxis = 'yAxis'">
                                         <div style="display: flex; align-items: center;">
-                                            <i class="header-icon" ng-click="well._hidden = !well._hidden"></i>
+                                            <i class="header-icon"></i>
                                             <div ng-bind="'Y-Axis'"> </div>
                                         </div>
                                         <div style="display: flex; align-items: center;">
@@ -128,12 +145,10 @@
                                                 ng-bind="self.getWellSpec(well).yAxis.datasetName"></div>
                                             <div style="border-radius: 2px;padding: 1px 10px;"
                                                 ng-bind="self.getCurve(well, 'yAxis').name"></div>
-                                            <span style="cursor: pointer; width: 32.5px;">
-                                            </span>
                                         </div>
                                     </div>
                                     <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
-                                        filter="well.isSettingAxis == 'xAxis' ? self.selectionXValue : self.selectionYValue"
+                                        filter="self.getFilterForWell(well.isSettingAxis)"
                                         get-icon="self.getIcon" get-children="self.getChildren" keep-children='true'
                                         uncollapsible='true' run-match="self.runMatch" hide-unmatched="true"
                                         hide-search='true' click-fn='self.clickFunction'>
@@ -366,8 +381,192 @@
 										ng-click="self.config.limitType = 'zonal'" class="button-with-lable">Zonal
 										Depth</span>
 									<div style="margin-bottom: 15px; "></div>
-
-
+								</div>
+							</div>
+                        </div>
+                        <!-- <div ng-show="isSet(4)" style=" -->
+                        <!-- overflow: auto; -->
+                        <!-- flex: 1; -->
+                        <!-- display: flex; -->
+                        <!-- flex-direction: column;"> -->
+                        <!--     <div class="lable-option-sidebar" -->
+                        <!--         style="margin-top: 10px; display: flex; justify-content: space-between;"> -->
+                        <!--         <span>INPUT</span> -->
+                        <!--         <div> -->
+                        <!--             <span ng-class="{'active' : self.selectionType === 'family-group'}" -->
+                        <!--                 ng-click="self.selectionType='family-group'" class="button-with-lable" -->
+                        <!--                 style="margin-right: 8px;">family-group</span> -->
+                        <!--             <span ng-class="{'active' : self.selectionType === 'family'}" -->
+                        <!--                 ng-click="self.selectionType='family'" class="button-with-lable" -->
+                        <!--                 style="margin-right: 8px;">family</span> -->
+                        <!--             <span ng-class="{'active' : self.selectionType === 'curve'}" -->
+                        <!--                 ng-click="self.selectionType='curve'" class="button-with-lable">curve</span> -->
+                        <!--         </div> -->
+                        <!--     </div> -->
+                        <!--     <div class="lable-option-sidebar"> -->
+                        <!--         <div class="selection-sidebar"> -->
+                        <!--             <span>Color Z1 Axis</span> -->
+                        <!--             <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList' -->
+                        <!--                 current-select="self.selectionZ1Value" -->
+                        <!--                 on-item-changed="self.onInputZ1SelectionChanged"> -->
+                        <!--             </wi-dropdown-list> -->
+                        <!--         </div> -->
+                        <!--     </div> -->
+                        <!--     <div class="lable-option-sidebar"> -->
+                        <!--         <div class="selection-sidebar"> -->
+                        <!--             <span>Size Z2 Axis</span> -->
+                        <!--             <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList' -->
+                        <!--                 current-select="self.selectionZ2Value" -->
+                        <!--                 on-item-changed="self.onInputZ2SelectionChanged"> -->
+                        <!--             </wi-dropdown-list> -->
+                        <!--         </div> -->
+                        <!--     </div> -->
+                        <!--     <div class="lable-option-sidebar"> -->
+                        <!--         <div class="selection-sidebar"> -->
+                        <!--             <span>Label Z3 Axis</span> -->
+                        <!--             <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList' -->
+                        <!--                 current-select="self.selectionZ3Value" -->
+                        <!--                 on-item-changed="self.onInputZ3SelectionChanged"> -->
+                        <!--             </wi-dropdown-list> -->
+                        <!--         </div> -->
+                        <!--     </div> -->
+                        <!--     <div style="overflow: auto; display:flex; flex-direction: column;"> -->
+                        <!--         <div style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px; cursor: pointer;" -->
+                        <!--             ng-repeat='well in self.treeConfig'> -->
+                        <!--             <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;" -->
+                        <!--                 class="axis-bar"> -->
+                        <!--                 <div style="display: flex; align-items: center;"> -->
+                        <!--                     <i class="header-icon" -->
+                        <!--                         ng-class="{'fa fa-caret-down': !well._hidden, 'fa fa-caret-right': well._hidden}" -->
+                        <!--                         ng-click="well._hidden = !well._hidden"></i> -->
+											<!-- <div ng-bind="well.name"></div> -->
+                        <!--                 </div> -->
+                        <!--                 <div style="display: flex; align-items: center;"> -->
+                        <!--                     <span -->
+                        <!--                         ng-class="{'red-color fa fa-eye-slash': well._notUsed, 'blue-color fa fa-eye': !well._notUsed }" -->
+                        <!--                         ng-click="self.toggleWell(well)" -->
+                        <!--                         style="cursor: pointer; margin-right: 10px;"> -->
+                        <!--                     </span> -->
+                        <!--                     <span class="fa fa-times-circle" ng-click="self.removeWell(well)" -->
+                        <!--                         style="color: rgb(163, 163, 163);cursor: pointer;"> -->
+                        <!--                     </span> -->
+                        <!--                 </div> -->
+                        <!--             </div> -->
+                        <!--             <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center; cursor: pointer;" -->
+                        <!--                 class="axis-bar" ng-class='{"selected": well.isSettingZAxis == "z1Axis"}' -->
+                        <!--                 ng-click="well.isSettingZAxis = 'z1Axis'"> -->
+                        <!--                 <div style="display: flex; align-items: center;"> -->
+                        <!--                     <i class="header-icon"></i> -->
+                        <!--                     <div ng-bind="'Z1-Axis'"> </div> -->
+                        <!--                 </div> -->
+                        <!--                 <div style="display: flex; align-items: center;"> -->
+                        <!--                     <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;" -->
+                        <!--                         ng-bind="self.getWellSpec(well).z1Axis.datasetName"></div> -->
+                        <!--                     <div style="border-radius: 2px;padding: 1px 10px;" -->
+                        <!--                         ng-bind="self.getCurve(well, 'z1Axis').name"></div> -->
+                        <!--                 </div> -->
+                        <!--             </div> -->
+                        <!--             <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center; cursor: pointer;" -->
+                        <!--                 class="axis-bar" ng-class='{"selected": well.isSettingZAxis == "z2Axis"}' -->
+                        <!--                 ng-click="well.isSettingZAxis = 'z2Axis'"> -->
+                        <!--                 <div style="display: flex; align-items: center;"> -->
+                        <!--                     <i class="header-icon"></i> -->
+                        <!--                     <div ng-bind="'Z2-Axis'"> </div> -->
+                        <!--                 </div> -->
+                        <!--                 <div style="display: flex; align-items: center;"> -->
+                        <!--                     <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;" -->
+                        <!--                         ng-bind="self.getWellSpec(well).z2Axis.datasetName"></div> -->
+                        <!--                     <div style="border-radius: 2px;padding: 1px 10px;" -->
+                        <!--                         ng-bind="self.getCurve(well, 'z2Axis').name"></div> -->
+                        <!--                 </div> -->
+                        <!--             </div> -->
+                        <!--             <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center; cursor: pointer;" -->
+                        <!--                 class="axis-bar" ng-class='{"selected": well.isSettingZAxis == "z3Axis"}' -->
+                        <!--                 ng-click="well.isSettingZAxis = 'z3Axis'"> -->
+                        <!--                 <div style="display: flex; align-items: center;"> -->
+                        <!--                     <i class="header-icon"></i> -->
+                        <!--                     <div ng-bind="'Z3-Axis'"> </div> -->
+                        <!--                 </div> -->
+                        <!--                 <div style="display: flex; align-items: center;"> -->
+                        <!--                     <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;" -->
+                        <!--                         ng-bind="self.getWellSpec(well).z3Axis.datasetName"></div> -->
+                        <!--                     <div style="border-radius: 2px;padding: 1px 10px;" -->
+                        <!--                         ng-bind="self.getCurve(well, 'z3Axis').name"></div> -->
+                        <!--                 </div> -->
+                        <!--             </div> -->
+									<!-- <span>{{self.getFilterForWell(well.isSettingZAxis)}}</span> -->
+                        <!--             <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel" -->
+                        <!--                 filter="self.getFilterForWell(well.isSettingZAxis)" -->
+                        <!--                 get-icon="self.getIcon" get-children="self.getChildren" keep-children='true' -->
+                        <!--                 uncollapsible='true' run-match="self.runMatch" hide-unmatched="true" -->
+                        <!--                 hide-search='true' click-fn='self.clickFunction'> -->
+                        <!--             </wi-tree-view> -->
+                        <!--         </div> -->
+                        <!--     </div> -->
+						<!-- </div> -->
+                        <div ng-show="isSet(5)"
+                            style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+							<div class="lable-option-sidebar"
+								style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
+								<div style="font-size: 10px;display: flex;margin-bottom: 16px;">Orientation
+									<div
+										style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+									</div>
+								</div>
+								<div>
+									<span ng-class="{'active' : self.printSettings.orientation === 'portrait'}"
+										ng-click="self.printSettings.orientation='portrait'" class="button-with-lable"
+										style="margin-right: 8px;">Portrait</span>
+									<span ng-class="{'active' : self.printSettings.orientation === 'landscape'}"
+										style="margin-right: 8px;" ng-click="self.printSettings.orientation='landscape'"
+										class="button-with-lable">Landscape</span>
+								</div>
+							</div>
+							<div class="lable-option-sidebar"
+								style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
+								<div style="font-size: 10px;display: flex;margin-bottom: 16px;">Aspect Ratio
+									<div
+										style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+									</div>
+								</div>
+								<div>
+									<span ng-class="{'active' : self.printSettings.aspectRatio === '16:9'}"
+										ng-click="self.printSettings.aspectRatio='16:9'" class="button-with-lable"
+										style="margin-right: 8px;">16:9</span>
+									<span ng-class="{'active' : self.printSettings.aspectRatio === '4:3'}"
+										style="margin-right: 8px;" ng-click="self.printSettings.aspectRatio='4:3'"
+										class="button-with-lable">4:3</span>
+								</div>
+							</div>
+							<div class="lable-option-sidebar"
+								style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
+								<div style="font-size: 10px;display: flex;margin-bottom: 16px;">Alignment
+									<div
+										style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+									</div>
+								</div>
+								<div>
+									<span ng-class="{'active' : self.printSettings.alignment === 'left'}"
+										ng-click="self.printSettings.alignment='left'" class="button-with-lable"
+										style="margin-right: 8px;">Left</span>
+									<span ng-class="{'active' : self.printSettings.alignment === 'center'}"
+										style="margin-right: 8px;" ng-click="self.printSettings.alignment='center'"
+										class="button-with-lable">Center</span>
+									<span ng-class="{'active' : self.printSettings.alignment === 'right'}"
+										style="margin-right: 8px;" ng-click="self.printSettings.alignment='right'"
+										class="button-with-lable">Right</span>
+								</div>
+							</div>
+							<div class="lable-option-sidebar"
+								style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+									<editable
+										style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+										item-label="'Width(mm)'" item-value="self.printSettings.width"
+										set-value="self.setWidthPrintSettings" enabled="true"
+										label-style="{}"
+										content-style="{flex:1,float:'none','text-align':'right'}">
+									</editable>
 								</div>
 							</div>
                         </div>
@@ -388,14 +587,14 @@
 										style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
 									</div>
 								</div>
-								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px; cursor: pointer;">
 									<line-style bind-line-style="udl.lineStyle"></line-style>
 								</div>
 								<div style="margin-bottom: 15px; "></div>
                             </div>
                         </div>
                         <div style="display: flex;">
-                            <span class="button-update" ng-click="">
+                            <span class="button-update" ng-click="self.genLayers()">
                                 Update
                             </span>
                         </div>
@@ -416,7 +615,7 @@
                         </div>
                         <div class="tab-with-lable" ng-class="{'active' : isSet(5)}" ng-click="setTab(5)">Print Setting
                         </div>
-                        <div class="tab-with-lable" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">User Defined Line
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">Formula
                         </div>
                         <div class="tab-with-lable" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">Regression Line
                         </div>
