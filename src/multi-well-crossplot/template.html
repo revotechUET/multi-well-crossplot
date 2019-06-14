@@ -566,8 +566,24 @@
                         </div>
                         <div ng-show="isSet(6)"
                             style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-							<button class='btn btn-default' ng-click="self.addUDL()">Add</button>
-                            <div class="lable-option-sidebar" ng-repeat="udl in self.udls">
+                            <div class='bottom-add' ng-click="self.addUDL()">Add</div>
+                            <div style="overflow: overlay;">
+                                <div class="list-formular" ng-repeat="udl in self.udls">
+                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 4; margin-right: 15px; border: none;">
+                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                                            item-label="'Fn'" item-value="self.getFnUDL" params="$index"
+                                            set-value="self.setFnUDL" enabled="true" label-style="{}"
+                                            content-style="{flex:1,float:'none','text-align':'right'}">
+                                        </editable>
+                                    </div>
+                                    <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
+                                        <line-style bind-line-style="udl.lineStyle"></line-style>
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                            <!-- <div class="lable-option-sidebar" ng-repeat="udl in self.udls">
 								<div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
 									<editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
 										item-label="'Fn'" item-value="self.getFnUDL" params="$index"
@@ -585,28 +601,7 @@
 									<line-style bind-line-style="udl.lineStyle"></line-style>
 								</div>
 								<div style="margin-bottom: 15px; "></div>
-                            </div>
-						</div>
-						<div ng-show="isSet(8)" style="overflow: auto; flex: 1; display: flex; flex-direction: column;">
-                            <div style="display: flex; padding: 16px 16px 0px 16px;">
-                                <span ng-click="self.hideSelectedLayer()" class="button-with-lable-layer"
-                                    style="margin-left: 0px;">Hide</span>
-                                <span ng-click="self.showSelectedLayer()" class="button-with-lable-layer"
-                                    style="margin-left: 15px;">Show</span>
-                                <span ng-click="self.hideAllLayer()" class="button-with-lable-layer"
-                                    style="margin-left: 15px;">Hide All</span>
-                                <span ng-click="self.showAllLayer()" class="button-with-lable-layer"
-                                    style="margin-left: 15px;">Show All</span>
-                            </div>
-                            <div ng-show="self.layers"
-                                style="border: 1px solid #eee; margin: 15px 15px 5px 15px; overflow: hidden;">
-                                <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
-                                    filter="self.layerFilter" get-icon="self.getLayerIcon" get-icons="self.getLayerIcons"
-                                    get-children="self.noChildren" icon-style="self.getLayerIconStyle" keep-children='true'
-                                    run-match="self.runLayerMatch" hide-unmatched="true" hide-search='false'
-                                    click-fn='self.click2ToggleLayer'>
-                                </wi-tree-view>
-                            </div>
+                            </div> -->
                         </div>
 						<div style="display: flex;">
 							<span class="button-update" ng-click="self.genLayers()">

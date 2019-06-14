@@ -267,6 +267,7 @@ multi-well-crossplot {
 			text-align   : center;
 			margin       : 9px 15px 15px 15px;
 			border-radius: 2px;
+			transition      : all 0.2s ease-in;
 			cursor: pointer;
 			&:hover{
 				background: #1ba0ec;
@@ -442,6 +443,29 @@ multi-well-crossplot {
 			width: 4px;                                                         
 			right: 0;
 		}
+	}
+	.bottom-add {
+		background: #f4f4f4;
+		padding: 10px;
+		border-radius: 2px; 
+		text-align: center;
+		margin: 15px 15px 0 15px;
+		cursor: pointer;
+		transition      : all 0.2s ease-in;
+
+		&:hover{
+			background: #e7e7e7;
+			transition      : all 0.2s ease-in;
+
+		}
+	}
+	.list-formular {
+		padding: 0 15px;
+		margin: 15px;
+		display: flex; 
+		// background: #f4f4f4;
+		border-radius: 2px; 
+		border: 1px solid #ddd;
 	}
 
 	::-webkit-scrollbar {
