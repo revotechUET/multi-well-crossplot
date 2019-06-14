@@ -229,6 +229,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		}
 	}
 	this.refresh = function(){
+		self.layers.length = 0;
 		self.treeConfig.length = 0;
 		getTree();
 	};
@@ -345,6 +346,26 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		node._notUsed = !node._notUsed;
 		self.selectedZones = Object.values(selectedObjs).map(o => o.data);
 	}
+	this.click2ToggleLayer = function ($event, node, selectedObjs) {
+		node._notUsed = !node._notUsed;
+		self.selectedLayers = Object.values(selectedObjs).map(o => o.data);
+	}
+
+	this.runLayerMatch = function (node, criteria) {
+		let keySearch = criteria.toLowerCase();
+		let searchArray = node.name.toLowerCase();
+		return searchArray.includes(keySearch);
+	}
+	let _layerTree = [];
+	this.getLayerTree = function() {
+		return self.layers;
+	}
+	this.getLayerLabel = (node) => node.name
+	this.getLayerIcon = (node) => ( (node && !node._notUsed) ? 'layer-16x16': 'fa fa-eye-slash' )
+	this.getLayerIcons = (node) => ( ["rectangle"] )
+	this.getLayerIconStyle = (node) => ( {
+		'background-color': node.color
+	} )
 
 	this.getConfigLeft = function() {
 		self.config = self.config || {};
@@ -522,7 +543,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 	this.getColorMode = () => (self.config.colorMode || self.defaultConfig.colorMode || 'zone')
 	this.getColor = (zone, well) => {
 		let cMode = self.getColorMode();
-		return cMode === 'zone' ? zone.zone_template.background:(cMode === 'well'?well.color:'blue');
+		return cMode === 'zone' ? zone.zone_template.background:(cMode === 'well'?well.color:'red');
 	}
 
 	this.saveToAsset = function() {
@@ -547,7 +568,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 					self.setConfigTitle(null, name);
 					self.idCrossplot = res.idParameterSet;
 					wiLoading.hide();
-					console.log(res);
 					self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
 				})
 					.catch(e => {
@@ -560,7 +580,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 			wiLoading.show($element.find('.main')[0]);
 			content.idParameterSet = self.idParameterSet;
 			wiApi.editAssetPromise(self.idCrossplot, content).then(res => {
-				console.log(res);
 				wiLoading.hide();
 			})
 				.catch(e => {
@@ -578,6 +597,34 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 	}
 
 	//--------------
+	this.click2ToggleLayer = function ($event, node, selectedObjs) {            
+		node._notUsed = !node._notUsed;                                         
+		self.selectedLayers = Object.values(selectedObjs).map(o => o.data);     
+	}                                                                           
+
+	this.runLayerMatch = function (node, criteria) {                            
+		let keySearch = criteria.toLowerCase();                                 
+		let searchArray = node.name.toLowerCase();                              
+		return searchArray.includes(keySearch);                                 
+	}                                                                           
+	//--------------
+	this.hideSelectedLayer = function() {                                                                                                                            
+		if(!self.selectedLayers) return;                                        
+		self.selectedLayers.forEach(layer => layer._notUsed = true);            
+	}                                                                           
+	this.showSelectedLayer = function() {                                       
+		if(!self.selectedLayers) return;                                        
+		self.selectedLayers.forEach(layer => layer._notUsed = false);           
+		$timeout(() => {});                                                     
+	}                                                                           
+	this.hideAllLayer = function() {                                            
+		self.histogramList.forEach(bins => bins._notUsed = true);               
+		$timeout(() => {});                                                     
+	}                                                                           
+	this.showAllLayer = function() {                                            
+		self.histogramList.forEach(bins => bins._notUsed = false);              
+		$timeout(() => {});                                                     
+	}
 
 	this.hideSelectedZone = function() {
 		if(!self.selectedZones) return;
@@ -694,7 +741,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 						layers.push({
 							dataX: dataArrayX.map(d => d.x),
 							dataY: dataArrayY.map(d => d.x),
-							color: self.getColor(zone, well)
+							color: self.getColor(zone, well),
+							name: `${well.name}.${zone.zone_template.name}`
 						});
 					})
 				})
@@ -703,7 +751,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 					layers.push({
 						dataX: curveDataX.map(d => d.x),
 						dataY: curveDataY.map(d => d.x),
-						color: well.color 
+						color: well.color ,
+						name: well.name
 					});
 				})
 			}

@@ -18,11 +18,13 @@
                     </axis-layer>
                     <axis-layer min-val='self.getBottom()' max-val='self.getTop()' n-ticks="self.getMajorY() * self.getMinorY()" minor-ticks="self.getMinorY()" loga="self.getLogaY()"
                         precision="4" grid="!!self.config.grid" axis-direction="'up'" placement="0"></axis-layer>
-					<scatter-layer min-val="self.getLeft()" max-val="self.getRight()" 
+					<scatter-layer ng-show="!layer._notUsed"
+					min-val="self.getLeft()" max-val="self.getRight()" 
 					min-y="self.getBottom()" max-y="self.getTop()" 
 					loga="self.getLogaX()" ortho-loga="self.getLogaY()"
                     my-data-x="layer.dataX" my-data-y="layer.dataY" 
 					symbol="'diamond'" symbol-size="5" symbol-fill-style="layer.color"
+					symbol-stroke-style="'transparent'"
 					ng-repeat="layer in self.layers"
 					>
 					</scatter-layer>
@@ -592,12 +594,33 @@
 								</div>
 								<div style="margin-bottom: 15px; "></div>
                             </div>
+						</div>
+						<div ng-show="isSet(8)" style="overflow: auto; flex: 1; display: flex; flex-direction: column;">
+                            <div style="display: flex; padding: 16px 16px 0px 16px;">
+                                <span ng-click="self.hideSelectedLayer()" class="button-with-lable-layer"
+                                    style="margin-left: 0px;">Hide</span>
+                                <span ng-click="self.showSelectedLayer()" class="button-with-lable-layer"
+                                    style="margin-left: 15px;">Show</span>
+                                <span ng-click="self.hideAllLayer()" class="button-with-lable-layer"
+                                    style="margin-left: 15px;">Hide All</span>
+                                <span ng-click="self.showAllLayer()" class="button-with-lable-layer"
+                                    style="margin-left: 15px;">Show All</span>
+                            </div>
+                            <div ng-show="self.layers"
+                                style="border: 1px solid #eee; margin: 15px 15px 5px 15px; overflow: hidden;">
+                                <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
+                                    filter="self.layerFilter" get-icon="self.getLayerIcon" get-icons="self.getLayerIcons"
+                                    get-children="self.noChildren" icon-style="self.getLayerIconStyle" keep-children='true'
+                                    run-match="self.runLayerMatch" hide-unmatched="true" hide-search='false'
+                                    click-fn='self.click2ToggleLayer'>
+                                </wi-tree-view>
+                            </div>
                         </div>
-                        <div style="display: flex;">
-                            <span class="button-update" ng-click="self.genLayers()">
-                                Update
-                            </span>
-                        </div>
+						<div style="display: flex;">
+							<span class="button-update" ng-click="self.genLayers()">
+								Update
+								</span>
+						</div>
                     </div>
                     <div class="label-list-view" 
                         style=" display :flex;
@@ -618,6 +641,8 @@
                         <div class="tab-with-lable" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">Formula
                         </div>
                         <div class="tab-with-lable" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">Regression Line
+                        </div>
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(8)}" ng-click="setTab(8)">Layers
                         </div>
                     </div>
                 </div>
