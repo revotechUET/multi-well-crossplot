@@ -736,7 +736,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 					dataArrayX.bottom = zone.endDepth;
 					dataArrayY.top = zone.startDepth;
 					dataArrayY.bottom = zone.endDepth;
-					console.log(self.getColor(zone, well));
 					$timeout(() => {
 						layers.push({
 							dataX: dataArrayX.map(d => d.x),
