@@ -283,6 +283,8 @@ multi-well-crossplot {
 			align-items    : center;
 			justify-content: space-between;
 			font-weight    : 400;
+			right: 0;
+			position: sticky;
 		}
 
 		.label-info-image {
@@ -309,7 +311,7 @@ multi-well-crossplot {
 			color     : #fff;
 		}
 		.header-icon {
-			margin-right: 10px; 
+			margin-right: 15px; 
 			cursor: pointer; 
 			width: 10px;
 		}
@@ -419,10 +421,17 @@ multi-well-crossplot {
 	}
 
 	.axis-bar {
+		background: #fff;
+		border-radius: 2px;
+		font-size: 10px;
+		display: flex; 
+		align-items: center;
+		padding: 8px 10px;
 		&.selected {                                                                                                                              
-			&::after {                                                          
-				background-color: #0077be;                                      
-			}                                                                   
+			                                                          
+				font-weight: bold;
+				color: #0077be;                                    
+			                                                                 
 		}	
 
 		&::after {                                                              
