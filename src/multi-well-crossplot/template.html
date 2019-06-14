@@ -23,7 +23,7 @@
 					min-y="self.getBottom()" max-y="self.getTop()" 
 					loga="self.getLogaX()" ortho-loga="self.getLogaY()"
                     my-data-x="layer.dataX" my-data-y="layer.dataY" 
-					symbol="'diamond'" symbol-size="5" symbol-fill-style="layer.color"
+					symbol="'circle'" symbol-size="5" symbol-fill-style="layer.color"
 					symbol-stroke-style="'transparent'"
 					ng-repeat="layer in self.layers"
 					>
@@ -602,6 +602,37 @@
 								</div>
 								<div style="margin-bottom: 15px; "></div>
                             </div> -->
+                            </div>
+						</div>
+                        <div ng-show="isSet(8)"
+                            style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+                            <!-- <div class="lable-option-sidebar"> -->
+                            <!--     <div class="selection-sidebar"> -->
+                            <!--         <span>Zoneset</span> -->
+                            <!--         <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.zonesetList' -->
+                            <!--             current-select="self.zonesetName" -->
+                            <!--             on-item-changed="self.onZonesetSelectionChanged"> -->
+                            <!--         </wi-dropdown-list> -->
+                            <!--     </div> -->
+                            <!-- </div> -->
+                            <div style="display: flex; padding: 16px 16px 0px 16px;">
+                                <span ng-click="self.hideSelectedLayer()" class="button-with-lable-layer"
+                                    style="margin-left: 0px;">Hide</span>
+                                <span ng-click="self.showSelectedLayer()" class="button-with-lable-layer"
+                                    style="margin-left: 15px;">Show</span>
+                                <span ng-click="self.hideAllLayer()" class="button-with-lable-layer"
+                                    style="margin-left: 15px;">Hide All</span>
+                                <span ng-click="self.showAllLayer()" class="button-with-lable-layer"
+                                    style="margin-left: 15px;">Show All</span>
+                            </div>
+                            <div ng-show="self.layers"
+                                style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; ">
+                                <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
+                                    filter="self.layerFilter" get-icon="self.getLayerIcon" get-icons="self.getLayerIcons" 
+									get-children="self.noChildren" keep-children='true' run-match="self.runLayerMatch" 
+									hide-unmatched="true" hide-search='false' click-fn='self.click2ToggleLayer'>
+                                </wi-tree-view>
+                            </div>
                         </div>
 						<div style="display: flex;">
 							<span class="button-update" ng-click="self.genLayers()">
