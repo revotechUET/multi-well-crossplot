@@ -59,7 +59,7 @@
             </div>
         </div>
         <div style=" height: 100%; right: 0; border-left: 1px solid #eee; box-shadow: 0 0 20px #0000001c;">
-            <side-bar my-default-width="400" orientation="w" collapsed="false">
+            <side-bar my-default-width="420" orientation="w" collapsed="false">
                 <div style="display: flex; flex-direction: row; height: 100%;">
                     
                     <div style="display: flex; flex-direction: column; width: 100%;">
@@ -97,54 +97,46 @@
                                     </wi-dropdown-list>
                                 </div>
                             </div>
-                            <div style="overflow: auto; display:flex; flex-direction: column;">
+                            <div style="overflow: overlay; display:flex; flex-direction: column;">
                                 <div style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px; cursor: pointer;"
                                     ng-repeat='well in self.treeConfig'>
-                                    <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;"
+                                    <div style="display: flex; flex-direction: row;padding: 15px 15px 6px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;"
                                         class="axis-bar">
                                         <div style="display: flex; align-items: center;">
-                                            <i class="header-icon"
-                                                ng-class="{'fa fa-caret-down': !well._hidden, 'fa fa-caret-right': well._hidden}"
-                                                ng-click="well._hidden = !well._hidden"></i>
-											<div ng-bind="well.name"></div>
-                                        </div>
-                                        <div style="display: flex; align-items: center;">
+                                            <i class="header-icon"ng-class="{'fa fa-caret-down': !well._hidden, 'fa fa-caret-right': well._hidden}"ng-click="well._hidden = !well._hidden"></i>
                                             <span
                                                 ng-class="{'red-color fa fa-eye-slash': well._notUsed, 'blue-color fa fa-eye': !well._notUsed }"
                                                 ng-click="self.toggleWell(well)"
-                                                style="cursor: pointer; margin-right: 10px;">
+                                                style="cursor: pointer; margin-right: 15px;">
                                             </span>
                                             <span class="fa fa-times-circle" ng-click="self.removeWell(well)"
-                                                style="color: rgb(163, 163, 163);cursor: pointer;">
+                                                style="color: rgb(163, 163, 163);cursor: pointer;margin-right: 15px;">
                                             </span>
+                                            <div ng-bind="well.name" style="font-weight: bold;"></div>
                                         </div>
                                     </div>
-                                    <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;"
-                                        class="axis-bar" ng-class='{"selected": well.isSettingAxis == "xAxis"}'
+                                    <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding:11px 15px 15px 15px;background: #f4f4f4; align-items: center;justify-content: flex-start;text-align: center;">
+                                        <div class="axis-bar" ng-class='{"selected": well.isSettingAxis == "xAxis"}' style="margin-right: 7px;"
                                         ng-click="well.isSettingAxis = 'xAxis'">
-                                        <div style="display: flex; align-items: center;">
-                                            <i class="header-icon"></i>
-                                            <div ng-bind="'X-Axis'"> </div>
-                                        </div>
-                                        <div style="display: flex; align-items: center;">
-                                            <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;"
+                                            <div ng-bind="'X'"> </div>
+                                            <div style="margin: 0 10px;
+                                                        max-width: 70px;
+                                                        white-space: nowrap;
+                                                        text-overflow: ellipsis;
+                                                        overflow: hidden;" 
                                                 ng-bind="self.getWellSpec(well).xAxis.datasetName"></div>
-                                            <div style="border-radius: 2px;padding: 1px 10px;"
-                                                ng-bind="self.getCurve(well, 'xAxis').name"></div>
+                                            <div ng-bind="self.getCurve(well, 'xAxis').name"></div>
                                         </div>
-                                    </div>
-                                    <div style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding: 8px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center; cursor: pointer;"
-                                        class="axis-bar" ng-class='{"selected": well.isSettingAxis == "yAxis"}'
+                                        <div class="axis-bar" style="margin-left: 7px;" ng-class='{"selected": well.isSettingAxis == "yAxis"}'
                                         ng-click="well.isSettingAxis = 'yAxis'">
-                                        <div style="display: flex; align-items: center;">
-                                            <i class="header-icon"></i>
-                                            <div ng-bind="'Y-Axis'"> </div>
-                                        </div>
-                                        <div style="display: flex; align-items: center;">
-                                            <div style="border-radius: 2px;padding: 1px 10px;  margin-right: 10px;"
+                                            <div ng-bind="'Y'"> </div>
+                                            <div style="margin: 0 10px;
+                                                        max-width: 70px;
+                                                        white-space: nowrap;
+                                                        text-overflow: ellipsis;
+                                                        overflow: hidden;" 
                                                 ng-bind="self.getWellSpec(well).yAxis.datasetName"></div>
-                                            <div style="border-radius: 2px;padding: 1px 10px;"
-                                                ng-bind="self.getCurve(well, 'yAxis').name"></div>
+                                            <div ng-bind="self.getCurve(well, 'yAxis').name"></div>
                                         </div>
                                     </div>
                                     <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
