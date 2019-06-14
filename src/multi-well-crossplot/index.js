@@ -1,6 +1,7 @@
 var componentName = 'multiWellCrossplot';
 module.exports.name = componentName;
 require('./style.less');
+const regression = require('../../bower_components/regression-js/dist/regression.js');
 
 const _DECIMAL_LEN = 4;
 
@@ -31,7 +32,8 @@ app.component(componentName, {
 		config: '<',
 		printSettings: '<',
 		onSave: '<',
-		udls: '<'
+		udls: '<',
+		regs: '<',
 	},
 	transclude: true
 });
@@ -94,7 +96,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				getZonesetsFromWells(self.treeConfig);
 				updateDefaultConfig();
 			}, true);
-		}, 500);
+		}, 700);
 
 		self.defaultConfig = self.defaultConfig || {};
 		self.wellSpec = self.wellSpec || [];
@@ -104,6 +106,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
 		self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left'};
 		self.udls = self.udls || [];
+		self.regs = self.regs || [];
 	}
 
 	this.onInputXSelectionChanged = function(selectedItemProps) {
@@ -350,6 +353,26 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		node._notUsed = !node._notUsed;
 		self.selectedLayers = Object.values(selectedObjs).map(o => o.data);
 	}
+	this.click2ToggleRegression = function ($event, node, selectedObjs) {
+		node._useReg = !node._useReg;
+		if (node._useReg) {
+			let data = node.dataX.map((x, i) => {
+				return [x, node.dataY[i]];
+			})
+			let result = regression.linear(data);
+			console.log(result);
+			node.reg = {
+				family: 'linear', 
+				slope: result.equation[0], 
+				intercept: result.equation[1],
+				lineStyle: [10, 0],
+				lineColor: node.color,
+				lineWidth: 1
+			};
+			console.log(self.layers);
+		}
+		// self.selectedLayers = Object.values(selectedObjs).map(o => o.data);
+	}
 
 	this.runLayerMatch = function (node, criteria) {
 		let keySearch = criteria.toLowerCase();
@@ -362,7 +385,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 	}
 	this.getLayerLabel = (node) => node.name
 	this.getLayerIcon = (node) => ( (node && !node._notUsed) ? 'layer-16x16': 'fa fa-eye-slash' )
+	this.getRegIcon = (node) => ( (node && node._useReg) ? 'layer-16x16': 'fa fa-eye-slash' )
 	this.getLayerIcons = (node) => ( ["rectangle"] )
+	this.getRegIcons = (node) => ( ["rectangle"] )
 	this.getLayerIconStyle = (node) => ( {
 		'background-color': node.color
 	} )
@@ -618,11 +643,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		$timeout(() => {});                                                     
 	}                                                                           
 	this.hideAllLayer = function() {                                            
-		self.histogramList.forEach(bins => bins._notUsed = true);               
+		self.layers.forEach(bins => bins._notUsed = true);               
 		$timeout(() => {});                                                     
 	}                                                                           
 	this.showAllLayer = function() {                                            
-		self.histogramList.forEach(bins => bins._notUsed = false);              
+		self.layers.forEach(bins => bins._notUsed = false);              
 		$timeout(() => {});                                                     
 	}
 
@@ -678,6 +703,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 			lineStyle: [10, 0]
 		};
 		self.udls.push(udl);
+	}
+	this.genRegs = function() {
+		self.regs = [...self.layers];
 	}
 	this.layers = [];
 	this.genLayers = async function() {

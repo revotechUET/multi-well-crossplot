@@ -15,6 +15,7 @@
   ],
   "dependencies": {
     "misc-component": "https://github.com/tunghoang/misc-component.git",
-    "plot-toolkit": "https://github.com/tunghoang/plot-toolkit.git"
+    "plot-toolkit": "https://github.com/tunghoang/plot-toolkit.git",
+    "regression-js": "^2.0.1"
   }
 }
