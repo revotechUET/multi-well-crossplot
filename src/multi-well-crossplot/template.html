@@ -613,8 +613,10 @@
                         border-left: 1px solid #ccc; 
                         flex-direction: column;
                         justify-content: start;
-                        overflow: overlay;
-                        padding: 0px;">
+                        overflow-y: overlay;
+                        padding: 0px;
+                        right: -5px;
+                        position: sticky;">
                     <div class="tab-with-lable" ng-class="{'active' : isSet(1)}" ng-click="setTab(1)">
                         <div style="margin: 10px;">
                             Wells
