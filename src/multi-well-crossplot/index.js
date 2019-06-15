@@ -613,6 +613,33 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				});
 		}
 	}
+	this.saveAs = function() {
+        console.log("saveAs");
+        wiDialog.promptDialog({
+            title: 'New Crossplot',
+            inputName: 'Crossplot Name',
+            input: '',
+        }, function(name) {
+            let type = 'CROSSPLOT';
+            let content = {
+                wellSpec: self.wellSpec,
+                zonesetName: self.zonesetName,
+                selectionType: self.selectionType,
+                selectionValue: self.selectionValue,
+                config: {...self.config, title: name} 
+            }
+            wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
+                // self.setConfigTitle(null, name);
+                self.idHistogram = res.idParameterSet;
+                console.log(res);
+                self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
+            })
+                .catch(e => {
+                    console.error(e);
+                    self.saveAs();
+                })
+        });
+    }
 
 	let _zoneNames = []
 	self.getZoneNames = function() {

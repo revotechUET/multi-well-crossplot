@@ -350,6 +350,9 @@ multi-well-crossplot {
 			border       : 1px solid #f4f4f4;
 			border-radius: 20px;
 			transition   : all 0.2s ease-in;
+			&:hover {
+				border       : 1px solid #0077be;
+			}
 
 			&.active {
 				background: #f4f4f4;
@@ -368,6 +371,10 @@ multi-well-crossplot {
 			width: 40px;
 			white-space: nowrap;
 			font-weight: bold;
+			&:hover {
+				color: #0077be;
+				opacity: 1;
+			}
 			&.active {
 				opacity: 1;
 				color: #0077be;
@@ -399,6 +406,7 @@ multi-well-crossplot {
 			// top: 0;
 			background: #fff;
 			padding: 11px 16px;
+			
 		}
 
 		.selection-sidebar {
@@ -407,6 +415,10 @@ multi-well-crossplot {
 			padding      : 1px 10px;
 			align-items  : center;
 			display      : flex;
+			transition      : all 0.2s ease-in;
+			&:hover {
+			border       : 1px solid #0077be;
+			}
 
 			&>input:focus {
 				outline: none;
@@ -425,10 +437,15 @@ multi-well-crossplot {
 	.axis-bar {
 		background: #fff;
 		border-radius: 2px;
+		border: 1px solid #fff;
 		font-size: 10px;
 		display: flex; 
 		align-items: center;
 		padding: 8px 10px;
+		transition      : all 0.2s ease-in;
+		&:hover {
+			border: 1px solid #0077be;
+		}
 		&.selected {                                                                                                                              
 			                                                          
 				font-weight: bold;
@@ -461,12 +478,25 @@ multi-well-crossplot {
 		}
 	}
 	.list-formular {
-		padding: 0 15px;
+		padding: 0 5px 0 15px;
 		margin: 15px;
 		display: flex; 
 		// background: #f4f4f4;
 		border-radius: 2px; 
 		border: 1px solid #ddd;
+		transition      : all 0.2s ease-in;
+		&:hover {
+			border: 1px solid #0077be;
+		}
+	}
+	.delete-button {
+		padding: 10px;
+		cursor: pointer;
+		font-size: 15px;
+		color: #aaa;
+		align-items: center;
+		border: none;
+		display: flex;
 	}
 
 	::-webkit-scrollbar {
