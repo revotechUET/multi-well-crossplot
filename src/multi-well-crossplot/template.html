@@ -12,8 +12,7 @@
                     style="cursor: pointer; margin-right: 10px;"></span>
                 <span ng-click="" class="print-16x16" style="cursor: pointer; margin-right: 10px;"></span>
             </div>
-
-            <div class="main-body-center border-style" style="position: relative;">
+            <div class="main-body-center border-style" style="position: relative;" id='layer-collection' ng-mousedown="self.drawPolygon($event, self.currentPolygon)">
                 <layer-collection v-padding="50" h-padding='60'>
                     <axis-layer min-val="self.getLeft()" max-val="self.getRight()" loga="self.getLogaX()"
                         n-ticks="self.getMajorX() * self.getMinorX()" minor-ticks="self.getMinorX()" precision="4"
@@ -32,10 +31,24 @@
                     <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
                         max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"
                         max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"
+                        loga="self.getLogaX()" formula="layer.reg" eqn-offsets="['50px', '0%']"
+                        line-color="layer.reg.lineColor" line-dash="layer.reg.lineStyle.join(' ')"
+                        line-width="layer.reg.lineWidth" ng-repeat="layer in self.layers" show-equation='true'>
+                    </line-formula-layer>
+                    <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
+                        max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"
+                        max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"
                         loga="self.getLogaX()" formula="udl" eqn-offsets="['50px', '0%']"
                         line-color="udl.lineStyle.lineColor" line-dash="udl.lineStyle.lineStyle.join(' ')"
                         line-width="udl.lineStyle.lineWidth" ng-repeat="udl in self.udls" show-equation='true'>
                     </line-formula-layer>
+					<polygon-layer
+                        min-val="self.getLeft()" max-val="self.getRight()"
+                        min-y="self.getBottom()" max-y="self.getTop()"
+                        points="polygon.points"
+                        mode="mode" edit-point-idx="0"
+						ng-repeat="polygon in self.polygons">
+                    </polygon-layer>
                 </layer-collection>
                 <p style="position: absolute;left: 50%; transform: translateX(-50%); bottom: 0">
                     {{self.getConfigXLabel()}} </p>
@@ -58,6 +71,7 @@
             <side-bar my-default-width="420" orientation="w" collapsed="false">
                 <div style="display: flex; flex-direction: column; height: 100%;flex: 1;">
                     <div style="display: flex; flex-direction: column; width: 100%; height: 100%;">
+						<!-- -----WELLS----- -->
                         <div ng-show="isSet(1)" style="overflow: auto;flex: 1;display:flex;flex-direction:column;">
                             <div class="lable-option-sidebar"
                                 style="margin-top: 10px; display: flex; justify-content: space-between;">
@@ -141,13 +155,14 @@
                                     <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
                                         filter="self.getFilterForWell(well.isSettingAxis)" get-icon="self.getIcon"
                                         get-children="self.getChildren" keep-children='true' uncollapsible='true'
-                                        run-match="self.runMatch" hide-unmatched="true" hide-search='true'
+                                        run-match="self.runWellMatch" hide-unmatched="true" hide-search='true'
                                         click-fn='self.clickFunction'>
                                     </wi-tree-view>
                                 </div>
                             </div>
 
                         </div>
+						<!-- -----ZONE----- -->
                         <div ng-show="isSet(2)"
                             style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                             <div class="lable-option-sidebar">
@@ -182,6 +197,7 @@
                             </div>
 
                         </div>
+						<!-- -----CONFIG----- -->
                         <div ng-show="isSet(3)" style="
                         overflow: auto;
                         flex: 1;
@@ -248,8 +264,6 @@
                                 </div>
                                 <div style="margin-bottom: 15px; "></div>
                             </div>
-
-
                             <div class="lable-option-sidebar" style="margin-top: 10px;">
                                 <span>Y Axis Options</span>
                             </div>
@@ -372,6 +386,7 @@
                                 </div>
                             </div>
                         </div>
+						<!-- -----PRINT SETTINGS----- -->
                         <div ng-show="isSet(5)"
                             style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                             <div class="lable-option-sidebar"
@@ -436,6 +451,7 @@
                                 </div>
                             </div>
                         </div>
+						<!-- -----FORMULA----- -->
                         <div ng-show="isSet(6)"
                             style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                             <div class='bottom-add' ng-click="self.addUDL()">Add</div>
@@ -459,7 +475,44 @@
                                 </div>
                             </div>
                         </div>
+						<!-- -----REGRESSION----- -->
+						<div ng-show="isSet(7)"
+                            style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+                            <div ng-show="self.layers"
+                                style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; ">
+                                <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
+                                    filter="self.layerFilter" get-icon="self.getRegIcon"
+                                    get-icons="self.getRegIcons" icon-style="self.getLayerIconStyle" get-children="self.noChildren" keep-children='true'
+                                    run-match="self.runLayerMatch" hide-unmatched="true" hide-search='false'
+                                    click-fn='self.click2ToggleRegression'>
+                                </wi-tree-view>
+                            </div>
+                        </div>
+						<!-- -----POLYGON----- -->
                         <div ng-show="isSet(8)"
+                            style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+                            <div class='bottom-add' ng-click="self.addPolygon()">Add</div>
+                            <div style="overflow: overlay;">
+                                <div class="list-formular" ng-repeat="polygon in self.polygons">
+                                    <div class="selection-sidebar"
+                                        style="padding: 9px 10px 5px 10px; flex: 4; margin-right: 15px; border: none;">
+                                        <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                                            item-label="'Y = '" item-value="self.getPolygon" params="$index"
+                                            set-value="self.setPolygon" enabled="true" label-style="{}"
+                                            content-style="{flex:1,float:'none','text-align':'left'}">
+                                        </editable>
+                                    </div>
+                                    <div class="selection-sidebar"
+                                        style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
+                                        <line-style bind-line-style="polygon.lineStyle"></line-style>
+                                    </div>
+                                    <div class="fa fa-times delete-button">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+						<!-- -----LAYERS----- -->
+                        <div ng-show="isSet(9)"
                             style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                             <div style="display: flex; padding: 16px 16px 10px 16px;">
                                 <span ng-click="self.hideSelectedLayer()" class="button-with-lable-layer"
@@ -475,7 +528,7 @@
                                 style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; ">
                                 <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
                                     filter="self.layerFilter" get-icon="self.getLayerIcon"
-                                    get-icons="self.getLayerIcons" get-children="self.noChildren" keep-children='true'
+                                    get-icons="self.getLayerIcons" icon-style="self.getLayerIconStyle" get-children="self.noChildren" keep-children='true'
                                     run-match="self.runLayerMatch" hide-unmatched="true" hide-search='false'
                                     click-fn='self.click2ToggleLayer'>
                                 </wi-tree-view>
@@ -534,11 +587,15 @@
                         </div>
                         <div class="tab-with-lable" ng-class="{'active' : isSet(8)}" ng-click="setTab(8)">
                             <div style="margin: 30px;">
+                                Polygon
+                            </div>
+                        </div>
+                        <div class="tab-with-lable" ng-class="{'active' : isSet(9)}" ng-click="setTab(9)">
+                            <div style="margin: 30px;">
                                 Layers
                             </div>
                         </div>
                     </div>
-
                 </div>
              </side-bar>
         </div>

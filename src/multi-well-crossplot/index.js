@@ -33,7 +33,7 @@ app.component(componentName, {
 		printSettings: '<',
 		onSave: '<',
 		udls: '<',
-		regs: '<',
+		polygons: '<'
 	},
 	transclude: true
 });
@@ -106,52 +106,24 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
 		self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left'};
 		self.udls = self.udls || [];
-		self.regs = self.regs || [];
+		self.polygons = self.polygons || [];
 	}
 
 	this.onInputXSelectionChanged = function(selectedItemProps) {
 		self.selectionXValue = (selectedItemProps || {}).name;
 	}
-
 	this.onInputYSelectionChanged = function(selectedItemProps) {
 		self.selectionYValue = (selectedItemProps || {}).name;
 	}
-
 	this.onInputZ1SelectionChanged = function(selectedItemProps) {
 		self.selectionZ1Value = (selectedItemProps || {}).name;
 	}
-
 	this.onInputZ2SelectionChanged = function(selectedItemProps) {
 		self.selectionZ2Value = (selectedItemProps || {}).name;
 	}
-
 	this.onInputZ3SelectionChanged = function(selectedItemProps) {
 		self.selectionZ3Value = (selectedItemProps || {}).name;
 	}
-
-	this.getFilterForWell = (axis) => {
-		switch(axis) {
-			case 'xAxis':
-				return self.selectionXValue;
-			case 'yAxis':
-				return self.selectionYValue;
-			case 'z1Axis':
-				return self.selectionZ1Value;
-			case 'z2Axis':
-				return self.selectionZ2Value;
-			case 'z3Axis':
-				return self.selectionZ3Value;
-			default:
-		}
-	}
-	this.getFilterForLayer = () => {
-		if (!self.zoneTree || !self.zoneTree.length) {
-			return '';
-		}
-		let filterLayer = self.zoneTree.map(z => `${z._notUsed}`).join('');
-		return filterLayer;
-	}
-
 	function getSelectionList(selectionType, wellArray) {
 		let selectionHash = {};
 		let allCurves = [];
@@ -186,33 +158,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		}));
 	}
 
-	this.runMatch = function (node, criteria) {
-		let family;
-		if (!criteria) return true;
-		switch(self.selectionType) {
-			case 'family-group': 
-				family = wiApi.getFamily(node.idFamily);
-				if (!family) return null;
-				return family.familyGroup.trim().toLowerCase() === criteria.trim().toLowerCase();
-
-			case 'family': 
-				family = wiApi.getFamily(node.idFamily);
-				if (!family) return null;
-				return family.name.trim().toLowerCase() === criteria.trim().toLowerCase();
-
-			case 'curve':
-				return node.name.trim().toLowerCase() === criteria.trim().toLowerCase();
-		}
-	}
-	self._hiddenZone = [];
-	this.getHiddenZone = function() {
-		return self._hiddenZone;
-	}
-	this.runLayerMatch = function (node, criteria) {
-		let keySearch = criteria.toLowerCase();
-		let searchArray = node.name.toLowerCase();
-		return searchArray.includes(keySearch);
-	}
 	this.getLabel = function (node) {
 		return node.name;
 	}
@@ -305,17 +250,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 			return true;
 		});
 	}
-	this.getWellSpec = getWellSpec;
-	function getWellSpec(well) {
-		if (!well) return {};
-		return self.wellSpec.find(wsp => wsp.idWell === well.idWell);
-	}
 	this.getCurve = getCurve;
 	function getCurve(well, requiredAxis) {
 		let wellSpec = getWellSpec(well);
 		if (!Object.keys(wellSpec).length) return {};
 		let axis = requiredAxis || well.isSettingAxis;
-		let curves = getCurvesInWell(well).filter(c => self.runMatch(c, self.getFilterForWell(axis)));
+		let curves = getCurvesInWell(well).filter(c => self.runWellMatch(c, self.getFilterForWell(axis)));
 		let curve = wellSpec[axis] && wellSpec[axis].idCurve ? curves.find(c => c.idCurve === wellSpec[axis].idCurve) : curves[0];
 		if (!curve) {
 			wellSpec[axis] = {};
@@ -334,101 +274,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		wellSpec[axis].datasetStep = parseFloat(dataset.step);
 		return curve;
 	}
-	function getZoneset(well, zonesetName = "") {
-		let zonesets = well.zone_sets;
-		if (zonesetName === "" || zonesetName === "ZonationAll") 
-			return null;
-		return zonesets.find(zs => zs.name === zonesetName);
-	}
-	this.onZonesetSelectionChanged = function(selectedItemProps) {
-		self.zoneTree = (selectedItemProps || {}).zones;
-		self.zonesetName = (selectedItemProps || {}).name || 'ZonationAll';
-	}
-	this.runZoneMatch = function (node, criteria) {
-		let keySearch = criteria.toLowerCase();
-		let searchArray = node.zone_template.name.toLowerCase();
-		return searchArray.includes(keySearch);
-	}
-	this.getZoneLabel = function (node) {
-		if(!node || !node.zone_template){
-			return 'aaa';
-		}
-		return node.zone_template.name;
-	}
-
-	this.getZoneIcon = (node) => ( (node && !node._notUsed) ? 'zone-16x16': 'fa fa-eye-slash' )
 	const EMPTY_ARRAY = []
 	this.noChildren = function (node) {
 		return EMPTY_ARRAY;
 	}
-	this.updateLayersByZone = function(zone) {
-		let layer = self.layers.find(layer => {
-			return layer.dataArrayX.top == zone.startDepth;
-		})
-		if (layerIdx) {
-			layer._notUsed = !layer._notUsed;
-		}
-	}
-	this._notUsedLayer = [];
-	this.click2ToggleZone = function ($event, node, selectedObjs) {
-		node._notUsed = !node._notUsed;
-		self.onUseZoneChange(node);
-		self.selectedZones = Object.values(selectedObjs).map(o => o.data);
-	}
-	this.onUseZoneChange = (node) => {
-		if (node._notUsed) {
-			while(layer = self.layers.find(layer => {
-				return layer.zone == node.zone_template.name;
-			})) {
-				self._notUsedLayer.push(layer);
-				self.layers.splice(self.layers.indexOf(layer), 1);
-			}
-		} else {
-			let layers = self._notUsedLayer.filter(layer => {
-				return layer.zone == node.zone_template.name;
-			})
-			self.layers = self.layers.concat(layers);
-			self._notUsedLayer = self._notUsedLayer.filter(l => {
-				return l.zone != node.zone_template.name;
-			})
-		}
-	}
-	this.click2ToggleLayer = function ($event, node, selectedObjs) {
-		node._notUsed = !node._notUsed;
-		self.selectedLayers = Object.values(selectedObjs).map(o => o.data);
-	}
-	this.click2ToggleRegression = function ($event, node, selectedObjs) {
-		node._useReg = !node._useReg;
-		if (node._useReg) {
-			let data = node.dataX.map((x, i) => {
-				return [x, node.dataY[i]];
-			})
-			let result = regression.linear(data);
-			node.reg = {
-				family: 'linear', 
-				slope: result.equation[0], 
-				intercept: result.equation[1],
-				lineStyle: [10, 0],
-				lineColor: node.color,
-				lineWidth: 1
-			};
-		}
-	}
 
-	let _layerTree = [];
-	this.getLayerTree = function() {
-		_layerTree = self.layers
-		return self.layers;
-	}
-	this.getLayerLabel = (node) => node.name
-	this.getLayerIcon = (node) => ( (node && !node._notUsed) ? 'layer-16x16': 'fa fa-eye-slash' )
-	this.getRegIcon = (node) => ( (node && node._useReg) ? 'layer-16x16': 'fa fa-eye-slash' )
-	this.getLayerIcons = (node) => ( ["rectangle"] )
-	this.getRegIcons = (node) => ( ["rectangle"] )
-	this.getLayerIconStyle = (node) => ( {
-		'background-color': node.color
-	} )
-
+	// ---CONFIG---
 	this.getConfigLeft = function() {
 		self.config = self.config || {};
 		return isNaN(self.config.left) ? "[empty]": wiApi.bestNumberFormat(self.config.left, 3);
@@ -520,30 +371,23 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 	this.setConfigYLabel = function(notUse, newValue) {
 		self.config.yLabel = newValue;
 	}
-	this.getFnUDL = function(index) {
-		return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+	this.getTop = () => (isNaN(self.config.top) ? (self.defaultConfig.top || 0) : self.config.top)
+	this.getBottom = () => (isNaN(self.config.bottom) ? (self.defaultConfig.bottom || 0) : self.config.bottom)
+	this.getLeft = () => (isNaN(self.config.left) ? (self.defaultConfig.left || 0) : self.config.left)
+	this.getRight = () => (isNaN(self.config.right) ? (self.defaultConfig.right || 0) : self.config.right)
+	this.getMajorX = () => ( self.config.majorX || self.defaultConfig.majorX || 5 )
+	this.getMajorY = () => ( self.config.majorY || self.defaultConfig.majorY || 5 )
+	this.getMinorX = () => ( self.config.minorX || self.defaultConfig.minorX || 1 )
+	this.getMinorY = () => ( self.config.minorY || self.defaultConfig.minorY || 1 )
+	this.getLogaX = () => (self.config.logaX || self.defaultConfig.logaX || 0)
+	this.getLogaY = () => (self.config.logaY || self.defaultConfig.logaY || 0)
+	this.getColorMode = () => (self.config.colorMode || self.defaultConfig.colorMode || 'zone')
+	this.getColor = (zone, well) => {
+		let cMode = self.getColorMode();
+		return cMode === 'zone' ? zone.zone_template.background:(cMode === 'well'?well.color:'red');
 	}
-	this.setFnUDL = function(index, newValue) {
-		self.udls[index].text = newValue;
-	}
-	this.getLineStyleUDL = function(index) {
-		return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
-	}
-	this.setLineStyleUDL = function(index, newValue) {
-		self.udls[index].text = newValue;
-	}
-	this.getLineWidthUDL = function(index) {
-		return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
-	}
-	this.setLineWidthUDL = function(index, newValue) {
-		self.udls[index].text = newValue;
-	}
-	this.getLineColorUDL = function(index) {
-		return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
-	}
-	this.setLineColorUDL = function(index, newValue) {
-		self.udls[index].text = newValue;
-	}
+
+	// ---DEFAULT CONFIG
 	function clearDefaultConfig() {
 		self.defaultConfig = {};
 	}
@@ -591,22 +435,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		return curveData.filter(d => ((zone.startDepth - d.depth)*(zone.endDepth - d.depth) <= 0));
 	}
 
-	this.getTop = () => (isNaN(self.config.top) ? (self.defaultConfig.top || 0) : self.config.top)
-	this.getBottom = () => (isNaN(self.config.bottom) ? (self.defaultConfig.bottom || 0) : self.config.bottom)
-	this.getLeft = () => (isNaN(self.config.left) ? (self.defaultConfig.left || 0) : self.config.left)
-	this.getRight = () => (isNaN(self.config.right) ? (self.defaultConfig.right || 0) : self.config.right)
-	this.getMajorX = () => ( self.config.majorX || self.defaultConfig.majorX || 5 )
-	this.getMajorY = () => ( self.config.majorY || self.defaultConfig.majorY || 5 )
-	this.getMinorX = () => ( self.config.minorX || self.defaultConfig.minorX || 1 )
-	this.getMinorY = () => ( self.config.minorY || self.defaultConfig.minorY || 1 )
-	this.getLogaX = () => (self.config.logaX || self.defaultConfig.logaX || 0)
-	this.getLogaY = () => (self.config.logaY || self.defaultConfig.logaY || 0)
-	this.getColorMode = () => (self.config.colorMode || self.defaultConfig.colorMode || 'zone')
-	this.getColor = (zone, well) => {
-		let cMode = self.getColorMode();
-		return cMode === 'zone' ? zone.zone_template.background:(cMode === 'well'?well.color:'red');
-	}
-
+	// ---ASSET
 	this.saveToAsset = function() {
 		let type = 'CROSSPLOT';
 		let content = {
@@ -665,7 +494,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 config: {...self.config, title: name} 
             }
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
-                // self.setConfigTitle(null, name);
                 self.idCrossplot = res.idParameterSet;
                 console.log(res);
                 self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
@@ -677,32 +505,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         });
     }
 
+	// ---ZONE
 	let _zoneNames = []
 	self.getZoneNames = function() {
 		_zoneNames.length = 0;
 		Object.assign(_zoneNames, self.crossplotList.map(bins => bins.name));
 		return _zoneNames;
 	}
-
-	//--------------
-	this.hideSelectedLayer = function() {                                                                                                                            
-		if(!self.selectedLayers) return;                                        
-		self.selectedLayers.forEach(layer => layer._notUsed = true);            
-	}                                                                           
-	this.showSelectedLayer = function() {                                       
-		if(!self.selectedLayers) return;                                        
-		self.selectedLayers.forEach(layer => layer._notUsed = false);           
-		$timeout(() => {});                                                     
-	}                                                                           
-	this.hideAllLayer = function() {                                            
-		self.layers.forEach(bins => bins._notUsed = true);               
-		$timeout(() => {});                                                     
-	}                                                                           
-	this.showAllLayer = function() {                                            
-		self.layers.forEach(bins => bins._notUsed = false);              
-		$timeout(() => {});                                                     
-	}
-
 	this.hideSelectedZone = function() {
 		if(!self.selectedZones) return;
 		let _notUsed = true;
@@ -733,6 +542,63 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		});
 		$timeout(() => {});
 	}
+	self._hiddenZone = [];
+	this.getHiddenZone = function() {
+		return self._hiddenZone;
+	}
+	this.getZoneIcon = (node) => ( (node && !node._notUsed) ? 'zone-16x16': 'fa fa-eye-slash' )
+	this._notUsedLayer = [];
+	this.click2ToggleZone = function ($event, node, selectedObjs) {
+		node._notUsed = !node._notUsed;
+		self.onUseZoneChange(node);
+		self.selectedZones = Object.values(selectedObjs).map(o => o.data);
+	}
+	this.onUseZoneChange = (node) => {
+		if (node._notUsed) {
+			while(layer = self.layers.find(layer => {
+				return layer.zone == node.zone_template.name;
+			})) {
+				self._notUsedLayer.push(layer);
+				self.layers.splice(self.layers.indexOf(layer), 1);
+			}
+		} else {
+			let layers = self._notUsedLayer.filter(layer => {
+				return layer.zone == node.zone_template.name;
+			})
+			self.layers = self.layers.concat(layers);
+			self._notUsedLayer = self._notUsedLayer.filter(l => {
+				return l.zone != node.zone_template.name;
+			})
+		}
+	}
+	function getZoneset(well, zonesetName = "") {
+		let zonesets = well.zone_sets;
+		if (zonesetName === "" || zonesetName === "ZonationAll") 
+			return null;
+		return zonesets.find(zs => zs.name === zonesetName);
+	}
+	this.onZonesetSelectionChanged = function(selectedItemProps) {
+		self.zoneTree = (selectedItemProps || {}).zones;
+		self.zonesetName = (selectedItemProps || {}).name || 'ZonationAll';
+	}
+	this.runZoneMatch = function (node, criteria) {
+		let keySearch = criteria.toLowerCase();
+		let searchArray = node.zone_template.name.toLowerCase();
+		return searchArray.includes(keySearch);
+	}
+	this.getZoneLabel = function (node) {
+		if(!node || !node.zone_template){
+			return 'aaa';
+		}
+		return node.zone_template.name;
+	}
+
+	// ---WELL
+	this.getWellSpec = getWellSpec;
+	function getWellSpec(well) {
+		if (!well) return {};
+		return self.wellSpec.find(wsp => wsp.idWell === well.idWell);
+	}
 	this.onDrop = function (event, helper, myData) {
 		let idWells = helper.data('idWells');
 		if (idWells && idWells.length) {
@@ -754,7 +620,80 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 			self.wellSpec.splice(index, 1);
 		}
 	}
+	this.getFilterForWell = (axis) => {
+		switch(axis) {
+			case 'xAxis':
+				return self.selectionXValue;
+			case 'yAxis':
+				return self.selectionYValue;
+			case 'z1Axis':
+				return self.selectionZ1Value;
+			case 'z2Axis':
+				return self.selectionZ2Value;
+			case 'z3Axis':
+				return self.selectionZ3Value;
+			default:
+		}
+	}
+	this.runWellMatch = function (node, criteria) {
+		let family;
+		if (!criteria) return true;
+		switch(self.selectionType) {
+			case 'family-group': 
+				family = wiApi.getFamily(node.idFamily);
+				if (!family) return null;
+				return family.familyGroup.trim().toLowerCase() === criteria.trim().toLowerCase();
 
+			case 'family': 
+				family = wiApi.getFamily(node.idFamily);
+				if (!family) return null;
+				return family.name.trim().toLowerCase() === criteria.trim().toLowerCase();
+
+			case 'curve':
+				return node.name.trim().toLowerCase() === criteria.trim().toLowerCase();
+		}
+	}
+
+	// ---POLYGON---
+	this.currentPolygon = {};
+	this.addPolygon = function() {
+		let polygon = {};
+		polygon.lineStyle = {
+			lineColor: 'red',
+			lineWidth: 1,
+			lineStyle: [10, 0]
+		}
+		polygon.isEnd = false;
+		// polygon.points = [{x: 80, y: 40}, {x: 200, y: 80}, {x: 120, y:160}];
+		polygon.points = [];
+		Object.assign(self.currentPolygon, polygon);
+		self.polygons.push(polygon);
+	}
+	this.drawPolygon = ($event, polygon) => {
+		self.container = document.getElementById('layer-collection');
+		let bbox = self.container.getBoundingClientRect();
+		$event.stopPropagation();
+		$event.preventDefault();
+		if (_.isEmpty(self.currentPolygon)) return;
+		let point = {};
+		if(!polygon.isEnd) {
+			const transformFnX = d3.scaleLinear().domain([self.getLeft(), self.getRight()]).range([0, bbox.width - 60 * 2]);
+			const transformFnY = d3.scaleLinear().domain([self.getTop(), self.getBottom()]).range([0, bbox.height - 50 * 2]);
+			switch($event.which) {
+				case 1:
+					point.x = transformFnX.invert($event.offsetX - 60);
+					point.y = transformFnY.invert($event.offsetY - 50);
+					polygon.points.push(point);
+					break;
+				case 3:
+					polygon.isEnd = true;
+					self.currentPolygon = {};
+					break;
+			}
+		}
+	}
+
+	// ---UDL
 	this.addUDL = function() {
 		let udl = {};
 		udl.text = "";
@@ -769,13 +708,39 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		};
 		self.udls.push(udl);
 	}
+	this.getFnUDL = function(index) {
+		return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+	}
+	this.setFnUDL = function(index, newValue) {
+		self.udls[index].text = newValue;
+	}
+	this.getLineStyleUDL = function(index) {
+		return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+	}
+	this.setLineStyleUDL = function(index, newValue) {
+		self.udls[index].text = newValue;
+	}
+	this.getLineWidthUDL = function(index) {
+		return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+	}
+	this.setLineWidthUDL = function(index, newValue) {
+		self.udls[index].text = newValue;
+	}
+	this.getLineColorUDL = function(index) {
+		return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
+	}
+	this.setLineColorUDL = function(index, newValue) {
+		self.udls[index].text = newValue;
+	}
+
+	// ---LAYER
 	this.layers = [];
 	this.genLayers = async function() {
 		self.layers = self.layers || []	;
 		let layers = [];
 		let _notUsedLayer = [];
 		self.treeConfig.forEach(async (well, idx) => {
-		wiLoading.show($element.find('.main')[0]);
+			wiLoading.show($element.find('.main')[0]);
 			if (well._notUsed) {
 				return;
 			}
@@ -866,5 +831,70 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		})
 		self.layers = layers;
 		self._notUsedLayer = _notUsedLayer;
+	}
+	this.hideSelectedLayer = function() {                                                                                                                            
+		if(!self.selectedLayers) return;                                        
+		self.selectedLayers.forEach(layer => layer._notUsed = true);            
+	}                                                                           
+	this.showSelectedLayer = function() {                                       
+		if(!self.selectedLayers) return;                                        
+		self.selectedLayers.forEach(layer => layer._notUsed = false);           
+		$timeout(() => {});                                                     
+	}                                                                           
+	this.hideAllLayer = function() {                                            
+		self.layers.forEach(bins => bins._notUsed = true);               
+		$timeout(() => {});                                                     
+	}                                                                           
+	this.showAllLayer = function() {                                            
+		self.layers.forEach(bins => bins._notUsed = false);              
+		$timeout(() => {});                                                     
+	}
+	this.getFilterForLayer = () => {
+		if (!self.zoneTree || !self.zoneTree.length) {
+			return '';
+		}
+		let filterLayer = self.zoneTree.map(z => `${z._notUsed}`).join('');
+		return filterLayer;
+	}
+	this.runLayerMatch = function (node, criteria) {
+		let keySearch = criteria.toLowerCase();
+		let searchArray = node.name.toLowerCase();
+		return searchArray.includes(keySearch);
+	}
+	let _layerTree = [];
+	this.getLayerTree = function() {
+		_layerTree = self.layers
+		return self.layers;
+	}
+	this.getLayerLabel = (node) => node.name
+	this.getLayerIcon = (node) => ( (node && !node._notUsed) ? 'layer-16x16': 'fa fa-eye-slash' )
+	this.getLayerIcons = (node) => ( ["rectangle"] )
+	this.getLayerIconStyle = (node) => ( {
+		'background-color': node.color
+	} )
+	this.click2ToggleLayer = function ($event, node, selectedObjs) {
+		node._notUsed = !node._notUsed;
+		self.selectedLayers = Object.values(selectedObjs).map(o => o.data);
+	}
+
+	// ---REGRESSION---
+	this.getRegIcon = (node) => ( (node && node._useReg) ? 'layer-16x16': 'fa fa-eye-slash' )
+	this.getRegIcons = (node) => ( ["rectangle"] )
+	this.click2ToggleRegression = function ($event, node, selectedObjs) {
+		node._useReg = !node._useReg;
+		if (node._useReg) {
+			let data = node.dataX.map((x, i) => {
+				return [x, node.dataY[i]];
+			})
+			let result = regression.linear(data);
+			node.reg = {
+				family: 'linear', 
+				slope: result.equation[0], 
+				intercept: result.equation[1],
+				lineStyle: [10, 0],
+				lineColor: node.color,
+				lineWidth: 1
+			};
+		}
 	}
 }
