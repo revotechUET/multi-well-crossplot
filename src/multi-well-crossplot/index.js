@@ -1,7 +1,7 @@
 var componentName = 'multiWellCrossplot';
 module.exports.name = componentName;
 require('./style.less');
-const regression = require('../../bower_components/regression-js/dist/regression.js');
+const regression = require('../../bower_components/regression-js/dist/regression.min.js');
 
 const _DECIMAL_LEN = 4;
 
@@ -144,6 +144,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 			default:
 		}
 	}
+	this.getFilterForLayer = () => {
+		if (!self.zoneTree || !self.zoneTree.length) {
+			return '';
+		}
+		let filterLayer = self.zoneTree.map(z => `${z._notUsed}`).join('');
+		return filterLayer;
+	}
 
 	function getSelectionList(selectionType, wellArray) {
 		let selectionHash = {};
@@ -196,6 +203,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 			case 'curve':
 				return node.name.trim().toLowerCase() === criteria.trim().toLowerCase();
 		}
+	}
+	self._hiddenZone = [];
+	this.getHiddenZone = function() {
+		return self._hiddenZone;
+	}
+	this.runLayerMatch = function (node, criteria) {
+		let keySearch = criteria.toLowerCase();
+		let searchArray = node.name.toLowerCase();
+		return searchArray.includes(keySearch);
 	}
 	this.getLabel = function (node) {
 		return node.name;
@@ -345,9 +361,37 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 	this.noChildren = function (node) {
 		return EMPTY_ARRAY;
 	}
+	this.updateLayersByZone = function(zone) {
+		let layer = self.layers.find(layer => {
+			return layer.dataArrayX.top == zone.startDepth;
+		})
+		if (layerIdx) {
+			layer._notUsed = !layer._notUsed;
+		}
+	}
+	this._notUsedLayer = [];
 	this.click2ToggleZone = function ($event, node, selectedObjs) {
 		node._notUsed = !node._notUsed;
+		self.onUseZoneChange(node);
 		self.selectedZones = Object.values(selectedObjs).map(o => o.data);
+	}
+	this.onUseZoneChange = (node) => {
+		if (node._notUsed) {
+			while(layer = self.layers.find(layer => {
+				return layer.zone == node.zone_template.name;
+			})) {
+				self._notUsedLayer.push(layer);
+				self.layers.splice(self.layers.indexOf(layer), 1);
+			}
+		} else {
+			let layers = self._notUsedLayer.filter(layer => {
+				return layer.zone == node.zone_template.name;
+			})
+			self.layers = self.layers.concat(layers);
+			self._notUsedLayer = self._notUsedLayer.filter(l => {
+				return l.zone != node.zone_template.name;
+			})
+		}
 	}
 	this.click2ToggleLayer = function ($event, node, selectedObjs) {
 		node._notUsed = !node._notUsed;
@@ -360,7 +404,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				return [x, node.dataY[i]];
 			})
 			let result = regression.linear(data);
-			console.log(result);
 			node.reg = {
 				family: 'linear', 
 				slope: result.equation[0], 
@@ -369,18 +412,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 				lineColor: node.color,
 				lineWidth: 1
 			};
-			console.log(self.layers);
 		}
-		// self.selectedLayers = Object.values(selectedObjs).map(o => o.data);
 	}
 
-	this.runLayerMatch = function (node, criteria) {
-		let keySearch = criteria.toLowerCase();
-		let searchArray = node.name.toLowerCase();
-		return searchArray.includes(keySearch);
-	}
 	let _layerTree = [];
 	this.getLayerTree = function() {
+		_layerTree = self.layers
 		return self.layers;
 	}
 	this.getLayerLabel = (node) => node.name
@@ -532,7 +569,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 					self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
 					break;
 				default:
-					console.error('---give me axis');
 			}
 		}
 	}
@@ -649,17 +685,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 	}
 
 	//--------------
-	this.click2ToggleLayer = function ($event, node, selectedObjs) {            
-		node._notUsed = !node._notUsed;                                         
-		self.selectedLayers = Object.values(selectedObjs).map(o => o.data);     
-	}                                                                           
-
-	this.runLayerMatch = function (node, criteria) {                            
-		let keySearch = criteria.toLowerCase();                                 
-		let searchArray = node.name.toLowerCase();                              
-		return searchArray.includes(keySearch);                                 
-	}                                                                           
-	//--------------
 	this.hideSelectedLayer = function() {                                                                                                                            
 		if(!self.selectedLayers) return;                                        
 		self.selectedLayers.forEach(layer => layer._notUsed = true);            
@@ -680,19 +705,32 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
 	this.hideSelectedZone = function() {
 		if(!self.selectedZones) return;
-		self.selectedZones.forEach(layer => layer._notUsed = true);
+		let _notUsed = true;
+		self.selectedZones.forEach(layer => {
+			layer._notUsed = true;
+			self.onUseZoneChange(layer);
+		});
 	}
 	this.showSelectedZone = function() {
 		if(!self.selectedZones) return;
-		self.selectedZones.forEach(layer => layer._notUsed = false);
+		self.selectedZones.forEach(layer => {
+			layer._notUsed = false;
+			self.onUseZoneChange(layer);
+		});
 		$timeout(() => {});
 	}
 	this.hideAllZone = function() {
-		self.zoneTree.forEach(bins => bins._notUsed = true);
+		self.zoneTree.forEach(bins => {
+			bins._notUsed = true;
+			self.onUseZoneChange(bins);
+		});
 		$timeout(() => {});
 	}
 	this.showAllZone = function() {
-		self.zoneTree.forEach(bins => bins._notUsed = false);
+		self.zoneTree.forEach(bins => {
+			bins._notUsed = false
+			self.onUseZoneChange(bins);
+		});
 		$timeout(() => {});
 	}
 	this.onDrop = function (event, helper, myData) {
@@ -731,13 +769,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		};
 		self.udls.push(udl);
 	}
-	this.genRegs = function() {
-		self.regs = [...self.layers];
-	}
 	this.layers = [];
 	this.genLayers = async function() {
 		self.layers = self.layers || []	;
 		let layers = [];
+		let _notUsedLayer = [];
 		self.treeConfig.forEach(async (well, idx) => {
 			if (well._notUsed) {
 				return;
@@ -778,9 +814,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
 			let zones = zoneset.zones.filter(zone => {
 				let z = self.zoneTree.find(z1 => {
-					return z1.zone_template.name === zone.zone_template.name
+					return z1.zone_template.name === zone.zone_template.name;
 				});
-				return !z._notUsed;
+				zone._notUsed = z._notUsed;
+				return true;
 			});
 
 			if (self.getColorMode() == 'zone') {
@@ -791,26 +828,41 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 					dataArrayX.bottom = zone.endDepth;
 					dataArrayY.top = zone.startDepth;
 					dataArrayY.bottom = zone.endDepth;
+					let layer = {
+						dataX: dataArrayX.map(d => d.x),
+						dataY: dataArrayY.map(d => d.x),
+						color: self.getColor(zone, well),
+						name: `${well.name}.${zone.zone_template.name}`,
+						zone: zone.zone_template.name
+					}
 					$timeout(() => {
-						layers.push({
-							dataX: dataArrayX.map(d => d.x),
-							dataY: dataArrayY.map(d => d.x),
-							color: self.getColor(zone, well),
-							name: `${well.name}.${zone.zone_template.name}`
-						});
+						if (!zone._notUsed) {
+							layers.push(layer);
+						} else {
+							_notUsedLayer.push(layer)
+						}
 					})
 				})
 			} else {
-				$timeout(() => {
-					layers.push({
-						dataX: curveDataX.map(d => d.x),
-						dataY: curveDataY.map(d => d.x),
-						color: well.color ,
-						name: well.name
-					});
+				zones.forEach(zone => {
+					let layer = {
+						dataX: dataArrayX.map(d => d.x),
+						dataY: dataArrayY.map(d => d.x),
+						color: self.getColor(zone, well),
+						name: `${well.name}.${zone.zone_template.name}`,
+						zone: zone.zone_template.name
+					}
+					$timeout(() => {
+						if (!zone._notUsed) {
+							layers.push(layer);
+						} else {
+							_notUsedLayer.push(layer)
+						}
+					})
 				})
 			}
 		})
 		self.layers = layers;
+		self._notUsedLayer = _notUsedLayer;
 	}
 }
