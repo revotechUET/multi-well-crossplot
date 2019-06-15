@@ -739,6 +739,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 		self.layers = self.layers || []	;
 		let layers = [];
 		self.treeConfig.forEach(async (well, idx) => {
+		wiLoading.show($element.find('.main')[0]);
 			if (well._notUsed) {
 				return;
 			}
@@ -810,6 +811,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 					});
 				})
 			}
+			wiLoading.hide();
 		})
 		self.layers = layers;
 	}
