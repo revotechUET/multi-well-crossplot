@@ -630,7 +630,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 // self.setConfigTitle(null, name);
-                self.idHistogram = res.idParameterSet;
+                self.idCrossplot = res.idParameterSet;
                 console.log(res);
                 self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
             })
