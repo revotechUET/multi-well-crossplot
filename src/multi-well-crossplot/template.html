@@ -12,7 +12,9 @@
                     style="cursor: pointer; margin-right: 10px;"></span>
                 <span ng-click="" class="print-16x16" style="cursor: pointer; margin-right: 10px;"></span>
             </div>
-            <div class="main-body-center border-style" style="position: relative;" id='layer-collection' ng-mousedown="self.drawPolygon($event, self.currentPolygon)">
+            <div class="main-body-center border-style" style="position: relative;" id='layer-collection' 
+                ng-mousedown="self.drawPolygon($event, self.currentPolygon)"
+                oncontextmenu="(function(){event.preventDefault();return false;})()">
                 <layer-collection v-padding="50" h-padding='60'>
                     <axis-layer min-val="self.getLeft()" max-val="self.getRight()" loga="self.getLogaX()"
                         n-ticks="self.getMajorX() * self.getMinorX()" minor-ticks="self.getMinorX()" precision="4"
@@ -469,9 +471,7 @@
                                         style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
                                         <line-style bind-line-style="udl.lineStyle"></line-style>
                                     </div>
-                                    <div class="fa fa-times delete-button">
-
-                                    </div>
+                                    <div class="fa fa-times delete-button" ng-click="self.removeUDL($index)"></div>
                                 </div>
                             </div>
                         </div>
@@ -506,8 +506,7 @@
                                         style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
                                         <line-style bind-line-style="polygon.lineStyle"></line-style>
                                     </div>
-                                    <div class="fa fa-times delete-button">
-                                    </div>
+                                    <div class="fa fa-times delete-button" ng-click="self.removePolygon($index)"></div>
                                 </div>
                             </div>
                         </div>
