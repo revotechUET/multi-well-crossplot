@@ -98,6 +98,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }, true);
         }, 700);
 
+        $scope.vPadding = 50;
+        $scope.hPadding = 60;
+
         self.defaultConfig = self.defaultConfig || {};
         self.wellSpec = self.wellSpec || [];
         self.selectionType = self.selectionType || 'family-group';
@@ -672,26 +675,30 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.polygons.splice($index, 1);
     }
     this.drawPolygon = ($event, polygon) => {
+        $event.preventDefault();
+        $event.stopPropagation();
+        if (_.isEmpty(polygon) || polygon.isEnd) return;
         self.container = document.getElementById('layer-collection');
         let bbox = self.container.getBoundingClientRect();
-        $event.stopPropagation();
-        $event.preventDefault();
-        if (_.isEmpty(self.currentPolygon)) return;
+        let startXRange = startYRange = 0;
+        let endXRange = bbox.width - $scope.hPadding * 2;
+        let endYRange = bbox.height - $scope.vPadding * 2;
+        let mouseX = $event.offsetX - $scope.hPadding;
+        let mouseY = $event.offsetY - $scope.vPadding;
+        if (mouseX < 0 || mouseX > endXRange || mouseY < 0 || mouseY > endYRange) return;
+        const transformFnX = d3.scaleLinear().domain([self.getLeft(), self.getRight()]).range([startXRange, endXRange]);
+        const transformFnY = d3.scaleLinear().domain([self.getTop(), self.getBottom()]).range([startYRange, endYRange]);
         let point = {};
-        if(!polygon.isEnd) {
-            const transformFnX = d3.scaleLinear().domain([self.getLeft(), self.getRight()]).range([0, bbox.width - 60 * 2]);
-            const transformFnY = d3.scaleLinear().domain([self.getTop(), self.getBottom()]).range([0, bbox.height - 50 * 2]);
-            switch($event.which) {
-                case 1:
-                    point.x = transformFnX.invert($event.offsetX - 60);
-                    point.y = transformFnY.invert($event.offsetY - 50);
-                    polygon.points.push(point);
-                    break;
-                case 3:
-                    polygon.isEnd = true;
-                    self.currentPolygon = {};
-                    break;
-            }
+        switch($event.which) {
+            case 1:
+                point.x = transformFnX.invert(mouseX);
+                point.y = transformFnY.invert(mouseY);
+                polygon.points.push(point);
+                break;
+            case 3:
+                polygon.isEnd = true;
+                polygon = {};
+                break;
         }
     }
     this.filterByPolygons = function(polygons, data, exclude) {

@@ -15,7 +15,7 @@
             <div class="main-body-center border-style" style="position: relative;" id='layer-collection' 
                 ng-mousedown="self.drawPolygon($event, self.currentPolygon)"
                 oncontextmenu="(function(){event.preventDefault();return false;})()">
-                <layer-collection v-padding="50" h-padding='60'>
+                <layer-collection v-padding="vPadding" h-padding='hPadding'>
                     <axis-layer min-val="self.getLeft()" max-val="self.getRight()" loga="self.getLogaX()"
                         n-ticks="self.getMajorX() * self.getMinorX()" minor-ticks="self.getMinorX()" precision="4"
                         grid="!!self.config.grid" placement="1">
@@ -30,7 +30,7 @@
                         symbol-size="5" symbol-fill-style="layer.color" symbol-stroke-style="'transparent'"
                         ng-repeat="layer in self.layers">
                     </scatter-layer>
-                    <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
+                    <line-formula-layer ng-show="layer._useReg" min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
                         max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"
                         max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"
                         loga="self.getLogaX()" formula="layer.reg" eqn-offsets="['50px', '0%']"
@@ -88,7 +88,6 @@
                                     <span ng-class="{'active' : self.selectionType === 'curve'}"
                                         ng-click="self.selectionType='curve'" class="button-with-lable">curve</span>
                                 </div>
-
                             </div>
                             <div style="padding-bottom: 0;" class="lable-option-sidebar">
                                 <div class="selection-sidebar">
@@ -162,7 +161,6 @@
                                     </wi-tree-view>
                                 </div>
                             </div>
-
                         </div>
 						<!-- -----ZONE----- -->
                         <div ng-show="isSet(2)"
@@ -197,7 +195,6 @@
                             <div ng-hide="self.zoneTree" style="border: 1px solid #e4e4e4; margin: 5px 15px;">
                                 zonationAll
                             </div>
-
                         </div>
 						<!-- -----CONFIG----- -->
                         <div ng-show="isSet(3)" style="
@@ -215,11 +212,9 @@
                                         set-value="self.setConfigTitle" enabled="true" label-style="{}"
                                         content-style="{flex:1,float:'none','text-align':'right'}">
                                     </editable>
-
                                 </div>
                                 <div style="margin-bottom: 15px; "></div>
                             </div>
-
                             <div class="lable-option-sidebar" style="margin-top: 10px;">
                                 <span>X Axis Options</span>
                             </div>
@@ -256,7 +251,6 @@
                                     </editable>
                                 </div>
                                 <div style="margin-bottom: 15px; "></div>
-
                                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
                                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                                         item-label="'X Label'" item-value="self.getConfigXLabel"
@@ -295,7 +289,6 @@
                                     </editable>
                                 </div>
                                 <div style="margin-bottom: 15px; "></div>
-
                                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
                                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                                         item-label="'Minor Y'" item-value="self.getConfigMinorY"
@@ -313,7 +306,6 @@
                                     </editable>
                                 </div>
                             </div>
-
                             <div class="lable-option-sidebar"
                                 style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
                                 <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Log scales
@@ -330,8 +322,6 @@
                                         Y</span>
                                 </div>
                             </div>
-
-
                             <div class="lable-option-sidebar"
                                 style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
                                 <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Color Mode
