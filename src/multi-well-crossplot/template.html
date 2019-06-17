@@ -12,9 +12,7 @@
                     style="cursor: pointer; margin-right: 10px;"></span>
                 <span ng-click="" class="print-16x16" style="cursor: pointer; margin-right: 10px;"></span>
             </div>
-            <div class="main-body-center border-style" style="position: relative;" id='layer-collection' 
-                ng-mousedown="self.drawPolygon($event, self.currentPolygon)"
-                oncontextmenu="(function(){event.preventDefault();return false;})()">
+            <div class="main-body-center border-style" style="position: relative;" id='layer-collection'>
                 <layer-collection v-padding="vPadding" h-padding='hPadding'>
                     <axis-layer min-val="self.getLeft()" max-val="self.getRight()" loga="self.getLogaX()"
                         n-ticks="self.getMajorX() * self.getMinorX()" minor-ticks="self.getMinorX()" precision="4"
@@ -47,9 +45,9 @@
 					<polygon-layer
                         min-val="self.getLeft()" max-val="self.getRight()"
                         min-y="self.getBottom()" max-y="self.getTop()"
+                        ng-repeat="polygon in self.polygons"
                         points="polygon.points"
-                        mode="mode" edit-point-idx="0"
-						ng-repeat="polygon in self.polygons">
+                        mode="polygon.mode">
                     </polygon-layer>
                 </layer-collection>
                 <p style="position: absolute;left: 50%; transform: translateX(-50%); bottom: 0">

@@ -76,6 +76,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return familyList;
     }
     this.$onInit = function () {
+        self.testArray = [];
         if (self.token)
             wiToken.setToken(self.token);
         $timeout(() => {
@@ -666,7 +667,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             lineWidth: 1,
             lineStyle: [10, 0]
         }
-        polygon.isEnd = false;
+        polygon.mode = 'edit';
         polygon.points = [];
         Object.assign(self.currentPolygon, polygon);
         self.polygons.push(polygon);
@@ -674,33 +675,33 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.removePolygon = ($index) => {
         self.polygons.splice($index, 1);
     }
-    this.drawPolygon = ($event, polygon) => {
-        $event.preventDefault();
-        $event.stopPropagation();
-        if (_.isEmpty(polygon) || polygon.isEnd) return;
-        self.container = document.getElementById('layer-collection');
-        let bbox = self.container.getBoundingClientRect();
-        let startXRange = startYRange = 0;
-        let endXRange = bbox.width - $scope.hPadding * 2;
-        let endYRange = bbox.height - $scope.vPadding * 2;
-        let mouseX = $event.offsetX - $scope.hPadding;
-        let mouseY = $event.offsetY - $scope.vPadding;
-        if (mouseX < 0 || mouseX > endXRange || mouseY < 0 || mouseY > endYRange) return;
-        const transformFnX = d3.scaleLinear().domain([self.getLeft(), self.getRight()]).range([startXRange, endXRange]);
-        const transformFnY = d3.scaleLinear().domain([self.getTop(), self.getBottom()]).range([startYRange, endYRange]);
-        let point = {};
-        switch($event.which) {
-            case 1:
-                point.x = transformFnX.invert(mouseX);
-                point.y = transformFnY.invert(mouseY);
-                polygon.points.push(point);
-                break;
-            case 3:
-                polygon.isEnd = true;
-                polygon = {};
-                break;
-        }
-    }
+    //this.drawPolygon = ($event, polygon) => {
+        //$event.preventDefault();
+        //$event.stopPropagation();
+        //if (_.isEmpty(polygon) || polygon.isEnd) return;
+        //self.container = document.getElementById('layer-collection');
+        //let bbox = self.container.getBoundingClientRect();
+        //let startXRange = startYRange = 0;
+        //let endXRange = bbox.width - $scope.hPadding * 2;
+        //let endYRange = bbox.height - $scope.vPadding * 2;
+        //let mouseX = $event.offsetX - $scope.hPadding;
+        //let mouseY = $event.offsetY - $scope.vPadding;
+        //if (mouseX < 0 || mouseX > endXRange || mouseY < 0 || mouseY > endYRange) return;
+        //const transformFnX = d3.scaleLinear().domain([self.getLeft(), self.getRight()]).range([startXRange, endXRange]);
+        //const transformFnY = d3.scaleLinear().domain([self.getTop(), self.getBottom()]).range([startYRange, endYRange]);
+        //let point = {};
+        //switch($event.which) {
+            //case 1:
+                //point.x = transformFnX.invert(mouseX);
+                //point.y = transformFnY.invert(mouseY);
+                //polygon.points.push(point);
+                //break;
+            //case 3:
+                //polygon.isEnd = true;
+                //polygon = {};
+                //break;
+        //}
+    //}
     this.filterByPolygons = function(polygons, data, exclude) {
         let ppoints = polygons.map(function(p) {
             return p.points.map(function(point) {
