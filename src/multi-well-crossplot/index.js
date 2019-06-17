@@ -675,6 +675,28 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.removePolygon = ($index) => {
         self.polygons.splice($index, 1);
     }
+    this.filterByPolygons = function(polygons, data, exclude) {
+        let ppoints = polygons.map(function(p) {
+            return p.points.map(function(point) {
+                return [point.x, point.y];
+            });
+        });
+
+        return data.filter(function(d) {
+            let pass = exclude ? false : true;
+            for (let p of ppoints)
+                if (d3.polygonContains(p, d))
+                    return pass;
+            return !pass;
+        });
+    }
+    this.toggleEditPolygon = function(polygon) {
+        if (polygon.mode == 'edit') {
+            polygon.mode = null;
+        } else {
+            polygon.mode = 'edit';
+        }
+    }
     //this.drawPolygon = ($event, polygon) => {
         //$event.preventDefault();
         //$event.stopPropagation();
@@ -702,21 +724,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 //break;
         //}
     //}
-    this.filterByPolygons = function(polygons, data, exclude) {
-        let ppoints = polygons.map(function(p) {
-            return p.points.map(function(point) {
-                return [point.x, point.y];
-            });
-        });
-
-        return data.filter(function(d) {
-            let pass = exclude ? false : true;
-            for (let p of ppoints)
-                if (d3.polygonContains(p, d))
-                    return pass;
-            return !pass;
-        });
-    }
 
     // ---UDL
     this.addUDL = function() {

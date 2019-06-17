@@ -54,7 +54,11 @@
                             </div>
                             <div class="selection-sidebar"
                                 style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
-                                <line-style bind-line-style="polygon.lineStyle"></line-style>
+                                <span
+                                    ng-class="{'red-color fa fa-eye-slash': well._notUsed, 'blue-color fa fa-eye': !well._notUsed }"
+                                    ng-click="self.toggleEditPolygon(polygon)"
+                                    style="cursor: pointer; margin-right: 15px;">
+                                </span>
                             </div>
                             <div class="fa fa-times delete-button" ng-click="self.removePolygon($index)"></div>
                         </div>
