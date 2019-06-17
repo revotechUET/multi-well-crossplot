@@ -24,9 +24,9 @@
             </div>
             <!-- -----REGRESSION----- -->
             <div ng-show="isSet(7)"
-                style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+                style="overflow: auto;flex: 1; display: flex; flex-direction: column;">
                 <div ng-show="self.layers"
-                    style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; ">
+                    style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: hidden; ">
                     <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
                         filter="self.layerFilter" get-icon="self.getRegIcon"
                         get-icons="self.getRegIcons" icon-style="self.getLayerIconStyle" get-children="self.noChildren" keep-children='true'
@@ -34,12 +34,38 @@
                         click-fn='self.click2ToggleRegression'>
                     </wi-tree-view>
                 </div>
+                <div class="lable-option-sidebar"
+                    style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
+                    <div style="font-size: 10px;display: flex;margin-bottom: 0;">Polygon
+                        <div
+                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+                        </div>
+                    </div>
+                    <div style='margin-top: 10px;' class='bottom-add' ng-click="self.addPolygon()">Add</div>
+                    <div style="overflow: overlay;">
+                        <div class="list-formular" ng-repeat="polygon in self.polygons">
+                            <div class="selection-sidebar"
+                                style="padding: 9px 10px 5px 10px; flex: 4; margin-right: 15px; border: none;">
+                                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                                    item-label="'Y = '" item-value="self.getPolygon" params="$index"
+                                    set-value="self.setPolygon" enabled="true" label-style="{}"
+                                    content-style="{flex:1,float:'none','text-align':'left'}">
+                                </editable>
+                            </div>
+                            <div class="selection-sidebar"
+                                style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
+                                <line-style bind-line-style="polygon.lineStyle"></line-style>
+                            </div>
+                            <div class="fa fa-times delete-button" ng-click="self.removePolygon($index)"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- -----POLYGON----- -->
-            <div ng-show="isSet(8)"
-                style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab8.html')}
-            </div>
+            <!--<div ng-show="isSet(8)"-->
+                <!--style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">-->
+                <!--${require('./tab8.html')}-->
+            <!--</div>-->
             <!-- -----LAYERS----- -->
             <div ng-show="isSet(9)"
                 style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
@@ -96,11 +122,11 @@
                     Regression Line
                 </div>
             </div>
-            <div class="tab-with-lable" ng-class="{'active' : isSet(8)}" ng-click="setTab(8)">
-                <div style="margin: 30px;">
-                    Polygon
-                </div>
-            </div>
+            <!--<div class="tab-with-lable" ng-class="{'active' : isSet(8)}" ng-click="setTab(8)">-->
+                <!--<div style="margin: 30px;">-->
+                    <!--Polygon-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="tab-with-lable" ng-class="{'active' : isSet(9)}" ng-click="setTab(9)">
                 <div style="margin: 30px;">
                     Layers
