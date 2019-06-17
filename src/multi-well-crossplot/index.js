@@ -44,7 +44,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     self.selectedNode = null;
     self.datasets = {};
     //--------------
-    $scope.tab = 1;
+    $scope.tab = 7;
     self.selectionTab = self.selectionTab || 'Wells';
 
     $scope.setTab = function(newTab){
@@ -662,14 +662,20 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.currentPolygon = {};
     this.addPolygon = function() {
         let polygon = {};
-        polygon.lineStyle = {
-            lineColor: 'red',
-            lineWidth: 1,
-            lineStyle: [10, 0]
-        }
+        //polygon.lineStyle = {
+            //lineColor: 'red',
+            //lineWidth: 1,
+            //lineStyle: [10, 0]
+        //}
+        polygon.label = 'New polygon';
         polygon.mode = 'edit';
+        polygon._notUsed = false;
+        polygon._notShow = false;
         polygon.points = [];
         Object.assign(self.currentPolygon, polygon);
+        self.polygons.forEach(p => {
+            p.mode = null;
+        })
         self.polygons.push(polygon);
     }
     this.removePolygon = ($index) => {
@@ -691,9 +697,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         });
     }
     this.toggleEditPolygon = function(polygon) {
+        let idx = self.polygons.indexOf(polygon);
+        self.polygons.forEach((p, i) => {
+            if (i != idx) p.mode = null;
+        })
         if (polygon.mode == 'edit') {
             polygon.mode = null;
         } else {
+            polygon._notShow = false;
             polygon.mode = 'edit';
         }
     }
@@ -921,8 +932,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             let data = node.dataX.map((x, i) => {
                 return [x, node.dataY[i]];
             })
-            if (self.polygons.length) {
-                data = self.filterByPolygons(self.polygons, data, false);
+            let usedPolygon = self.polygons.filter(p => {
+                return !_.isEmpty(p.points) && !p._notUsed;
+            })
+            if (usedPolygon.length) {
+                data = self.filterByPolygons(usedPolygon, data, false);
             }
             let result = regression.linear(data);
             node.reg = {
