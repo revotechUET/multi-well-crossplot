@@ -915,7 +915,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 return [x, node.dataY[i]];
             })
             if (self.polygons.length) {
-                data = self.filterByPolygons(self.polygons, data, true);
+                data = self.filterByPolygons(self.polygons, data, false);
             }
             let result = regression.linear(data);
             node.reg = {

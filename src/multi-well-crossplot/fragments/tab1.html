@@ -1,0 +1,86 @@
+<div class="lable-option-sidebar"
+    style="margin-top: 10px; display: flex; justify-content: space-between;">
+    <span>INPUT</span>
+    <div>
+        <span ng-class="{'active' : self.selectionType === 'family-group'}"
+            ng-click="self.selectionType='family-group'" class="button-with-lable"
+            style="margin-right: 8px;">family-group</span>
+        <span ng-class="{'active' : self.selectionType === 'family'}"
+            ng-click="self.selectionType='family'" class="button-with-lable"
+            style="margin-right: 8px;">family</span>
+        <span ng-class="{'active' : self.selectionType === 'curve'}"
+            ng-click="self.selectionType='curve'" class="button-with-lable">curve</span>
+    </div>
+</div>
+<div style="padding-bottom: 0;" class="lable-option-sidebar">
+    <div class="selection-sidebar">
+        <span>X Axis</span>
+        <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList'
+            current-select="self.selectionXValue"
+            on-item-changed="self.onInputXSelectionChanged">
+        </wi-dropdown-list>
+    </div>
+</div>
+<div class="lable-option-sidebar">
+    <div class="selection-sidebar">
+        <span>Y Axis</span>
+        <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList'
+            current-select="self.selectionYValue"
+            on-item-changed="self.onInputYSelectionChanged">
+        </wi-dropdown-list>
+    </div>
+</div>
+<div style="overflow: overlay; display:flex; flex-direction: column;">
+    <div style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px; cursor: pointer;"
+        ng-repeat='well in self.treeConfig'>
+        <div
+            style="display: flex; flex-direction: row;padding: 15px 15px 6px 15px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;">
+            <div style="display: flex; align-items: center;">
+                <i class="header-icon"
+                    ng-class="{'fa fa-caret-down': !well._hidden, 'fa fa-caret-right': well._hidden}"
+                    ng-click="well._hidden = !well._hidden"></i>
+                <span
+                    ng-class="{'red-color fa fa-eye-slash': well._notUsed, 'blue-color fa fa-eye': !well._notUsed }"
+                    ng-click="self.toggleWell(well)"
+                    style="cursor: pointer; margin-right: 15px;">
+                </span>
+                <span class="fa fa-times-circle" ng-click="self.removeWell(well)"
+                    style="color: rgb(163, 163, 163);cursor: pointer;margin-right: 15px;">
+                </span>
+                <div ng-bind="well.name" style="font-weight: bold;"></div>
+            </div>
+        </div>
+        <div
+            style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding:11px 15px 15px 15px;background: #f4f4f4; align-items: center;justify-content: flex-start;text-align: center;">
+            <div class="axis-bar" ng-class='{"selected": well.isSettingAxis == "xAxis"}'
+                style="margin-right: 7px;" ng-click="well.isSettingAxis = 'xAxis'">
+                <div ng-bind="'X'"> </div>
+                <div style="margin: 0 10px;
+                            max-width: 70px;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;"
+                    ng-bind="self.getWellSpec(well).xAxis.datasetName"></div>
+                <div ng-bind="self.getCurve(well, 'xAxis').name"></div>
+            </div>
+            <div class="axis-bar" style="margin-left: 7px;"
+                ng-class='{"selected": well.isSettingAxis == "yAxis"}'
+                ng-click="well.isSettingAxis = 'yAxis'">
+                <div ng-bind="'Y'"> </div>
+                <div style="margin: 0 10px;
+                            max-width: 70px;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;"
+                    ng-bind="self.getWellSpec(well).yAxis.datasetName"></div>
+                <div ng-bind="self.getCurve(well, 'yAxis').name"></div>
+            </div>
+        </div>
+        <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
+            filter="self.getFilterForWell(well.isSettingAxis)" get-icon="self.getIcon"
+            get-children="self.getChildren" keep-children='true' uncollapsible='true'
+            run-match="self.runWellMatch" hide-unmatched="true" hide-search='true'
+            click-fn='self.clickFunction'>
+        </wi-tree-view>
+    </div>
+</div>
