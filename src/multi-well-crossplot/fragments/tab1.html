@@ -66,13 +66,12 @@
              ng-click="well.isSettingAxis = selectionValue.name"ng-repeat="selectionValue in self.selectionValueList" ng-show="selectionValue.isUsed">
                 <div ng-bind="selectionValue.name"> </div>
                 <div style="margin: 0 10px; max-width: 70px; flex: 1;white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                    ng-bind="self.getWellSpec(well)[self.getAxis(selectionValue.name)].datasetName"></div>
-                <div ng-bind="self.getCurve(well, self.getAxis(selectionValue.name)).name"></div>
-                <!-- {{self.getAxis(selectionValue.name)}} -->
+                    ng-bind="self.getWellSpec(well)[self.getAxisKey(selectionValue.name)].datasetName"></div>
+                <div ng-bind="self.getCurve(well, self.getAxisKey(selectionValue.name)).name"></div>
             </div>
         </div>
         <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
-            filter="self.getFilterForWell(well.isSettingAxis)" get-icon="self.getIcon"
+            filter="self.getFilterForWell(self.getAxisKey(well.isSettingAxis))" get-icon="self.getIcon"
             get-children="self.getChildren" keep-children='true' uncollapsible='true'
             run-match="self.runWellMatch" hide-unmatched="true" hide-search='true'
             click-fn='self.clickFunction'>

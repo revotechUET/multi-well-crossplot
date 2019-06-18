@@ -42,10 +42,8 @@ app.component(componentName, {
 function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi, wiDialog, wiLoading) {
     let self = this;
     self.treeConfig = [];
-    self.treeConfig1 = [];
     self.selectedNode = null;
     self.datasets = {};
-    window.MWC = this;
     //--------------
     $scope.tab = 1;
     self.selectionTab = self.selectionTab || 'Wells';
@@ -88,6 +86,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }, true);
             $scope.$watch(() => (self.selectionType), () => {
                 getSelectionList(self.selectionType, self.treeConfig);
+                updateDefaultConfig();
+            });
+            $scope.$watch(() => {
+                return `${JSON.stringify(self.selectionValueList)}`;
+            }, () => {
                 updateDefaultConfig();
             });
             $scope.$watch(() => {
@@ -172,21 +175,23 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return selectionValue;
     }
 
-    this.onInputXSelectionChanged = function(selectedItemProps) {
-        self.selectionXValue = (selectedItemProps || {}).name;
-    }
-    this.onInputYSelectionChanged = function(selectedItemProps) {
-        self.selectionYValue = (selectedItemProps || {}).name;
-    }
-    this.onInputZ1SelectionChanged = function(selectedItemProps) {
-        self.selectionZ1Value = (selectedItemProps || {}).name;
-    }
-    this.onInputZ2SelectionChanged = function(selectedItemProps) {
-        self.selectionZ2Value = (selectedItemProps || {}).name;
-    }
-    this.onInputZ3SelectionChanged = function(selectedItemProps) {
-        self.selectionZ3Value = (selectedItemProps || {}).name;
-    }
+    /*
+     *this.onInputXSelectionChanged = function(selectedItemProps) {
+     *    self.selectionXValue = (selectedItemProps || {}).name;
+     *}
+     *this.onInputYSelectionChanged = function(selectedItemProps) {
+     *    self.selectionYValue = (selectedItemProps || {}).name;
+     *}
+     *this.onInputZ1SelectionChanged = function(selectedItemProps) {
+     *    self.selectionZ1Value = (selectedItemProps || {}).name;
+     *}
+     *this.onInputZ2SelectionChanged = function(selectedItemProps) {
+     *    self.selectionZ2Value = (selectedItemProps || {}).name;
+     *}
+     *this.onInputZ3SelectionChanged = function(selectedItemProps) {
+     *    self.selectionZ3Value = (selectedItemProps || {}).name;
+     *}
+     */
     function getSelectionList(selectionType, wellArray) {
         let selectionHash = {};
         let allCurves = [];
@@ -252,23 +257,17 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 wellSpec.yAxis.idCurve = node.idCurve;
                 wellSpec.yAxis.idDataset = node.idDataset;
                 break;
-            default:
-        }
-    }
-    function clickFunctionZAxis($event, node, selectedObjs, treeRoot) {
-        let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
-        switch(treeRoot.isSettingZAxis) {
-            case 'z1Axis':
+            case 'Z1':
                 wellSpec.z1Axis = {};
                 wellSpec.z1Axis.idCurve = node.idCurve;
                 wellSpec.z1Axis.idDataset = node.idDataset;
                 break;
-            case 'z2Axis':
+            case 'Z2':
                 wellSpec.z2Axis = {};
                 wellSpec.z2Axis.idCurve = node.idCurve;
                 wellSpec.z2Axis.idDataset = node.idDataset;
                 break;
-            case 'z3Axis':
+            case 'Z3':
                 wellSpec.z3Axis = {};
                 wellSpec.z3Axis.idCurve = node.idCurve;
                 wellSpec.z3Axis.idDataset = node.idDataset;
@@ -276,6 +275,29 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             default:
         }
     }
+    /*
+     *function clickFunctionZAxis($event, node, selectedObjs, treeRoot) {
+     *    let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
+     *    switch(treeRoot.isSettingZAxis) {
+     *        case 'z1Axis':
+     *            wellSpec.z1Axis = {};
+     *            wellSpec.z1Axis.idCurve = node.idCurve;
+     *            wellSpec.z1Axis.idDataset = node.idDataset;
+     *            break;
+     *        case 'z2Axis':
+     *            wellSpec.z2Axis = {};
+     *            wellSpec.z2Axis.idCurve = node.idCurve;
+     *            wellSpec.z2Axis.idDataset = node.idDataset;
+     *            break;
+     *        case 'z3Axis':
+     *            wellSpec.z3Axis = {};
+     *            wellSpec.z3Axis.idCurve = node.idCurve;
+     *            wellSpec.z3Axis.idDataset = node.idDataset;
+     *            break;
+     *        default:
+     *    }
+     *}
+     */
     this.refresh = function(){
         self.layers.length = 0;
         self.treeConfig.length = 0;
@@ -288,13 +310,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         for (let w of self.wellSpec) {
             try {
                 let well = await wiApi.getCachedWellPromise(w.idWell || w);
-                let well1 = {};
-                Object.assign(well1, well);
                 well.isSettingAxis = 'X';
-                well.isSettingZAxis = 'z1Axis'
                 $timeout(() => {
                     self.treeConfig.push(well);
-                    self.treeConfig1.push(Object.assign({}, well));
                 });
             }
             catch(e) {
@@ -339,7 +357,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             return true;
         });
     }
-    self.getAxis = function(isSettingAxis) {
+    self.getAxisKey = function(isSettingAxis) {
         switch(isSettingAxis) {
             case 'X':
                 return 'xAxis';
@@ -358,7 +376,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     function getCurve(well, requiredAxis) {
         let wellSpec = getWellSpec(well);
         if (!Object.keys(wellSpec).length) return {};
-        let axis = requiredAxis || self.getAxis(well.isSettingAxis);
+        let axis = requiredAxis || self.getAxisKey(well.isSettingAxis);
         let curves = getCurvesInWell(well).filter(c => self.runWellMatch(c, self.getFilterForWell(axis)));
         let curve = wellSpec[axis] && wellSpec[axis].idCurve ? curves.find(c => c.idCurve === wellSpec[axis].idCurve) : curves[0];
         if (!curve) {
@@ -475,6 +493,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.setConfigYLabel = function(notUse, newValue) {
         self.config.yLabel = newValue;
     }
+    this.getZ1Min = () => (isNaN(self.config.z1Min) ? (self.defaultConfig.z1Min || 0) : self.config.z1Min)
+    this.getZ1Max = () => (isNaN(self.config.z1Max) ? (self.defaultConfig.z1Max || 0) : self.config.z1Max)
+    this.getZ1N = () => (isNaN(self.config.z1N) ? (self.defaultConfig.z1N || 0) : self.config.z1N)
+    this.getZ2Min = () => (isNaN(self.config.z2Min) ? (self.defaultConfig.z2Min || 0) : self.config.z2Min)
+    this.getZ2Max = () => (isNaN(self.config.z2Max) ? (self.defaultConfig.z2Max || 0) : self.config.z2Max)
+    this.getZ2N = () => (isNaN(self.config.z2N) ? (self.defaultConfig.z2N || 0) : self.config.z2N)
+    this.getZ3Min = () => (isNaN(self.config.z3Min) ? (self.defaultConfig.z3Min || 0) : self.config.z3Min)
+    this.getZ3Max = () => (isNaN(self.config.z3Max) ? (self.defaultConfig.z3Max || 0) : self.config.z3Max)
+    this.getZ3N = () => (isNaN(self.config.z3N) ? (self.defaultConfig.z3N || 0) : self.config.z3N)
     this.getTop = () => (isNaN(self.config.top) ? (self.defaultConfig.top || 0) : self.config.top)
     this.getBottom = () => (isNaN(self.config.bottom) ? (self.defaultConfig.bottom || 0) : self.config.bottom)
     this.getLeft = () => (isNaN(self.config.left) ? (self.defaultConfig.left || 0) : self.config.left)
@@ -497,8 +524,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     function updateDefaultConfig() {
         clearDefaultConfig();
-        setDefaultConfig('xAxis');
-        setDefaultConfig('yAxis');
+        /*
+         *setDefaultConfig('xAxis');
+         *setDefaultConfig('yAxis');
+         */
+        self.selectionValueList.forEach(s => {
+            if (s.isUsed) {
+               setDefaultConfig(self.getAxisKey(s.name));
+            }
+        })
 
         function setDefaultConfig(axis) {
             let curve = getCurve(self.treeConfig[0], axis);
@@ -509,12 +543,27 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 case 'xAxis':
                     self.defaultConfig.left = family.family_spec[0].minScale;
                     self.defaultConfig.right = family.family_spec[0].maxScale;
-                    self.defaultConfig.logaX = (family.family_spec[0].displayType.toLowerCase() === 'logarithmic');
+                    self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
                     break;
                 case 'yAxis':
                     self.defaultConfig.top = family.family_spec[0].maxScale;
                     self.defaultConfig.bottom = family.family_spec[0].minScale;
                     self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                    break;
+                case 'z1Axis':
+                    self.defaultConfig.z1Max = family.family_spec[0].maxScale;
+                    self.defaultConfig.z1Min = family.family_spec[0].minScale;
+                    self.defaultConfig.z1N = 5;
+                    break;
+                case 'z2Axis':
+                    self.defaultConfig.z2Max = family.family_spec[0].maxScale;
+                    self.defaultConfig.z2Min = family.family_spec[0].minScale;
+                    self.defaultConfig.z2N = 5;
+                    break;
+                case 'z3Axis':
+                    self.defaultConfig.z3Max = family.family_spec[0].maxScale;
+                    self.defaultConfig.z3Min = family.family_spec[0].minScale;
+                    self.defaultConfig.z3N = 5;
                     break;
                 default:
             }
@@ -726,15 +775,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.getFilterForWell = (axis) => {
         switch(axis) {
-            case 'X':
+            case 'xAxis':
                 return self.getSelectionValue('X').value;
-            case 'Y':
+            case 'yAxis':
                 return self.getSelectionValue('Y').value;
-            case 'Z1':
+            case 'z1Axis':
                 return self.getSelectionValue('Z1').value;
-            case 'Z2':
+            case 'z2Axis':
                 return self.getSelectionValue('Z2').value;
-            case 'Z3':
+            case 'z3Axis':
                 return self.getSelectionValue('Z3').value;
             default:
         }
