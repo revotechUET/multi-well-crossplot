@@ -1,5 +1,5 @@
 <div class="lable-option-sidebar"
-    style="margin-top: 10px; display: flex; justify-content: space-between;">
+    style="margin-top: 10px; padding-bottom: 5px; display: flex; justify-content: space-between;">
     <span>INPUT</span>
     <div>
         <span ng-class="{'active' : self.selectionType === 'family-group'}"
@@ -12,21 +12,32 @@
             ng-click="self.selectionType='curve'" class="button-with-lable">curve</span>
     </div>
 </div>
-<div style="padding-bottom: 0;" class="lable-option-sidebar">
-    <div class="selection-sidebar">
-        <span>X Axis</span>
-        <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList'
-            current-select="self.selectionXValue"
-            on-item-changed="self.onInputXSelectionChanged">
-        </wi-dropdown-list>
+<div class="lable-option-sidebar"
+    style="display: flex; justify-content: space-between;">
+    <span>Optional Axis</span>
+    <div>
+        <span ng-class="{'active' : self.getSelectionValue('Z1').isUsed}" style="margin-right: 8px;"
+            ng-click="self.getSelectionValue('Z1').isUsed = !self.getSelectionValue('Z1').isUsed" class="button-with-lable">
+            Z1 Color
+        </span>
+        <span ng-class="{'active' : self.getSelectionValue('Z2').isUsed}" style="margin-right: 8px;"
+            ng-click="self.getSelectionValue('Z2').isUsed = !self.getSelectionValue('Z2').isUsed" class="button-with-lable">
+            Z2 Size
+        </span>
+        <span ng-class="{'active' : self.getSelectionValue('Z3').isUsed}" style="margin-right: 8px;"
+            ng-click="self.getSelectionValue('Z3').isUsed = !self.getSelectionValue('Z3').isUsed" class="button-with-lable">
+            Z3 Label 
+        </span>
     </div>
 </div>
-<div class="lable-option-sidebar">
+<div style="padding-bottom: 0;" class="lable-option-sidebar"
+    ng-repeat="selectionValue in self.selectionValueList"
+    ng-show="selectionValue.isUsed">
     <div class="selection-sidebar">
-        <span>Y Axis</span>
+        <span>{{selectionValue.label}}</span>
         <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.selectionList'
-            current-select="self.selectionYValue"
-            on-item-changed="self.onInputYSelectionChanged">
+            current-select="selectionValue.value"
+            on-item-changed="selectionValue.onChange">
         </wi-dropdown-list>
     </div>
 </div>
@@ -52,29 +63,45 @@
         </div>
         <div
             style="border-bottom: 1px solid #e4e4e4;display: flex; flex-direction: row;padding:11px 15px 15px 15px;background: #f4f4f4; align-items: center;justify-content: flex-start;text-align: center;">
-            <div class="axis-bar" ng-class='{"selected": well.isSettingAxis == "xAxis"}'
-                style="margin-right: 7px;" ng-click="well.isSettingAxis = 'xAxis'">
-                <div ng-bind="'X'"> </div>
+            <div class="axis-bar" ng-class='{"selected": well.isSettingAxis == selectionValue.name}'
+                style="margin-right: 7px;" ng-click="well.isSettingAxis = selectionValue.name"
+                ng-repeat="selectionValue in self.selectionValueList"
+                ng-show="selectionValue.isUsed">
+                <div ng-bind="selectionValue.name"> </div>
                 <div style="margin: 0 10px;
                             max-width: 70px;
                             white-space: nowrap;
                             text-overflow: ellipsis;
                             overflow: hidden;"
-                    ng-bind="self.getWellSpec(well).xAxis.datasetName"></div>
-                <div ng-bind="self.getCurve(well, 'xAxis').name"></div>
+                    ng-bind="self.getWellSpec(well)[self.getAxis(selectionValue.name)].datasetName"></div>
+                <div ng-bind="self.getCurve(well, self.getAxis(selectionValue.name)).name"></div>
+                {{self.getAxis(selectionValue.name)}}
             </div>
-            <div class="axis-bar" style="margin-left: 7px;"
-                ng-class='{"selected": well.isSettingAxis == "yAxis"}'
-                ng-click="well.isSettingAxis = 'yAxis'">
-                <div ng-bind="'Y'"> </div>
-                <div style="margin: 0 10px;
-                            max-width: 70px;
-                            white-space: nowrap;
-                            text-overflow: ellipsis;
-                            overflow: hidden;"
-                    ng-bind="self.getWellSpec(well).yAxis.datasetName"></div>
-                <div ng-bind="self.getCurve(well, 'yAxis').name"></div>
-            </div>
+            <!--
+               -<div class="axis-bar" ng-class='{"selected": well.isSettingAxis == "xAxis"}'
+               -    style="margin-right: 7px;" ng-click="well.isSettingAxis = 'xAxis'">
+               -    <div ng-bind="'X'"> </div>
+               -    <div style="margin: 0 10px;
+               -                max-width: 70px;
+               -                white-space: nowrap;
+               -                text-overflow: ellipsis;
+               -                overflow: hidden;"
+               -        ng-bind="self.getWellSpec(well).xAxis.datasetName"></div>
+               -    <div ng-bind="self.getCurve(well, 'xAxis').name"></div>
+               -</div>
+               -<div class="axis-bar" style="margin-left: 7px;"
+               -    ng-class='{"selected": well.isSettingAxis == "yAxis"}'
+               -    ng-click="well.isSettingAxis = 'yAxis'">
+               -    <div ng-bind="'Y'"> </div>
+               -    <div style="margin: 0 10px;
+               -                max-width: 70px;
+               -                white-space: nowrap;
+               -                text-overflow: ellipsis;
+               -                overflow: hidden;"
+               -        ng-bind="self.getWellSpec(well).yAxis.datasetName"></div>
+               -    <div ng-bind="self.getCurve(well, 'yAxis').name"></div>
+               -</div>
+               -->
         </div>
         <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
             filter="self.getFilterForWell(well.isSettingAxis)" get-icon="self.getIcon"

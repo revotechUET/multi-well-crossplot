@@ -23,6 +23,7 @@ app.component(componentName, {
         wellSpec: "<",
         zonesetName: "<",
         selectionType: "<",
+        selectionTypeZ: "<",
         selectionXValue: "<",
         selectionYValue: "<",
         selectionZ1Value: "<",
@@ -41,10 +42,12 @@ app.component(componentName, {
 function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi, wiDialog, wiLoading) {
     let self = this;
     self.treeConfig = [];
+    self.treeConfig1 = [];
     self.selectedNode = null;
     self.datasets = {};
+    window.MWC = this;
     //--------------
-    $scope.tab = 7;
+    $scope.tab = 1;
     self.selectionTab = self.selectionTab || 'Wells';
 
     $scope.setTab = function(newTab){
@@ -105,12 +108,68 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.defaultConfig = self.defaultConfig || {};
         self.wellSpec = self.wellSpec || [];
         self.selectionType = self.selectionType || 'family-group';
+        self.selectionTypeZ = self.selectionTypeZ || 'family-group';
         self.zoneTree = [];
         self.zonesetName = self.zonesetName || "ZonationAll";
         self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
         self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left'};
         self.udls = self.udls || [];
         self.polygons = self.polygons || [];
+        self.polygonExclude = true;
+        self.selectionValueList = self.initSelectionValueList();
+    }
+
+    this.initSelectionValueList = () => {
+        let x = {
+                name: 'X',
+                label: 'X Axis',
+                value: self.selectionXValue,
+                isUsed: true
+        }
+        x.onChange = (function(selectedItemProps) {
+            this.value = selectedItemProps.name;
+        }).bind(x);
+        let y = {
+                name: 'Y',
+                label: 'Y Axis',
+                value: self.selectionYValue,
+                isUsed: true
+        }
+        y.onChange = (function(selectedItemProps) {
+            this.value = selectedItemProps.name;
+        }).bind(y);
+        let z1 = {
+                name: 'Z1',
+                label: 'Z1 Axis',
+                value: self.selectionZ1Value
+        }
+        z1.onChange = (function(selectedItemProps) {
+            this.value = selectedItemProps.name;
+        }).bind(z1);
+        let z2 = {
+                name: 'Z2',
+                label: 'Z2 Axis',
+                value: self.selectionZ2Value
+        }
+        z2.onChange = (function(selectedItemProps) {
+            this.value = selectedItemProps.name;
+        }).bind(z2);
+        let z3 = {
+                name: 'Z3',
+                label: 'Z3 Axis',
+                value: self.selectionZ3Value
+        }
+        z3.onChange = (function(selectedItemProps) {
+            this.value = selectedItemProps.name;
+        }).bind(z3);
+        return [x, y, z1, z2, z3];
+    }
+    this.getSelectionValue = (name) => {
+        if (!self.selectionValueList.length) return '';
+        let selectionValue = self.selectionValueList.find(s => {
+            return s.name == name;
+        })
+        return selectionValue;
     }
 
     this.onInputXSelectionChanged = function(selectedItemProps) {
@@ -183,15 +242,36 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     function clickFunction($event, node, selectedObjs, treeRoot) {
         let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
         switch(treeRoot.isSettingAxis) {
-            case 'xAxis':
+            case 'X':
                 wellSpec.xAxis = {};
                 wellSpec.xAxis.idCurve = node.idCurve;
                 wellSpec.xAxis.idDataset = node.idDataset;
                 break;
-            case 'yAxis':
+            case 'Y':
                 wellSpec.yAxis = {};
                 wellSpec.yAxis.idCurve = node.idCurve;
                 wellSpec.yAxis.idDataset = node.idDataset;
+                break;
+            default:
+        }
+    }
+    function clickFunctionZAxis($event, node, selectedObjs, treeRoot) {
+        let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
+        switch(treeRoot.isSettingZAxis) {
+            case 'z1Axis':
+                wellSpec.z1Axis = {};
+                wellSpec.z1Axis.idCurve = node.idCurve;
+                wellSpec.z1Axis.idDataset = node.idDataset;
+                break;
+            case 'z2Axis':
+                wellSpec.z2Axis = {};
+                wellSpec.z2Axis.idCurve = node.idCurve;
+                wellSpec.z2Axis.idDataset = node.idDataset;
+                break;
+            case 'z3Axis':
+                wellSpec.z3Axis = {};
+                wellSpec.z3Axis.idCurve = node.idCurve;
+                wellSpec.z3Axis.idDataset = node.idDataset;
                 break;
             default:
         }
@@ -208,9 +288,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         for (let w of self.wellSpec) {
             try {
                 let well = await wiApi.getCachedWellPromise(w.idWell || w);
-                well.isSettingAxis = 'xAxis';
+                let well1 = {};
+                Object.assign(well1, well);
+                well.isSettingAxis = 'X';
                 well.isSettingZAxis = 'z1Axis'
-                $timeout(() => self.treeConfig.push(well));
+                $timeout(() => {
+                    self.treeConfig.push(well);
+                    self.treeConfig1.push(Object.assign({}, well));
+                });
             }
             catch(e) {
                 console.error(e);
@@ -254,11 +339,26 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             return true;
         });
     }
+    self.getAxis = function(isSettingAxis) {
+        switch(isSettingAxis) {
+            case 'X':
+                return 'xAxis';
+            case 'Y':
+                return 'yAxis';
+            case 'Z1':
+                return 'z1Axis';
+            case 'Z2':
+                return 'z2Axis';
+            case 'Z3':
+                return 'z3Axis';
+            default:
+        }
+    }
     this.getCurve = getCurve;
     function getCurve(well, requiredAxis) {
         let wellSpec = getWellSpec(well);
         if (!Object.keys(wellSpec).length) return {};
-        let axis = requiredAxis || well.isSettingAxis;
+        let axis = requiredAxis || self.getAxis(well.isSettingAxis);
         let curves = getCurvesInWell(well).filter(c => self.runWellMatch(c, self.getFilterForWell(axis)));
         let curve = wellSpec[axis] && wellSpec[axis].idCurve ? curves.find(c => c.idCurve === wellSpec[axis].idCurve) : curves[0];
         if (!curve) {
@@ -626,19 +726,32 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.getFilterForWell = (axis) => {
         switch(axis) {
-            case 'xAxis':
-                return self.selectionXValue;
-            case 'yAxis':
-                return self.selectionYValue;
-            case 'z1Axis':
-                return self.selectionZ1Value;
-            case 'z2Axis':
-                return self.selectionZ2Value;
-            case 'z3Axis':
-                return self.selectionZ3Value;
+            case 'X':
+                return self.getSelectionValue('X').value;
+            case 'Y':
+                return self.getSelectionValue('Y').value;
+            case 'Z1':
+                return self.getSelectionValue('Z1').value;
+            case 'Z2':
+                return self.getSelectionValue('Z2').value;
+            case 'Z3':
+                return self.getSelectionValue('Z3').value;
             default:
         }
     }
+    /*
+     *this.getZFilterForWell = (axis) => {
+     *    switch(axis) {
+     *        case 'z1Axis':
+     *            return self.selectionZ1Value;
+     *        case 'z2Axis':
+     *            return self.selectionZ2Value;
+     *        case 'z3Axis':
+     *            return self.selectionZ3Value;
+     *        default:
+     *    }
+     *}
+     */
     this.runWellMatch = function (node, criteria) {
         let family;
         if (!criteria) return true;
@@ -657,20 +770,43 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 return node.name.trim().toLowerCase() === criteria.trim().toLowerCase();
         }
     }
+/*
+ *    this.runWellMatchZAxis = function (node, criteria) {
+ *        let family;
+ *        if (!criteria) return true;
+ *        switch(self.selectionTypeZ) {
+ *            case 'family-group': 
+ *                family = wiApi.getFamily(node.idFamily);
+ *                if (!family) return null;
+ *                return family.familyGroup.trim().toLowerCase() === criteria.trim().toLowerCase();
+ *
+ *            case 'family': 
+ *                family = wiApi.getFamily(node.idFamily);
+ *                if (!family) return null;
+ *                return family.name.trim().toLowerCase() === criteria.trim().toLowerCase();
+ *
+ *            case 'curve':
+ *                return node.name.trim().toLowerCase() === criteria.trim().toLowerCase();
+ *        }
+ *    }
+ */
 
     // ---POLYGON---
     this.currentPolygon = {};
     this.addPolygon = function() {
         let polygon = {};
-        //polygon.lineStyle = {
-            //lineColor: 'red',
-            //lineWidth: 1,
-            //lineStyle: [10, 0]
-        //}
+        /*
+         *polygon.lineStyle = {
+         *    lineColor: 'red',
+         *    lineWidth: 1,
+         *    lineStyle: [10, 0]
+         *}
+         */
         polygon.label = 'New polygon';
         polygon.mode = 'edit';
         polygon._notUsed = false;
         polygon._notShow = false;
+        polygon.exclude = true;
         polygon.points = [];
         Object.assign(self.currentPolygon, polygon);
         self.polygons.forEach(p => {
@@ -708,33 +844,35 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             polygon.mode = 'edit';
         }
     }
-    //this.drawPolygon = ($event, polygon) => {
-        //$event.preventDefault();
-        //$event.stopPropagation();
-        //if (_.isEmpty(polygon) || polygon.isEnd) return;
-        //self.container = document.getElementById('layer-collection');
-        //let bbox = self.container.getBoundingClientRect();
-        //let startXRange = startYRange = 0;
-        //let endXRange = bbox.width - $scope.hPadding * 2;
-        //let endYRange = bbox.height - $scope.vPadding * 2;
-        //let mouseX = $event.offsetX - $scope.hPadding;
-        //let mouseY = $event.offsetY - $scope.vPadding;
-        //if (mouseX < 0 || mouseX > endXRange || mouseY < 0 || mouseY > endYRange) return;
-        //const transformFnX = d3.scaleLinear().domain([self.getLeft(), self.getRight()]).range([startXRange, endXRange]);
-        //const transformFnY = d3.scaleLinear().domain([self.getTop(), self.getBottom()]).range([startYRange, endYRange]);
-        //let point = {};
-        //switch($event.which) {
-            //case 1:
-                //point.x = transformFnX.invert(mouseX);
-                //point.y = transformFnY.invert(mouseY);
-                //polygon.points.push(point);
-                //break;
-            //case 3:
-                //polygon.isEnd = true;
-                //polygon = {};
-                //break;
-        //}
-    //}
+    /*
+     *this.drawPolygon = ($event, polygon) => {
+     *    $event.preventDefault();
+     *    $event.stopPropagation();
+     *    if (_.isEmpty(polygon) || polygon.isEnd) return;
+     *    self.container = document.getElementById('layer-collection');
+     *    let bbox = self.container.getBoundingClientRect();
+     *    let startXRange = startYRange = 0;
+     *    let endXRange = bbox.width - $scope.hPadding * 2;
+     *    let endYRange = bbox.height - $scope.vPadding * 2;
+     *    let mouseX = $event.offsetX - $scope.hPadding;
+     *    let mouseY = $event.offsetY - $scope.vPadding;
+     *    if (mouseX < 0 || mouseX > endXRange || mouseY < 0 || mouseY > endYRange) return;
+     *    const transformFnX = d3.scaleLinear().domain([self.getLeft(), self.getRight()]).range([startXRange, endXRange]);
+     *    const transformFnY = d3.scaleLinear().domain([self.getTop(), self.getBottom()]).range([startYRange, endYRange]);
+     *    let point = {};
+     *    switch($event.which) {
+     *        case 1:
+     *            point.x = transformFnX.invert(mouseX);
+     *            point.y = transformFnY.invert(mouseY);
+     *            polygon.points.push(point);
+     *            break;
+     *        case 3:
+     *            polygon.isEnd = true;
+     *            polygon = {};
+     *            break;
+     *    }
+     *}
+     */
 
     // ---UDL
     this.addUDL = function() {
@@ -858,8 +996,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             } else {
                 zones.forEach(zone => {
                     let layer = {
-                        dataX: dataArrayX.map(d => d.x),
-                        dataY: dataArrayY.map(d => d.x),
+                        dataX: curveDataX.map(d => d.x),
+                        dataY: curveDataY.map(d => d.x),
                         color: self.getColor(zone, well),
                         name: `${well.name}.${zone.zone_template.name}`,
                         zone: zone.zone_template.name
@@ -936,7 +1074,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 return !_.isEmpty(p.points) && !p._notUsed;
             })
             if (usedPolygon.length) {
-                data = self.filterByPolygons(usedPolygon, data, false);
+                data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
             }
             let result = regression.linear(data);
             node.reg = {
