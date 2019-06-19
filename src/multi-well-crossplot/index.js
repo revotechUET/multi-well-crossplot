@@ -79,7 +79,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         $timeout(() => {
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
                 getTree();
-                self.genLayers();
             }, true);
             $scope.$watch(() => (self.selectionType), () => {
                 getSelectionList(self.selectionType, self.treeConfig);
@@ -107,9 +106,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.zonesetName = self.zonesetName || "ZonationAll";
         self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
         self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left'};
-        /*
-         *self.udls = self.udls || [];
-         */
+        self.udls = self.udls || [];
         self.polygons = self.polygons || [];
         self.polygonExclude = self.polygonExclude || true;
         self.selectionValueList = self.selectionValueList || self.initSelectionValueList();
@@ -821,35 +818,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             polygon.mode = 'edit';
         }
     }
-    /*
-     *this.drawPolygon = ($event, polygon) => {
-     *    $event.preventDefault();
-     *    $event.stopPropagation();
-     *    if (_.isEmpty(polygon) || polygon.isEnd) return;
-     *    self.container = document.getElementById('layer-collection');
-     *    let bbox = self.container.getBoundingClientRect();
-     *    let startXRange = startYRange = 0;
-     *    let endXRange = bbox.width - $scope.hPadding * 2;
-     *    let endYRange = bbox.height - $scope.vPadding * 2;
-     *    let mouseX = $event.offsetX - $scope.hPadding;
-     *    let mouseY = $event.offsetY - $scope.vPadding;
-     *    if (mouseX < 0 || mouseX > endXRange || mouseY < 0 || mouseY > endYRange) return;
-     *    const transformFnX = d3.scaleLinear().domain([self.getLeft(), self.getRight()]).range([startXRange, endXRange]);
-     *    const transformFnY = d3.scaleLinear().domain([self.getTop(), self.getBottom()]).range([startYRange, endYRange]);
-     *    let point = {};
-     *    switch($event.which) {
-     *        case 1:
-     *            point.x = transformFnX.invert(mouseX);
-     *            point.y = transformFnY.invert(mouseY);
-     *            polygon.points.push(point);
-     *            break;
-     *        case 3:
-     *            polygon.isEnd = true;
-     *            polygon = {};
-     *            break;
-     *    }
-     *}
-     */
 
     // ---UDL
     this.addUDL = function() {
@@ -866,12 +834,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         };
         self.udls.push(udl);
     }
-    this.initUDLs = function() {
-        let _udls = self.udls || [];
-        _udls.forEach(udl => {
-            self.udls.push(udl);
-        })
-    }
+    //this.initUDLs = function() {
+    //let _udls = self.udls || [];
+    //_udls.forEach(udl => {
+    //self.udls.push(udl);
+    //})
+    //}
     this.getFnUDL = function(index) {
         return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
     }
@@ -960,11 +928,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }));
             let pointset = getPointSet(curveDataX, curveDataY, curveDataZ1, curveDataZ2, curveDataZ3);
             pointset = pointset.filter(ps => {
-                /*
-                 *if(shouldPlotZ1 && _.isFinite(ps.z1)) {
-                 *    ps.color = self.getTransformZ1()(ps.z1);
-                 *}
-                 */
                 return _.isFinite(ps.x) && _.isFinite(ps.y)
                     && (!shouldPlotZ1 || _.isFinite(ps.z1))
                     && (!shouldPlotZ2 || _.isFinite(ps.z2))
@@ -988,6 +951,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         dataZ1: dataArray.map(d => d.z1),
                         dataZ2: dataArray.map(d => d.z2),
                         dataZ3: dataArray.map(d => d.z3),
+                        regColor: self.getColor(zone, well),
                         name: `${well.name}.${zone.zone_template.name}`,
                         zone: zone.zone_template.name
                     }
@@ -1011,12 +975,24 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             } else {
                 zones.forEach(zone => {
                     let layer = {
-                        dataX: curveDataX.map(d => d.x),
-                        dataY: curveDataY.map(d => d.x),
-                        color: self.getColor(zone, well),
+                        dataX: pointset.map(d => d.x),
+                        dataY: pointset.map(d => d.y),
+                        dataZ1: pointset.map(d => d.z1),
+                        dataZ2: pointset.map(d => d.z2),
+                        dataZ3: pointset.map(d => d.z3),
+                        regColor: well.color,
                         name: `${well.name}.${zone.zone_template.name}`,
                         zone: zone.zone_template.name
                     }
+                    layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
+                        return self.getTransformZ1()(this.dataZ1[idx]);
+                    }).bind(layer) : well.color;
+                    layer.size = curveZ2 && shouldPlotZ2 ? (function(data, idx) {
+                        return self.getTransformZ2()(this.dataZ2[idx]);
+                    }).bind(layer) : null;
+                    layer.textSymbol = curveZ3 && shouldPlotZ3 ? (function(data, idx) {
+                        return self.getTransformZ3()(this.dataZ3[idx]);
+                    }).bind(layer) : null;
                     $timeout(() => {
                         if (!zone._notUsed) {
                             layers.push(layer);
@@ -1030,17 +1006,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         })
         self.layers = layers;
         self._notUsedLayer = _notUsedLayer;
-    }
-    this.zColorFn = function(data, idx) {
-        return self.getTransformZ1()(self.pointset[idx].z1);
-    }
-    Array.prototype.groupBy = function(prop) {
-        return this.reduce(function(groups, item) {
-            const val = item[prop]
-            groups[val] = groups[val] || []
-            groups[val].push(item)
-            return groups
-        }, {})
     }
     function getPointSet(xData, yData, z1Data, z2Data, z3Data) {
         let pointset = [];
@@ -1194,6 +1159,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     // ---REGRESSION---
     this.getRegIcon = (node) => ( (node && node._useReg) ? 'layer-16x16': 'fa fa-eye-slash' )
     this.getRegIcons = (node) => ( ["rectangle"] )
+    this.getRegIconStyle = (node) => ( {
+        'background-color': node.regColor
+    } )
     this.click2ToggleRegression = function ($event, node, selectedObjs) {
         node._useReg = !node._useReg;
         if (node._useReg) {
@@ -1207,14 +1175,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
             }
             let result = regression.linear(data);
-            node.reg = {
-                family: 'linear', 
-                slope: result.equation[0], 
-                intercept: result.equation[1],
-                lineStyle: [10, 0],
-                lineColor: node.color,
-                lineWidth: 1
-            };
+            $timeout(() => {
+                node.reg = {
+                    family: 'linear', 
+                    slope: result.equation[0], 
+                    intercept: result.equation[1],
+                    lineStyle: [10, 0],
+                    lineColor: node.regColor,
+                    lineWidth: 1
+                };
+            })
         }
     }
 }

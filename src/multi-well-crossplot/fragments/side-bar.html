@@ -14,84 +14,23 @@
                 ${require('./tab3.html')}
             </div>
             <!-- -----PRINT SETTINGS----- -->
-            <div ng-show="isSet(5)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab5.html')}
+            <div ng-show="isSet(4)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+                ${require('./tab4.html')}
             </div>
             <!-- -----FORMULA----- -->
-            <div ng-show="isSet(6)"
+            <div ng-show="isSet(5)"
                 style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab6.html')}
+                ${require('./tab5.html')}
             </div>
             <!-- -----REGRESSION----- -->
-            <div ng-show="isSet(7)"
+            <div ng-show="isSet(6)"
                 style="overflow: auto;flex: 1; display: flex; flex-direction: column;">
-                <div ng-show="self.layers"
-                    style="border: 1px solid #e4e4e4;margin: 15px 15px 0 15px;border-radius: 2px;flex: 1;overflow: hidden; ">
-                    <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
-                        filter="self.layerFilter" get-icon="self.getRegIcon"
-                        get-icons="self.getRegIcons" icon-style="self.getLayerIconStyle" get-children="self.noChildren" keep-children='true'
-                        run-match="self.runLayerMatch" hide-unmatched="true" hide-search='false'
-                        click-fn='self.click2ToggleRegression'>
-                    </wi-tree-view>
-                </div>
-                <div class="lable-option-sidebar"
-                    style="padding: 15px; display: flex; flex-direction: column; overflow: auto; flex: 1;">
-                    <div style="font-size: 10px;display: flex;margin-bottom: 0;">Polygon
-                        <div
-                            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                        </div>
-                    </div>
-                    <div style='margin: 0; margin-top: 17px' class='bottom-add' ng-click="self.addPolygon()">Add</div>
-                    <div style='margin: 7px 0 0;'>
-                        <span ng-class="{'active' : self.polygonExclude === true}"
-                            ng-click="self.polygonExclude = !self.polygonExclude" class="button-with-lable"
-                            style="margin-right: 8px;">Exclude</span>
-                    </div>
-                    <div style="overflow: auto;">
-                        <div style=" margin: 15px 0 15px 0;"class="list-formular" ng-repeat="polygon in self.polygons">
-                            <div class="selection-sidebar"
-                                style="padding: 9px 10px 5px 10px; flex: 4; margin-right: 15px; border: none;">
-                                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                    item-label="" item-value="polygon.label" params="$index"
-                                    set-value="self.setPolygonLabel" enabled="true" label-style="{}"
-                                    content-style="{flex:1,float:'none','text-align':'left'}">
-                                </editable>
-                            </div>
-                            <div class="selection-sidebar"
-                                style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
-                                <!--
-                                   -<line-style bind-line-style="polygon.lineStyle"></line-style>
-                                   -->
-                                <span
-                                    ng-class="{'red-color fa fa-check': polygon._notUsed, 'blue-color fa fa-check': !polygon._notUsed }"
-                                    ng-click="polygon._notUsed = !polygon._notUsed"
-                                    style="cursor: pointer; margin-right: 15px;">
-                                </span>
-                                <span
-                                    ng-class="{'red-color fa fa-eye-slash': polygon._notShow, 'blue-color fa fa-eye': !polygon._notShow }"
-                                    ng-click="polygon._notShow = !polygon._notShow"
-                                    style="cursor: pointer; margin-right: 15px;">
-                                </span>
-                                <span
-                                    ng-class="{'red-color fa fa-edit': !polygon.mode, 'blue-color fa fa-edit': polygon.mode == 'edit' }"
-                                    ng-click="self.toggleEditPolygon(polygon)"
-                                    style="cursor: pointer; margin-right: 15px;">
-                                </span>
-                            </div>
-                            <div class="fa fa-times delete-button" ng-click="self.removePolygon($index)"></div>
-                        </div>
-                    </div>
-                </div>
+                ${require('./tab6.html')}
             </div>
-            <!-- -----POLYGON----- -->
-            <!--<div ng-show="isSet(8)"-->
-                <!--style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">-->
-                <!--${require('./tab8.html')}-->
-            <!--</div>-->
             <!-- -----LAYERS----- -->
-            <div ng-show="isSet(9)"
+            <div ng-show="isSet(7)"
                 style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab9.html')}
+                ${require('./tab7.html')}
             </div>
         </div>
         <div style="display: flex;">
@@ -124,34 +63,22 @@
                     Config
                 </div>
             </div>
-            <!--
-               -<div class="tab-with-lable" ng-class="{'active' : isSet(4)}" ng-click="setTab(4)">
-               -    <div style="margin: 5px;">
-               -        Z Axis
-               -    </div>
-               -</div>
-               -->
-            <div class="tab-with-lable" ng-class="{'active' : isSet(5)}" ng-click="setTab(5)">
+            <div class="tab-with-lable" ng-class="{'active' : isSet(4)}" ng-click="setTab(4)">
                 <div style="margin: 4px;">
                     Print Setting
                 </div>
             </div>
-            <div class="tab-with-lable" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">
+            <div class="tab-with-lable" ng-class="{'active' : isSet(5)}" ng-click="setTab(5)">
                 <div style="margin: 22px;">
                     Formula
                 </div>
             </div>
-            <div class="tab-with-lable" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">
+            <div class="tab-with-lable" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">
                 <div style="margin: 10px;">
                     Regression Line
                 </div>
             </div>
-            <!--<div class="tab-with-lable" ng-class="{'active' : isSet(8)}" ng-click="setTab(8)">-->
-                <!--<div style="margin: 30px;">-->
-                    <!--Polygon-->
-                <!--</div>-->
-            <!--</div>-->
-            <div class="tab-with-lable" ng-class="{'active' : isSet(9)}" ng-click="setTab(9)">
+            <div class="tab-with-lable" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">
                 <div style="margin: 30px;">
                     Layers
                 </div>
