@@ -6,7 +6,9 @@ module.exports = {
     },
     output: {
         path: __dirname + '/dist',
-        // path: __dirname + '../../wi-angular/watch/bower_components/multi-well-crossplot/dist',
+         /*
+          *path: __dirname + '../../wi-angular/build/bower_components/multi-well-crossplot/dist',
+          */
         filename: 'multi-well-crossplot.js'
     },
     module: {
