@@ -41,7 +41,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     self.selectedNode = null;
     self.datasets = {};
     //--------------
-    $scope.tab = 1;
+    $scope.tab = 7;
     self.selectionTab = self.selectionTab || 'Wells';
 
     $scope.setTab = function(newTab){
@@ -804,6 +804,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     return pass;
             return !pass;
         });
+    }
+    this.setPolygonLabel = function($index, newLabel) {
+        self.polygons[$index].label = newLabel;
     }
     this.toggleEditPolygon = function(polygon) {
         let idx = self.polygons.indexOf(polygon);

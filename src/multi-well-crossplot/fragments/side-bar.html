@@ -42,19 +42,41 @@
                         </div>
                     </div>
                     <div style='margin: 0; margin-top: 17px' class='bottom-add' ng-click="self.addPolygon()">Add</div>
+                    <div style='margin: 7px 0 0;'>
+                        <span ng-class="{'active' : self.polygonExclude === true}"
+                            ng-click="self.polygonExclude = !self.polygonExclude" class="button-with-lable"
+                            style="margin-right: 8px;">Exclude</span>
+                    </div>
                     <div style="overflow: auto;">
                         <div style=" margin: 15px 0 15px 0;"class="list-formular" ng-repeat="polygon in self.polygons">
                             <div class="selection-sidebar"
                                 style="padding: 9px 10px 5px 10px; flex: 4; margin-right: 15px; border: none;">
                                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                                    item-label="'Y = '" item-value="self.getPolygon" params="$index"
-                                    set-value="self.setPolygon" enabled="true" label-style="{}"
+                                    item-label="" item-value="polygon.label" params="$index"
+                                    set-value="self.setPolygonLabel" enabled="true" label-style="{}"
                                     content-style="{flex:1,float:'none','text-align':'left'}">
                                 </editable>
                             </div>
                             <div class="selection-sidebar"
                                 style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
-                                <line-style bind-line-style="polygon.lineStyle"></line-style>
+                                <!--
+                                   -<line-style bind-line-style="polygon.lineStyle"></line-style>
+                                   -->
+                                <span
+                                    ng-class="{'red-color fa fa-check': polygon._notUsed, 'blue-color fa fa-check': !polygon._notUsed }"
+                                    ng-click="polygon._notUsed = !polygon._notUsed"
+                                    style="cursor: pointer; margin-right: 15px;">
+                                </span>
+                                <span
+                                    ng-class="{'red-color fa fa-eye-slash': polygon._notShow, 'blue-color fa fa-eye': !polygon._notShow }"
+                                    ng-click="polygon._notShow = !polygon._notShow"
+                                    style="cursor: pointer; margin-right: 15px;">
+                                </span>
+                                <span
+                                    ng-class="{'red-color fa fa-edit': !polygon.mode, 'blue-color fa fa-edit': polygon.mode == 'edit' }"
+                                    ng-click="self.toggleEditPolygon(polygon)"
+                                    style="cursor: pointer; margin-right: 15px;">
+                                </span>
                             </div>
                             <div class="fa fa-times delete-button" ng-click="self.removePolygon($index)"></div>
                         </div>
