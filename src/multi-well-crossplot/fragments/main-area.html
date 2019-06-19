@@ -20,8 +20,10 @@
             placement="0"></axis-layer>
         <scatter-layer ng-show="!layer._notUsed" min-val="self.getLeft()" max-val="self.getRight()"
             min-y="self.getBottom()" max-y="self.getTop()" loga="self.getLogaX()"
-            ortho-loga="self.getLogaY()" my-data-x="layer.dataX" my-data-y="layer.dataY" symbol="'circle'"
+            ortho-loga="self.getLogaY()" my-data-x="layer.dataX" 
+            my-data-y="layer.dataY" symbol="self.getSelectionValue('Z3').isUsed ? 'textSymbol' : 'circle'"
             symbol-size="5" symbol-fill-style="layer.color" symbol-stroke-style="'transparent'"
+            color-func="layer.color" point-size-func="layer.size" symbol-func="layer.textSymbol"
             ng-repeat="layer in self.layers">
         </scatter-layer>
         <line-formula-layer ng-show="layer._useReg" min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'

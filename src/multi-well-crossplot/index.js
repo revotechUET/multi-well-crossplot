@@ -41,7 +41,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     self.selectedNode = null;
     self.datasets = {};
     //--------------
-    $scope.tab = 7;
+    $scope.tab = 1;
     self.selectionTab = self.selectionTab || 'Wells';
 
     $scope.setTab = function(newTab){
@@ -79,6 +79,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         $timeout(() => {
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
                 getTree();
+                self.genLayers();
             }, true);
             $scope.$watch(() => (self.selectionType), () => {
                 getSelectionList(self.selectionType, self.treeConfig);
@@ -446,14 +447,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.config.yLabel = newValue;
     }
     this.getZ1Min = () => (isNaN(self.config.z1Min) ? (isNaN(self.defaultConfig.z1Min) ? '[empty]' : self.defaultConfig.z1Min) : self.config.z1Min)
-    this.getZ1Max = () => (isNaN(self.config.z1Max) ? (self.defaultConfig.z1Max || '[empty]') : self.config.z1Max)
-    this.getZ1N = () => (isNaN(self.config.z1N) ? (self.defaultConfig.z1N || '[empty]') : self.config.z1N)
-    this.getZ2Min = () => (isNaN(self.config.z2Min) ? (self.defaultConfig.z2Min || '[empty]') : self.config.z2Min)
-    this.getZ2Max = () => (isNaN(self.config.z2Max) ? (self.defaultConfig.z2Max || '[empty]') : self.config.z2Max)
-    this.getZ2N = () => (isNaN(self.config.z2N) ? (self.defaultConfig.z2N || '[empty]') : self.config.z2N)
-    this.getZ3Min = () => (isNaN(self.config.z3Min) ? (self.defaultConfig.z3Min || '[empty]') : self.config.z3Min)
-    this.getZ3Max = () => (isNaN(self.config.z3Max) ? (self.defaultConfig.z3Max || '[empty]') : self.config.z3Max)
-    this.getZ3N = () => (isNaN(self.config.z3N) ? (self.defaultConfig.z3N || '[empty]') : self.config.z3N)
+    this.getZ1Max = () => (isNaN(self.config.z1Max) ? (isNaN(self.defaultConfig.z1Max) ? '[empty]' : self.defaultConfig.z1Max) : self.config.z1Max)
+    this.getZ1N = () => (isNaN(self.config.z1N) ? (isNaN(self.defaultConfig.z1N) ? '[empty]' : self.defaultConfig.z1N) : self.config.z1N)
+    this.getZ2Min = () => (isNaN(self.config.z2Min) ? (isNaN(self.defaultConfig.z2Min) ? '[empty]' : self.defaultConfig.z2Min) : self.config.z2Min)
+    this.getZ2Max = () => (isNaN(self.config.z2Max) ? (isNaN(self.defaultConfig.z2Max) ? '[empty]' : self.defaultConfig.z2Max) : self.config.z2Max)
+    this.getZ2N = () => (isNaN(self.config.z2N) ? (isNaN(self.defaultConfig.z2N) ? '[empty]' : self.defaultConfig.z2N) : self.config.z2N)
+    this.getZ3Min = () => (isNaN(self.config.z3Min) ? (isNaN(self.defaultConfig.z3Min) ? '[empty]' : self.defaultConfig.z3Min) : self.config.z3Min)
+    this.getZ3Max = () => (isNaN(self.config.z3Max) ? (isNaN(self.defaultConfig.z3Max) ? '[empty]' : self.defaultConfig.z3Max) : self.config.z3Max)
+    this.getZ3N = () => (isNaN(self.config.z3N) ? (isNaN(self.defaultConfig.z3N) ? '[empty]' : self.defaultConfig.z3N) : self.config.z3N)
     this.getTop = () => (isNaN(self.config.top) ? (self.defaultConfig.top || 0) : self.config.top)
     this.getBottom = () => (isNaN(self.config.bottom) ? (self.defaultConfig.bottom || 0) : self.config.bottom)
     this.getLeft = () => (isNaN(self.config.left) ? (self.defaultConfig.left || 0) : self.config.left)
@@ -939,15 +940,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             let curveDataZ1 = null;
             let curveDataZ2 = null;
             let curveDataZ3 = null;
-            if (shouldPlotZ1) {
+            if (shouldPlotZ1 && curveZ1) {
                 self.colors = zColors(self.getZ1N(), curveZ1.idCurve);
                 curveDataZ1 = await wiApi.getCachedCurveDataPromise(curveZ1.idCurve);
             }
-            if (shouldPlotZ2) {
+            if (shouldPlotZ2 && curveZ2) {
                 self.sizes = zSizes(self.getZ2N(), curveZ2.idCurve);
                 curveDataZ2 = await wiApi.getCachedCurveDataPromise(curveZ2.idCurve);
             }
-            if (shouldPlotZ3) {
+            if (shouldPlotZ3 && curveZ3) {
                 self.symbols = zSymbols(self.getZ3N(), curveZ3.idCurve);
                 curveDataZ3 = await wiApi.getCachedCurveDataPromise(curveZ3.idCurve);
             }
@@ -959,9 +960,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }));
             let pointset = getPointSet(curveDataX, curveDataY, curveDataZ1, curveDataZ2, curveDataZ3);
             pointset = pointset.filter(ps => {
-                if(shouldPlotZ1 && _.isFinite(ps.z1)) {
-                    ps.color = self.getTransformZ1()(ps.z1);
-                }
+                /*
+                 *if(shouldPlotZ1 && _.isFinite(ps.z1)) {
+                 *    ps.color = self.getTransformZ1()(ps.z1);
+                 *}
+                 */
                 return _.isFinite(ps.x) && _.isFinite(ps.y)
                     && (!shouldPlotZ1 || _.isFinite(ps.z1))
                     && (!shouldPlotZ2 || _.isFinite(ps.z2))
@@ -979,40 +982,31 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             if (self.getColorMode() == 'zone') {
                 zones.forEach(zone => {
                     let dataArray = filterData(pointset, zone);
-                    if (shouldPlotZ1) {
-                        let groupDataArray = dataArray.groupBy('color');
-                        for (let key in groupDataArray) {
-                            let layer = {
-                                dataX: groupDataArray[key].map(d => d.x),
-                                dataY: groupDataArray[key].map(d => d.y),
-                                color: key,
-                                name: `${well.name}.${zone.zone_template.name}`,
-                                zone: zone.zone_template.name
-                            }
-                            $timeout(() => {
-                                if (!zone._notUsed) {
-                                    layers.push(layer);
-                                } else {
-                                    _notUsedLayer.push(layer)
-                                }
-                            })
-                        }
-                    } else {
-                        let layer = {
-                            dataX: dataArray.map(d => d.x),
-                            dataY: dataArray.map(d => d.y),
-                            color: self.getColor(zone, well),
-                            name: `${well.name}.${zone.zone_template.name}`,
-                            zone: zone.zone_template.name
-                        }
-                        $timeout(() => {
-                            if (!zone._notUsed) {
-                                layers.push(layer);
-                            } else {
-                                _notUsedLayer.push(layer)
-                            }
-                        })
+                    let layer = {
+                        dataX: dataArray.map(d => d.x),
+                        dataY: dataArray.map(d => d.y),
+                        dataZ1: dataArray.map(d => d.z1),
+                        dataZ2: dataArray.map(d => d.z2),
+                        dataZ3: dataArray.map(d => d.z3),
+                        name: `${well.name}.${zone.zone_template.name}`,
+                        zone: zone.zone_template.name
                     }
+                    layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
+                        return self.getTransformZ1()(this.dataZ1[idx]);
+                    }).bind(layer) : self.getColor(zone, well);
+                    layer.size = curveZ2 && shouldPlotZ2 ? (function(data, idx) {
+                        return self.getTransformZ2()(this.dataZ2[idx]);
+                    }).bind(layer) : null;
+                    layer.textSymbol = curveZ3 && shouldPlotZ3 ? (function(data, idx) {
+                        return self.getTransformZ3()(this.dataZ3[idx]);
+                    }).bind(layer) : null;
+                    $timeout(() => {
+                        if (!zone._notUsed) {
+                            layers.push(layer);
+                        } else {
+                            _notUsedLayer.push(layer)
+                        }
+                    })
                 })
             } else {
                 zones.forEach(zone => {
@@ -1036,6 +1030,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         })
         self.layers = layers;
         self._notUsedLayer = _notUsedLayer;
+    }
+    this.zColorFn = function(data, idx) {
+        return self.getTransformZ1()(self.pointset[idx].z1);
     }
     Array.prototype.groupBy = function(prop) {
         return this.reduce(function(groups, item) {
