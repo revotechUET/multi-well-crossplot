@@ -90,7 +90,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             setUDLFn(udl);
         })
         self.polygons = self.polygons || [];
-        self.polygonExclude = self.polygonExclude || true;
+        self.polygonExclude = self.polygonExclude || false;
         self.selectionValueList = self.selectionValueList || self.initSelectionValueList();
         self.selectionValueList.forEach(s => {
             setOnChangeFn(s);
@@ -118,7 +118,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 getZonesetsFromWells(self.treeConfig);
                 updateDefaultConfig();
             }, true);
-            $scope.$watch(() => self.regressionType, () => {
+            $scope.$watch(() => `${self.regressionType}-${self.polygonExclude}-${JSON.stringify(self.polygons)}`, () => {
                 self.layers.forEach(l => {
                     self.updateRegressionLine(l, self.regressionType, self.polygons);
                 })
@@ -447,6 +447,33 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.setConfigYLabel = function(notUse, newValue) {
         self.config.yLabel = newValue;
+    }
+    this.setZ1Min = function(notUse, newValue) {
+        self.config.z1Min = parseFloat(newValue);
+    }
+    this.setZ1Max = function(notUse, newValue) {
+        self.config.z1Max = parseFloat(newValue);
+    }
+    this.setZ1N = function(notUse, newValue) {
+        self.config.z1N = parseFloat(newValue);
+    }
+    this.setZ2Min = function(notUse, newValue) {
+        self.config.z2Min = parseFloat(newValue);
+    }
+    this.setZ2Max = function(notUse, newValue) {
+        self.config.z2Max = parseFloat(newValue);
+    }
+    this.setZ2N = function(notUse, newValue) {
+        self.config.z2N = parseFloat(newValue);
+    }
+    this.setZ3Min = function(notUse, newValue) {
+        self.config.z3Min = parseFloat(newValue);
+    }
+    this.setZ3Max = function(notUse, newValue) {
+        self.config.z3Max = parseFloat(newValue);
+    }
+    this.setZ3N = function(notUse, newValue) {
+        self.config.z3N = parseFloat(newValue);
     }
     this.getZ1Min = () => (isNaN(self.config.z1Min) ? (isNaN(self.defaultConfig.z1Min) ? '[empty]' : self.defaultConfig.z1Min) : self.config.z1Min)
     this.getZ1Max = () => (isNaN(self.config.z1Max) ? (isNaN(self.defaultConfig.z1Max) ? '[empty]' : self.defaultConfig.z1Max) : self.config.z1Max)
