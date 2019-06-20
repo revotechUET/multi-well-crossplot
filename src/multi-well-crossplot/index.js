@@ -158,7 +158,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     function setOnChangeFn(obj) {
         if (!obj.onChange) {
             obj.onChange = (function(selectedItemProps) {
-                this.value = selectedItemProps.name;
+                this.value = (selectedItemProps || {}).name;
             }).bind(obj);
         }
     }
@@ -872,8 +872,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let shouldPlotZ1 = self.getSelectionValue('Z1').isUsed;
         let shouldPlotZ2 = self.getSelectionValue('Z2').isUsed;
         let shouldPlotZ3 = self.getSelectionValue('Z3').isUsed;
-        self.treeConfig.forEach(async (well, idx) => {
-            wiLoading.show($element.find('.main')[0]);
+        wiLoading.show($element.find('.main')[0]);
+        for (let i =0; i < self.treeConfig.length; i++) {
+            let well = self.treeConfig[i];
             if (well._notUsed) {
                 return;
             }
@@ -885,15 +886,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             if (!curveX || !curveY) {
                 return;
             }
-            let datasetTopX = self.wellSpec[idx].xAxis.datasetTop;
-            let datasetBottomX = self.wellSpec[idx].xAxis.datasetBottom;
-            let datasetStepX = self.wellSpec[idx].xAxis.datasetStep;
-            let datasetX = well.datasets.find(ds => ds.idDataset === self.wellSpec[idx].xAxis.idDataset);
+            let datasetTopX = self.wellSpec[i].xAxis.datasetTop;
+            let datasetBottomX = self.wellSpec[i].xAxis.datasetBottom;
+            let datasetStepX = self.wellSpec[i].xAxis.datasetStep;
+            let datasetX = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].xAxis.idDataset);
 
-            let datasetTopY = self.wellSpec[idx].yAxis.datasetTop;
-            let datasetBottomY = self.wellSpec[idx].yAxis.datasetBottom;
-            let datasetStepY = self.wellSpec[idx].yAxis.datasetStep;
-            let datasetY = well.datasets.find(ds => ds.idDataset === self.wellSpec[idx].yAxis.idDataset);
+            let datasetTopY = self.wellSpec[i].yAxis.datasetTop;
+            let datasetBottomY = self.wellSpec[i].yAxis.datasetBottom;
+            let datasetStepY = self.wellSpec[i].yAxis.datasetStep;
+            let datasetY = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].yAxis.idDataset);
 
             let zoneset = getZoneset(well, self.zonesetName);
             zoneset = zoneset || genZonationAllZS(d3.max([datasetTopX, datasetTopY]), d3.min([datasetBottomX, datasetBottomY]), well.color)
@@ -938,7 +939,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             });
 
             if (self.getColorMode() == 'zone') {
-                zones.forEach(zone => {
+                for (let j = 0; j < zones.length; j++) {
+                    let zone = zones[j];
                     let dataArray = filterData(pointset, zone);
                     let layer = {
                         dataX: dataArray.map(d => d.x),
@@ -947,6 +949,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         dataZ2: dataArray.map(d => d.z2),
                         dataZ3: dataArray.map(d => d.z3),
                         regColor: self.getColor(zone, well),
+                        layerColor: self.getColor(zone, well),
                         name: `${well.name}.${zone.zone_template.name}`,
                         zone: zone.zone_template.name
                     }
@@ -966,9 +969,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                             _notUsedLayer.push(layer)
                         }
                     })
-                })
+                }
             } else {
-                zones.forEach(zone => {
+                for (let j = 0; j < zones.length; j++) {
+                    let zone = zone[j];
                     let layer = {
                         dataX: pointset.map(d => d.x),
                         dataY: pointset.map(d => d.y),
@@ -976,6 +980,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         dataZ2: pointset.map(d => d.z2),
                         dataZ3: pointset.map(d => d.z3),
                         regColor: well.color,
+                        layerColor: well.color,
                         name: `${well.name}.${zone.zone_template.name}`,
                         zone: zone.zone_template.name
                     }
@@ -995,10 +1000,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                             _notUsedLayer.push(layer)
                         }
                     })
-                })
+                }
             }
-            wiLoading.hide();
-        })
+        }
+        wiLoading.hide();
         self.layers = layers;
         self._notUsedLayer = _notUsedLayer;
     }
@@ -1144,8 +1149,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.getLayerIcon = (node) => ( (node && !node._notUsed) ? 'layer-16x16': 'fa fa-eye-slash' )
     this.getLayerIcons = (node) => ( ["rectangle"] )
     this.getLayerIconStyle = (node) => ( {
-        'background-color': node.color
-    } )
+        'background-color': node.layerColor
+    })
     this.click2ToggleLayer = function ($event, node, selectedObjs) {
         node._notUsed = !node._notUsed;
         self.selectedLayers = Object.values(selectedObjs).map(o => o.data);
@@ -1165,7 +1170,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }]
     }
     this.onRegressionTypeChange = function(selectedItemProps) {
-        self.regressionType = selectedItemProps.name;
+        self.regressionType = (selectedItemProps || {}).name;
     }
     this.getRegIcon = (node) => ( (node && node._useReg) ? 'layer-16x16': 'fa fa-eye-slash' )
     this.getRegIcons = (node) => ( ["rectangle"] )
