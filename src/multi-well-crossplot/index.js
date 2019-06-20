@@ -118,6 +118,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 getZonesetsFromWells(self.treeConfig);
                 updateDefaultConfig();
             }, true);
+            $scope.$watch(() => self.regressionType, () => {
+                self.layers.forEach(l => {
+                    self.updateRegressionLine(l, self.regressionType, self.polygons);
+                })
+            })
         }, 700);
 
         $scope.vPadding = 50;
@@ -545,6 +550,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             udls: self.udls,
             polygons: self.polygons,
             polygonExclude: self.polygonExclude,
+            regressionType: self.regressionType,
             config: self.config	
         }
         if (!self.idCrossplot) {
@@ -559,9 +565,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     self.setConfigTitle(null, name);
                     self.idCrossplot = res.idParameterSet;
                     wiLoading.hide();
-                    /*
-                     *self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
-                     */
+                    self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
                 })
                     .catch(e => {
                         console.error(e);
@@ -597,14 +601,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 udls: self.udls,
                 polygons: self.polygons,
                 polygonExclude: self.polygonExclude,
+                regressionType: self.regressionType,
                 config: {...self.config, title: name} 
             }
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 self.idCrossplot = res.idParameterSet;
                 console.log(res);
-                /*
-                 *self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
-                 */
+                self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
             })
                 .catch(e => {
                     console.error(e);
@@ -1168,46 +1171,52 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.getRegIcons = (node) => ( ["rectangle"] )
     this.getRegIconStyle = (node) => ( {
         'background-color': node.regColor
-    } )
+    })
+    this.updateRegressionLine = function(node, regressionType, polygons) {
+        let data = node.dataX.map((x, i) => {
+            return [x, node.dataY[i]];
+        })
+        let usedPolygon = polygons.filter(p => {
+            return !_.isEmpty(p.points) && !p._notUsed;
+        })
+        if (usedPolygon.length) {
+            data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
+        }
+        let result;
+        switch(regressionType) {
+            case 'Linear':
+                result = regression.linear(data, {precision: 6});
+                node.reg = {
+                    ...node.reg,
+                    family: self.regressionType.toLowerCase(), 
+                    slope: result.equation[0], 
+                    intercept: result.equation[1],
+                };
+                break;
+            case 'Exponential':
+                result = regression.exponential(data, {precision: 6});
+                node.reg = {
+                    ...node.reg,
+                    family: self.regressionType.toLowerCase(), 
+                    ae: result.equation[0], 
+                    b: result.equation[1],
+                };
+                break;
+            case 'Power':
+                result = regression.power(data, {precision: 6});
+                node.reg = {
+                    ...node.reg,
+                    family: self.regressionType.toLowerCase(), 
+                    coefficient: result.equation[0], 
+                    exponent: result.equation[1],
+                };
+                break;
+        }
+    }
     this.click2ToggleRegression = function ($event, node, selectedObjs) {
         node._useReg = !node._useReg;
         if (node._useReg) {
-            let data = node.dataX.map((x, i) => {
-                return [x, node.dataY[i]];
-            })
-            let usedPolygon = self.polygons.filter(p => {
-                return !_.isEmpty(p.points) && !p._notUsed;
-            })
-            if (usedPolygon.length) {
-                data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
-            }
-            let result;
-            switch(self.regressionType) {
-                case 'Linear':
-                    result = regression.linear(data, {precision: 6});
-                    node.reg = {
-                        family: self.regressionType.toLowerCase(), 
-                        slope: result.equation[0], 
-                        intercept: result.equation[1],
-                    };
-                    break;
-                case 'Exponential':
-                    result = regression.exponential(data, {precision: 6});
-                    node.reg = {
-                        family: self.regressionType.toLowerCase(), 
-                        ae: result.equation[0], 
-                        b: result.equation[1],
-                    };
-                    break;
-                case 'Power':
-                    result = regression.power(data, {precision: 6});
-                    node.reg = {
-                        family: self.regressionType.toLowerCase(), 
-                        coefficient: result.equation[0], 
-                        exponent: result.equation[1],
-                    };
-                    break;
-            }
+            self.updateRegressionLine(node, self.regressionType, self.polygons);
             $timeout(() => {
                 node.reg = {
                     ...node.reg,
