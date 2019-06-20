@@ -73,7 +73,28 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return familyList;
     }
     this.$onInit = function () {
-        self.testArray = [];
+        self.defaultConfig = self.defaultConfig || {};
+        self.wellSpec = self.wellSpec || [];
+        self.selectionType = self.selectionType || 'family-group';
+        self.zoneTree = [];
+        self.zonesetName = self.zonesetName || "ZonationAll";
+        self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
+        self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left', border: false,
+            width: 210,
+            vMargin: 0,
+            hMargin: 0
+        };
+        self.udls = self.udls || [];
+        self.udls.forEach(udl => {
+            setUDLFn(udl);
+        })
+        self.polygons = self.polygons || [];
+        self.polygonExclude = self.polygonExclude || true;
+        self.selectionValueList = self.selectionValueList || self.initSelectionValueList();
+        self.selectionValueList.forEach(s => {
+            setOnChangeFn(s);
+        })
+
         if (self.token)
             wiToken.setToken(self.token);
         $timeout(() => {
@@ -98,68 +119,40 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
         $scope.vPadding = 50;
         $scope.hPadding = 60;
-
-        self.defaultConfig = self.defaultConfig || {};
-        self.wellSpec = self.wellSpec || [];
-        self.selectionType = self.selectionType || 'family-group';
-        self.zoneTree = [];
-        self.zonesetName = self.zonesetName || "ZonationAll";
-        self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
-        self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left', border: false,
-            width: 210,
-            vMargin: 0,
-            hMargin: 0
-        };
-        self.udls = self.udls || [];
-        self.polygons = self.polygons || [];
-        self.polygonExclude = self.polygonExclude || true;
-        self.selectionValueList = self.selectionValueList || self.initSelectionValueList();
     }
 
     this.initSelectionValueList = () => {
-        let x = {
+        let selectionValueList = [{
             name: 'X',
             label: 'X Axis',
             value: 'Slowness',
             isUsed: true
-        }
-        x.onChange = (function(selectedItemProps) {
-            this.value = selectedItemProps.name;
-        }).bind(x);
-        let y = {
+        }, {
             name: 'Y',
             label: 'Y Axis',
             value: 'Gamma Ray',
             isUsed: true
-        }
-        y.onChange = (function(selectedItemProps) {
-            this.value = selectedItemProps.name;
-        }).bind(y);
-        let z1 = {
+        }, {
             name: 'Z1',
             label: 'Z1 Axis',
             value: 'Angle'
-        }
-        z1.onChange = (function(selectedItemProps) {
-            this.value = selectedItemProps.name;
-        }).bind(z1);
-        let z2 = {
+        }, {
             name: 'Z2',
             label: 'Z2 Axis',
             value: 'Diameter'
-        }
-        z2.onChange = (function(selectedItemProps) {
-            this.value = selectedItemProps.name;
-        }).bind(z2);
-        let z3 = {
+        }, {
             name: 'Z3',
             label: 'Z3 Axis',
             value: 'Density'
+        }]
+        return selectionValueList;
+    }
+    function setOnChangeFn(obj) {
+        if (!obj.onChange) {
+            obj.onChange = (function(selectedItemProps) {
+                this.value = selectedItemProps.name;
+            }).bind(obj);
         }
-        z3.onChange = (function(selectedItemProps) {
-            this.value = selectedItemProps.name;
-        }).bind(z3);
-        return [x, y, z1, z2, z3];
     }
     this.getSelectionValue = (name) => {
         if (!self.selectionValueList.length) return '';
@@ -501,19 +494,19 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
                     break;
                 case 'z1Axis':
-                    self.defaultConfig.z1Max = family.family_spec[0].maxScale;
-                    self.defaultConfig.z1Min = family.family_spec[0].minScale;
-                    self.defaultConfig.z1N = 5;
+                    self.config.z1Max = family.family_spec[0].maxScale;
+                    self.config.z1Min = family.family_spec[0].minScale;
+                    self.config.z1N = 5;
                     break;
                 case 'z2Axis':
-                    self.defaultConfig.z2Max = family.family_spec[0].maxScale;
-                    self.defaultConfig.z2Min = family.family_spec[0].minScale;
-                    self.defaultConfig.z2N = 5;
+                    self.config.z2Max = family.family_spec[0].maxScale;
+                    self.config.z2Min = family.family_spec[0].minScale;
+                    self.config.z2N = 5;
                     break;
                 case 'z3Axis':
-                    self.defaultConfig.z3Max = family.family_spec[0].maxScale;
-                    self.defaultConfig.z3Min = family.family_spec[0].minScale;
-                    self.defaultConfig.z3N = 5;
+                    self.config.z3Max = family.family_spec[0].maxScale;
+                    self.config.z3Min = family.family_spec[0].minScale;
+                    self.config.z3N = 5;
                     break;
                 default:
             }
@@ -770,13 +763,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.currentPolygon = {};
     this.addPolygon = function() {
         let polygon = {};
-        /*
-         *polygon.lineStyle = {
-         *    lineColor: 'red',
-         *    lineWidth: 1,
-         *    lineStyle: [10, 0]
-         *}
-         */
         polygon.label = 'New polygon';
         polygon.mode = 'edit';
         polygon._notUsed = false;
@@ -827,9 +813,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.addUDL = function() {
         let udl = {};
         udl.text = "";
-        udl.fn = (function(x) { 
-            return eval(this.text);
-        }).bind(udl);
+        setUDLFn(udl);
         udl.latex = "y = x^2";
         udl.lineStyle = {
             lineColor: 'red',
@@ -838,12 +822,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         };
         self.udls.push(udl);
     }
-    //this.initUDLs = function() {
-    //let _udls = self.udls || [];
-    //_udls.forEach(udl => {
-    //self.udls.push(udl);
-    //})
-    //}
+    function setUDLFn(udl) {
+        if (!udl.fn)  {
+            udl.fn = (function(x) { 
+                return eval(this.text);
+            }).bind(udl);
+        }
+    }
     this.getFnUDL = function(index) {
         return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
     }
