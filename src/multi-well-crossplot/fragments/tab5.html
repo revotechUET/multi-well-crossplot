@@ -1,5 +1,14 @@
+<div style="padding: 8px 16px 0;" class="lable-option-sidebar">
+    <div class="selection-sidebar">
+        <span>Type</span>
+        <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.regressionTypeList'
+            current-select="self.regressionType"
+            on-item-changed="self.onRegressionTypeChange">
+        </wi-dropdown-list>
+    </div>
+</div>
 <div ng-show="self.layers"
-    style="border: 1px solid #e4e4e4;margin: 15px 15px 0 15px;border-radius: 2px;flex: 1;overflow: hidden; ">
+    style="border: 1px solid #e4e4e4;margin: 5px 15px 0 15px;border-radius: 2px;flex: 1;overflow: hidden; ">
     <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
         filter="self.layerFilter" get-icon="self.getRegIcon"
         get-icons="self.getRegIcons" icon-style="self.getRegIconStyle" get-children="self.noChildren" keep-children='true'

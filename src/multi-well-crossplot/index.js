@@ -30,7 +30,8 @@ app.component(componentName, {
         onSave: '<',
         udls: '<',
         polygons: '<',
-        polygonExclude: '<'
+        polygonExclude: '<',
+        regressionType: '<'
     },
     transclude: true
 });
@@ -94,6 +95,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.selectionValueList.forEach(s => {
             setOnChangeFn(s);
         })
+        self.regressionType = self.regressionType || 'Linear';
+        getRegressionTypeList();
 
         if (self.token)
             wiToken.setToken(self.token);
@@ -1146,6 +1149,21 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     // ---REGRESSION---
+    function getRegressionTypeList() {
+        self.regressionTypeList = [{
+            data: {label: 'Linear'},
+            properties: {name: 'Linear'}
+        }, {
+            data: {label: 'Exponential'},
+            properties: {name: 'Exponential'}
+        }, {
+            data: {label: 'Power'},
+            properties: {name: 'Power'}
+        }]
+    }
+    this.onRegressionTypeChange = function(selectedItemProps) {
+        self.regressionType = selectedItemProps.name;
+    }
     this.getRegIcon = (node) => ( (node && node._useReg) ? 'layer-16x16': 'fa fa-eye-slash' )
     this.getRegIcons = (node) => ( ["rectangle"] )
     this.getRegIconStyle = (node) => ( {
@@ -1163,12 +1181,36 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             if (usedPolygon.length) {
                 data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
             }
-            let result = regression.linear(data);
+            let result;
+            switch(self.regressionType) {
+                case 'Linear':
+                    result = regression.linear(data, {precision: 6});
+                    node.reg = {
+                        family: self.regressionType.toLowerCase(), 
+                        slope: result.equation[0], 
+                        intercept: result.equation[1],
+                    };
+                    break;
+                case 'Exponential':
+                    result = regression.exponential(data, {precision: 6});
+                    node.reg = {
+                        family: self.regressionType.toLowerCase(), 
+                        ae: result.equation[0], 
+                        b: result.equation[1],
+                    };
+                    break;
+                case 'Power':
+                    result = regression.power(data, {precision: 6});
+                    node.reg = {
+                        family: self.regressionType.toLowerCase(), 
+                        coefficient: result.equation[0], 
+                        exponent: result.equation[1],
+                    };
+                    break;
+            }
             $timeout(() => {
                 node.reg = {
-                    family: 'linear', 
-                    slope: result.equation[0], 
-                    intercept: result.equation[1],
+                    ...node.reg,
                     lineStyle: [10, 0],
                     lineColor: node.regColor,
                     lineWidth: 1
