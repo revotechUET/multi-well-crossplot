@@ -13,23 +13,23 @@
             <div ng-show="isSet(3)" style="overflow: auto; flex: 1; display: flex; flex-direction: column;">
                 ${require('./tab3.html')}
             </div>
-            <!-- -----PRINT SETTINGS----- -->
-            <div ng-show="isSet(4)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+            <!-- -----FORMULA----- -->
+            <div ng-show="isSet(4)"
+                style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                 ${require('./tab4.html')}
             </div>
-            <!-- -----FORMULA----- -->
+            <!-- -----REGRESSION----- -->
             <div ng-show="isSet(5)"
-                style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+                style="overflow: auto;flex: 1; display: flex; flex-direction: column;">
                 ${require('./tab5.html')}
             </div>
-            <!-- -----REGRESSION----- -->
+            <!-- -----LAYERS----- -->
             <div ng-show="isSet(6)"
-                style="overflow: auto;flex: 1; display: flex; flex-direction: column;">
+                style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                 ${require('./tab6.html')}
             </div>
-            <!-- -----LAYERS----- -->
-            <div ng-show="isSet(7)"
-                style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+            <!-- -----PRINT SETTINGS----- -->
+            <div ng-show="isSet(7)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                 ${require('./tab7.html')}
             </div>
         </div>
@@ -65,22 +65,22 @@
             </div>
             <div class="tab-with-lable" ng-class="{'active' : isSet(4)}" ng-click="setTab(4)">
                 <div style="margin: 4px;">
-                    Print Setting
-                </div>
-            </div>
-            <div class="tab-with-lable" ng-class="{'active' : isSet(5)}" ng-click="setTab(5)">
-                <div style="margin: 22px;">
                     Formula
                 </div>
             </div>
-            <div class="tab-with-lable" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">
+            <div class="tab-with-lable" ng-class="{'active' : isSet(5)}" ng-click="setTab(5)">
                 <div style="margin: 10px;">
                     Regression Line
                 </div>
             </div>
-            <div class="tab-with-lable" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">
+            <div class="tab-with-lable" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">
                 <div style="margin: 30px;">
                     Layers
+                </div>
+            </div>
+            <div class="tab-with-lable" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">
+                <div style="margin: 22x;">
+                    Print Setting
                 </div>
             </div>
         </div>

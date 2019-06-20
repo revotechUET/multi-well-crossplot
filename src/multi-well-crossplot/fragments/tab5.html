@@ -1,18 +1,54 @@
-<div style="margin: 15px;" class='bottom-add' ng-click="self.addUDL()">Add</div>
-<div style="overflow: overlay;">
-    <div class="list-formular" ng-repeat="udl in self.udls">
-        <div class="selection-sidebar"
-            style="padding: 9px 10px 5px 10px; flex: 4; margin-right: 15px; border: none;">
-            <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                item-label="'Y = '" item-value="self.getFnUDL" params="$index"
-                set-value="self.setFnUDL" enabled="true" label-style="{}"
-                content-style="{flex:1,float:'none','text-align':'left'}">
-            </editable>
+<div ng-show="self.layers"
+    style="border: 1px solid #e4e4e4;margin: 15px 15px 0 15px;border-radius: 2px;flex: 1;overflow: hidden; ">
+    <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
+        filter="self.layerFilter" get-icon="self.getRegIcon"
+        get-icons="self.getRegIcons" icon-style="self.getRegIconStyle" get-children="self.noChildren" keep-children='true'
+        run-match="self.runLayerMatch" hide-unmatched="true" hide-search='false'
+        click-fn='self.click2ToggleRegression'>
+    </wi-tree-view>
+</div>
+<div class="lable-option-sidebar"
+    style="padding: 15px; display: flex; flex-direction: column; overflow: auto; flex: 1;">
+    <div style="font-size: 10px;display: flex;margin-bottom: 0;">Polygon
+        <div
+            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
-        <div class="selection-sidebar"
-            style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
-            <line-style bind-line-style="udl.lineStyle"></line-style>
+    </div>
+    <div style='margin: 0; margin-top: 17px' class='bottom-add' ng-click="self.addPolygon()">Add</div>
+    <div style='margin: 7px 0 0;'>
+        <span ng-class="{'active' : self.polygonExclude === true}"
+            ng-click="self.polygonExclude = !self.polygonExclude" class="button-with-lable"
+            style="margin-right: 8px;">Exclude</span>
+    </div>
+    <div style="overflow: auto;">
+        <div style=" margin: 15px 0 15px 0;"class="list-formular" ng-repeat="polygon in self.polygons">
+            <div class="selection-sidebar"
+                style="padding: 9px 10px 5px 10px; flex: 4; margin-right: 15px; border: none;">
+                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                    item-label="" item-value="polygon.label" params="$index"
+                    set-value="self.setPolygonLabel" enabled="true" label-style="{}"
+                    content-style="{flex:1,float:'none','text-align':'left'}">
+                </editable>
+            </div>
+            <div class="selection-sidebar"
+                style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
+                <span
+                    ng-class="{'red-color fa fa-check': polygon._notUsed, 'blue-color fa fa-check': !polygon._notUsed }"
+                    ng-click="polygon._notUsed = !polygon._notUsed"
+                    style="cursor: pointer; margin-right: 15px;">
+                </span>
+                <span
+                    ng-class="{'red-color fa fa-eye-slash': polygon._notShow, 'blue-color fa fa-eye': !polygon._notShow }"
+                    ng-click="polygon._notShow = !polygon._notShow"
+                    style="cursor: pointer; margin-right: 15px;">
+                </span>
+                <span
+                    ng-class="{'red-color fa fa-edit': !polygon.mode, 'blue-color fa fa-edit': polygon.mode == 'edit' }"
+                    ng-click="self.toggleEditPolygon(polygon)"
+                    style="cursor: pointer; margin-right: 15px;">
+                </span>
+            </div>
+            <div class="fa fa-times delete-button" ng-click="self.removePolygon($index)"></div>
         </div>
-        <div class="fa fa-times delete-button" ng-click="self.removeUDL($index)"></div>
     </div>
 </div>

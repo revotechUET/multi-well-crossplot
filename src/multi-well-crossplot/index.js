@@ -105,7 +105,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.zoneTree = [];
         self.zonesetName = self.zonesetName || "ZonationAll";
         self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
-        self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left'};
+        self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left', border: false,
+            width: 210,
+            vMargin: 0,
+            hMargin: 0
+        };
         self.udls = self.udls || [];
         self.polygons = self.polygons || [];
         self.polygonExclude = self.polygonExclude || true;
