@@ -95,6 +95,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.selectionValueList.forEach(s => {
             setOnChangeFn(s);
         })
+        self.statisticHeaders = ['xAxis','yAxis','z1Axis','z2Axis','z3Axis','#pts'];
+        self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
 
@@ -112,6 +114,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 return `${JSON.stringify(self.selectionValueList)}`;
             }, () => {
                 updateDefaultConfig();
+                self.updateShowZStats();
             });
             $scope.$watch(() => (self.treeConfig.map(w => w.idWell)), () => {
                 getSelectionList(self.selectionType, self.treeConfig);
@@ -127,6 +130,38 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
         $scope.vPadding = 50;
         $scope.hPadding = 60;
+    }
+
+    self.updateShowZStats = function() {
+        let z1Idx = self.statisticHeaders.indexOf('z1Axis');
+        let z2Idx = self.statisticHeaders.indexOf('z2Axis');
+        let z3Idx = self.statisticHeaders.indexOf('z3Axis');
+        self.statisticHeaderMasks[z1Idx] = self.getSelectionValue('Z1').isUsed;
+        self.statisticHeaderMasks[z2Idx] = self.getSelectionValue('Z2').isUsed;
+        self.statisticHeaderMasks[z3Idx] = self.getSelectionValue('Z3').isUsed;
+    }
+    self.statsValue = function ([row, col]) {
+        let statsArray = self.layers;
+        try {
+            switch(_headers[col]){
+                case 'xAxis':
+                    return statsArray[row].curveXInfo || 'N/A';
+                case 'yAxis':
+                    return statsArray[row].curveYInfo || 'N/A';
+                case 'z1Axis':
+                    return statsArray[row].numPoints || 'N/A';
+                case 'z2Axis':
+                    return wiApi.bestNumberFormat(statsArray[row].avg) || 'N/A';
+                case 'z3Axis':
+                    return wiApi.bestNumberFormat(statsArray[row].min) || 'N/A';
+                case '#pts':
+                    return statsArray[row].numPoints;
+                default:
+                    return "this default";
+            }
+        } catch {
+            return 'N/A';
+        }
     }
 
     this.initSelectionValueList = () => {
@@ -647,8 +682,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     let _zoneNames = []
     self.getZoneNames = function() {
         _zoneNames.length = 0;
-        Object.assign(_zoneNames, self.crossplotList.map(bins => bins.name));
+        Object.assign(_zoneNames, self.layers.map(bins => bins.name));
         return _zoneNames;
+    }
+    let _headers = [];
+    self.getHeaders = function (){
+        _headers.length = 0;
+        Object.assign(_headers, self.statisticHeaders.filter((item, idx) => self.statisticHeaderMasks[idx]));
+        return _headers;
     }
     this.hideSelectedZone = function() {
         if(!self.selectedZones) return;
@@ -903,7 +944,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         for (let i =0; i < self.treeConfig.length; i++) {
             let well = self.treeConfig[i];
             if (well._notUsed) {
-                return;
+                continue;
             }
             let curveX = self.getCurve(well, 'xAxis');
             let curveY = self.getCurve(well, 'yAxis');
@@ -911,7 +952,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             let curveZ2 = shouldPlotZ2 ? self.getCurve(well, 'z2Axis') : null;
             let curveZ3 = shouldPlotZ3 ? self.getCurve(well, 'z3Axis') : null;
             if (!curveX || !curveY) {
-                return;
+                continue;
             }
             let datasetTopX = self.wellSpec[i].xAxis.datasetTop;
             let datasetBottomX = self.wellSpec[i].xAxis.datasetBottom;
@@ -978,7 +1019,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         regColor: self.getColor(zone, well),
                         layerColor: self.getColor(zone, well),
                         name: `${well.name}.${zone.zone_template.name}`,
-                        zone: zone.zone_template.name
+                        zone: zone.zone_template.name,
+                        curveXInfo: `${datasetX.name}.${curveX.name}`,
+                        curveYInfo: `${datasetY.name}.${curveY.name}`,
+                        curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
+                        curveZ2Info: shouldPlotZ2 ? `${datasetZ2.name}.${curveZ2.name}` : 'N/A',
+                        curveZ3Info: shouldPlotZ3 ? `${datasetZ3.name}.${curveZ3.name}` : 'N/A',
+                        numPoints: dataArray.length
                     }
                     layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
                         return self.getTransformZ1()(this.dataZ1[idx]);
@@ -1009,7 +1056,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         regColor: well.color,
                         layerColor: well.color,
                         name: `${well.name}.${zone.zone_template.name}`,
-                        zone: zone.zone_template.name
+                        zone: zone.zone_template.name,
+                        curveXInfo: `${datasetX.name}.${curveX.name}`,
+                        curveYInfo: `${datasetY.name}.${curveY.name}`,
+                        curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
+                        curveZ2Info: shouldPlotZ2 ? `${datasetZ2.name}.${curveZ2.name}` : 'N/A',
+                        curveZ3Info: shouldPlotZ3 ? `${datasetZ3.name}.${curveZ3.name}` : 'N/A',
+                        numPoints: dataArray.length
                     }
                     layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
                         return self.getTransformZ1()(this.dataZ1[idx]);
