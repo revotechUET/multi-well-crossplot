@@ -14,19 +14,19 @@
 </div>
 <div class="lable-option-sidebar"
     style="display: flex; justify-content: space-between; padding-top: 20px;">
-    <span>Optional Axis</span>
+    <span>Scale Axis</span>
     <div>
         <span ng-class="{'active' : self.getSelectionValue('Z1').isUsed}" style="margin-right: 8px;"
             ng-click="self.getSelectionValue('Z1').isUsed = !self.getSelectionValue('Z1').isUsed" class="button-with-lable">
-            Z1 Color
+            Z1-Axist
         </span>
         <span ng-class="{'active' : self.getSelectionValue('Z2').isUsed}" style="margin-right: 8px;"
             ng-click="self.getSelectionValue('Z2').isUsed = !self.getSelectionValue('Z2').isUsed" class="button-with-lable">
-            Z2 Size
+            Z2-Axist
         </span>
         <span ng-class="{'active' : self.getSelectionValue('Z3').isUsed}" style="margin-right: 8px;"
             ng-click="self.getSelectionValue('Z3').isUsed = !self.getSelectionValue('Z3').isUsed" class="button-with-lable">
-            Z3 Label 
+            Z3-Axist 
         </span>
     </div>
 </div>
@@ -66,8 +66,8 @@
              ng-click="well.isSettingAxis = selectionValue.name"ng-repeat="selectionValue in self.selectionValueList" ng-show="selectionValue.isUsed">
                 <div ng-bind="selectionValue.name"> </div>
                 <div style="margin: 0 10px; max-width: 70px; flex: 1;white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                    ng-bind="self.getWellSpec(well)[self.getAxisKey(selectionValue.name)].datasetName"></div>
-                <div ng-bind="self.getCurve(well, self.getAxisKey(selectionValue.name)).name"></div>
+                    ng-bind="self.getWellSpec(well)[self.getAxis(selectionValue.name)].datasetName"></div>
+                <div ng-bind="self.getCurve(well, self.getAxis(selectionValue.name)).name"></div>
             </div>
         </div>
         <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
