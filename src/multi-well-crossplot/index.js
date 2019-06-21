@@ -168,6 +168,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             return 'N/A';
         }
     }
+    self.getStatsRowIcons = function(rowIdx) {
+        return ['rectangle'];
+    }
+    self.getStatsIconStyle = function(rowIdx) {
+        return {
+            'background-color': self.layers[rowIdx].color
+        }
+    }
 
     this.initSelectionValueList = () => {
         let selectionValueList = [{
@@ -632,7 +640,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     self.setConfigTitle(null, name);
                     self.idCrossplot = res.idParameterSet;
                     wiLoading.hide();
-                    self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
+                    //self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
                 })
                     .catch(e => {
                         console.error(e);
@@ -674,7 +682,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 self.idCrossplot = res.idParameterSet;
                 console.log(res);
-                self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
+                //self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
             })
                 .catch(e => {
                     console.error(e);
@@ -893,13 +901,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let udl = {};
         udl.text = "";
         setUDLFn(udl);
-        udl.latex = "y = x^2";
+        udl.latex = "";
         udl.lineStyle = {
             lineColor: 'red',
             lineWidth: 1,
             lineStyle: [10, 0]
         };
         self.udls.push(udl);
+    }
+    function normalizeFormation(text) {
+        return text.replace(/\+-/g, '-').replace(/--/g, '+');
     }
     function setUDLFn(udl) {
         if (!udl.fn)  {
@@ -913,6 +924,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.setFnUDL = function(index, newValue) {
         self.udls[index].text = newValue;
+        self.udls[index].latex = normalizeFormation(`y = ${newValue}`);
     }
     this.getLineStyleUDL = function(index) {
         return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
@@ -1039,13 +1051,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         numPoints: dataArray.length
                     }
                     layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
-                        return self.getTransformZ1()(this.dataZ1[idx]);
+                        return getTransformZ1()(this.dataZ1[idx]);
                     }).bind(layer) : self.getColor(zone, well);
                     layer.size = curveZ2 && shouldPlotZ2 ? (function(data, idx) {
-                        return self.getTransformZ2()(this.dataZ2[idx]);
+                        return getTransformZ2()(this.dataZ2[idx]);
                     }).bind(layer) : null;
                     layer.textSymbol = curveZ3 && shouldPlotZ3 ? (function(data, idx) {
-                        return self.getTransformZ3()(this.dataZ3[idx]);
+                        return getTransformZ3()(this.dataZ3[idx]);
                     }).bind(layer) : null;
                     $timeout(() => {
                         if (!zone._notUsed) {
@@ -1073,16 +1085,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
                         curveZ2Info: shouldPlotZ2 ? `${datasetZ2.name}.${curveZ2.name}` : 'N/A',
                         curveZ3Info: shouldPlotZ3 ? `${datasetZ3.name}.${curveZ3.name}` : 'N/A',
-                        numPoints: dataArray.length
+                        numPoints: pointset.length
                     }
                     layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
-                        return self.getTransformZ1()(this.dataZ1[idx]);
+                        return getTransformZ1()(this.dataZ1[idx]);
                     }).bind(layer) : well.color;
                     layer.size = curveZ2 && shouldPlotZ2 ? (function(data, idx) {
-                        return self.getTransformZ2()(this.dataZ2[idx]);
+                        return getTransformZ2()(this.dataZ2[idx]);
                     }).bind(layer) : null;
                     layer.textSymbol = curveZ3 && shouldPlotZ3 ? (function(data, idx) {
-                        return self.getTransformZ3()(this.dataZ3[idx]);
+                        return getTransformZ3()(this.dataZ3[idx]);
                     }).bind(layer) : null;
                     $timeout(() => {
                         if (!zone._notUsed) {
@@ -1112,21 +1124,21 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         })
         return pointset;
     }
-    this.getTransformZ1 = function() {
+    function getTransformZ1() {
         let wdZ = [self.getZ1Min(), self.getZ1Max()];
         let reverse = wdZ[0] > wdZ[1];
         return d3.scaleQuantize()
             .domain(sort(wdZ))
             .range(reverse ? clone(self.colors).reverse() : self.colors);
     }
-    this.getTransformZ2 = function() {
+    function getTransformZ2() {
         let wdZ = [self.getZ2Min(), self.getZ2Max()];
         let reverse = wdZ[0] > wdZ[1];
         return d3.scaleQuantize()
             .domain(sort(wdZ))
             .range(reverse ? clone(self.sizes).reverse() : self.sizes);
     }
-    this.getTransformZ3 = function() {
+    function getTransformZ3() {
         let wdZ = [self.getZ3Min(), self.getZ3Max()];
         let reverse = wdZ[0] > wdZ[1];
         return d3.scaleQuantize()
@@ -1202,7 +1214,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
         });
     }
-    this.hideSelectedLayer = function() {                                                                                                                            
+    this.hideSelectedLayer = function() {
         if(!self.selectedLayers) return;                                        
         self.selectedLayers.forEach(layer => layer._notUsed = true);            
     }                                                                           
