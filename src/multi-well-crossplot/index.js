@@ -106,9 +106,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
                 getTree();
             }, true);
-            $scope.$watch(() => (self.selectionType), () => {
+            $scope.$watch(() => (self.selectionType), (newVal, oldVal) => {
                 getSelectionList(self.selectionType, self.treeConfig);
                 updateDefaultConfig();
+                if (newVal != oldVal) {
+                    self.selectionValueList.forEach(s => {
+                        s.value = self.selectionList[0].properties.name;
+                    })
+                }
             });
             $scope.$watch(() => {
                 return `${JSON.stringify(self.selectionValueList)}`;
@@ -149,7 +154,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 case 'yAxis':
                     return statsArray[row].curveYInfo || 'N/A';
                 case 'z1Axis':
-                    return statsArray[row].curveZ1nfo || 'N/A';
+                    return statsArray[row].curveZ1Info || 'N/A';
                 case 'z2Axis':
                     return statsArray[row].curveZ2Info || 'N/A';
                 case 'z3Axis':
@@ -972,15 +977,21 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             let curveDataZ1 = null;
             let curveDataZ2 = null;
             let curveDataZ3 = null;
+            let datasetZ1 = null;
+            let datasetZ2 = null;
+            let datasetZ3 = null;
             if (shouldPlotZ1 && curveZ1) {
+                datasetZ1 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z1Axis.idDataset);
                 self.colors = zColors(self.getZ1N(), curveZ1.idCurve);
                 curveDataZ1 = await wiApi.getCachedCurveDataPromise(curveZ1.idCurve);
             }
             if (shouldPlotZ2 && curveZ2) {
+                datasetZ2 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z2Axis.idDataset);
                 self.sizes = zSizes(self.getZ2N(), curveZ2.idCurve);
                 curveDataZ2 = await wiApi.getCachedCurveDataPromise(curveZ2.idCurve);
             }
             if (shouldPlotZ3 && curveZ3) {
+                datasetZ3 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z3Axis.idDataset);
                 self.symbols = zSymbols(self.getZ3N(), curveZ3.idCurve);
                 curveDataZ3 = await wiApi.getCachedCurveDataPromise(curveZ3.idCurve);
             }
