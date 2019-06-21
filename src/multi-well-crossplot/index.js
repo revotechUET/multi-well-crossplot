@@ -149,11 +149,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 case 'yAxis':
                     return statsArray[row].curveYInfo || 'N/A';
                 case 'z1Axis':
-                    return statsArray[row].numPoints || 'N/A';
+                    return statsArray[row].curveZ1nfo || 'N/A';
                 case 'z2Axis':
-                    return wiApi.bestNumberFormat(statsArray[row].avg) || 'N/A';
+                    return statsArray[row].curveZ2Info || 'N/A';
                 case 'z3Axis':
-                    return wiApi.bestNumberFormat(statsArray[row].min) || 'N/A';
+                    return statsArray[row].curveZ3Info || 'N/A';
                 case '#pts':
                     return statsArray[row].numPoints;
                 default:
