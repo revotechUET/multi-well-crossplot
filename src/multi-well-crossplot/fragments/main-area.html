@@ -57,7 +57,7 @@
     <p style="position: absolute;top: 23px;left: 15px; transform: translateY(-50%);">
         {{self.getConfigYLabel()}}</p>
 </div>
-<div class="statistic-table">
+<div class="statistic-table" resizable r-directions="['top']" r-flex="true">
     <div style="overflow: auto; position: absolute;">
         <wi-table-view ng-if="self.crossplotList.length" row-count="self.getZoneNames().length"
             col-count="self.getHeaders().length" col-headers="self.getHeaders()"

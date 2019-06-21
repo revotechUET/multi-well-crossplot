@@ -9,7 +9,7 @@ var app = angular.module(componentName, [
     'sideBar', 'wiTreeView', 'wiTableView',
     'wiApi', 'editable', 
     'wiDialog',
-    'wiDroppable', 'wiDropdownList', 
+    'wiDroppable', 'wiDropdownList', 'angularResizable',
     'plot-toolkit', 
     'wiLoading', 'line-style'
 ]);
