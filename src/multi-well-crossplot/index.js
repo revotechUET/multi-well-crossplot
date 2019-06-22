@@ -42,7 +42,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     self.selectedNode = null;
     self.datasets = {};
     //--------------
-    $scope.tab = 1;
+    $scope.tab = 3;
     self.selectionTab = self.selectionTab || 'Wells';
 
     $scope.setTab = function(newTab){
@@ -903,7 +903,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         setUDLFn(udl);
         udl.latex = "";
         udl.lineStyle = {
-            lineColor: 'red',
+            lineColor: colorGenerator(),
             lineWidth: 1,
             lineStyle: [10, 0]
         };
@@ -1369,5 +1369,30 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.hasDiscriminator = function(well) {
         let wSpec = getWellSpec(well);
         return wSpec.discriminator && Object.keys(wSpec.discriminator).length > 0 && wSpec.discriminator.active;
+    }
+
+    this.reverseAxis = function() {
+        [self.selectionValueList[0].value, self.selectionValueList[1].value] = [self.selectionValueList[1].value, self.selectionValueList[0].value];
+        for (let i = 0; i < self.wellSpec.length; i++) {
+            swapPropObj(self.wellSpec[i], 'xAxis', 'yAxis');
+        }
+        updateDefaultConfig();
+        [self.config.left, self.config.bottom] = [self.config.bottom, self.config.left];
+        [self.config.right, self.config.top] = [self.config.top, self.config.right];
+        [self.config.logaX, self.config.logaY] = [self.config.logaY, self.config.logaX];
+        [self.config.majorX, self.config.majorY] = [self.config.majorY, self.config.majorX];
+        [self.config.minorX, self.config.minorY] = [self.config.minorY, self.config.minorX];
+        [self.config.xLabel, self.config.yLabel] = [self.config.yLabel, self.config.xLabel];
+        self.genLayers();
+    }
+    function swapPropObj(obj, key1, key2) {
+        [obj[key1], obj[key2]] = [obj[key2], obj[key1]];
+    }
+
+    function colorGenerator() {
+        let rand = function () {
+            return Math.floor(Math.random() * 255);
+        }
+        return "rgb(" + rand() + "," + rand() + "," + rand() + ")";
     }
 }
