@@ -74,6 +74,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return familyList;
     }
     this.$onInit = function () {
+        self.isSettingChange = true;
         self.defaultConfig = self.defaultConfig || {};
         self.wellSpec = self.wellSpec || [];
         self.selectionType = self.selectionType || 'family-group';
@@ -103,10 +104,28 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (self.token)
             wiToken.setToken(self.token);
         $timeout(() => {
+            $scope.$watch(() => self.zonesetName, (newVal, oldVal) => {
+                if (newVal != oldVal) {
+                    self.isSettingChange = true;
+                }
+            })
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
+                self.isSettingChange = true;
                 getTree();
             }, true);
+            $scope.$watch(() => {
+                return self.wellSpec.map(wsp => {
+                    return `${wsp.xAxis ? wsp.xAxis.idCurve : ''}-
+                        ${wsp.yAxis ? wsp.yAxis.idCurve : ''}-
+                        ${wsp.z1Axis ? wsp.z1Axis.idCurve : ''}-
+                        ${wsp.z2Axis ? wsp.z2Axis.idCurve : ''}-
+                        ${wsp.z3Axis ? wsp.z3Axis.idCurve : ''}`;
+                }).join('');
+            }, () => {
+                self.isSettingChange = true;
+            }, true);
             $scope.$watch(() => (self.selectionType), (newVal, oldVal) => {
+                self.isSettingChange = true;
                 getSelectionList(self.selectionType, self.treeConfig);
                 updateDefaultConfig();
                 if (newVal != oldVal) {
@@ -118,6 +137,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             $scope.$watch(() => {
                 return `${JSON.stringify(self.selectionValueList)}`;
             }, () => {
+                self.isSettingChange = true;
                 updateDefaultConfig();
                 self.updateShowZStats();
             });
@@ -796,9 +816,19 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (idWells && idWells.length) {
             $timeout(() => {
                 for (let idWell of idWells) {
-                    if (!self.wellSpec.find(wsp => wsp.idWell === idWell)) {
-                        self.wellSpec.push({idWell});
-                    }
+                    wiApi.getCachedWellPromise(idWell).then((well) => {
+                        let zonesets = well.zone_sets;
+                        let hasZonesetName = self.zonesetName != 'ZonationAll' ? zonesets.some(zs => {
+                            zs.name == self.zonesetName;
+                        }) : true;
+                        $timeout(() => {
+                            if (!self.wellSpec.find(wsp => wsp.idWell === idWell) && hasZonesetName) {
+                                self.wellSpec.push({idWell});
+                            } else if (!hasZonesetName) {
+                                toastr.error(`User dataset do not have ${self.zonesetName}`);
+                            }
+                        })
+                    }).catch(e => console.error(e));
                 }
             })
         }
@@ -951,6 +981,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     // ---LAYER
     this.layers = [];
     this.genLayers = async function() {
+        if (!self.isSettingChange) return;
+        self.isSettingChange = false;
         self.layers = self.layers || []	;
         let layers = [];
         let _notUsedLayer = [];

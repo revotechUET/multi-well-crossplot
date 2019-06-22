@@ -33,8 +33,9 @@
                 ${require('./tab7.html')}
             </div>
         </div>
-        <div style="display: flex;">
-            <span class="button-update" ng-click="self.genLayers()">
+        <div style="display: flex;" >
+            <span class="button-update" ng-class="{'disabled-click': !self.isSettingChange}"
+                ng-click="self.genLayers()">
                 Update
             </span>
         </div>
