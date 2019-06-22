@@ -42,7 +42,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     self.selectedNode = null;
     self.datasets = {};
     //--------------
-    $scope.tab = 3;
+    $scope.tab = 1;
     self.selectionTab = self.selectionTab || 'Wells';
 
     $scope.setTab = function(newTab){
@@ -193,7 +193,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     self.getStatsIconStyle = function(rowIdx) {
         return {
-            'background-color': self.layers[rowIdx].color
+            'background-color': self.layers[rowIdx].layerColor
         }
     }
 
@@ -1333,9 +1333,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         'background-color': node.regColor
     })
     this.updateRegressionLine = function(node, regressionType, polygons) {
-        let data = node.dataX.map((x, i) => {
-            return [x, node.dataY[i]];
-        })
+        let data = [];
+        for (let i = 0; i < self.layers.length; i++) {
+            let layer = self.layers[i];
+            if (layer._useReg) {
+                data = data.concat(layer.dataX.map((x, i) => {
+                    return [x, layer.dataY[i]];
+                }));
+            }
+        }
         let usedPolygon = polygons.filter(p => {
             return !_.isEmpty(p.points) && !p._notUsed;
         })
@@ -1346,8 +1352,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         switch(regressionType) {
             case 'Linear':
                 result = regression.linear(data, {precision: 6});
-                node.reg = {
-                    ...node.reg,
+                self.regLine = {
+                    ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     slope: result.equation[0], 
                     intercept: result.equation[1],
@@ -1355,8 +1361,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 break;
             case 'Exponential':
                 result = regression.exponential(data, {precision: 6});
-                node.reg = {
-                    ...node.reg,
+                self.regLine = {
+                    ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     ae: result.equation[0], 
                     b: result.equation[1],
@@ -1364,8 +1370,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 break;
             case 'Power':
                 result = regression.power(data, {precision: 6});
-                node.reg = {
-                    ...node.reg,
+                self.regLine = {
+                    ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     coefficient: result.equation[0], 
                     exponent: result.equation[1],
@@ -1375,17 +1381,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.click2ToggleRegression = function ($event, node, selectedObjs) {
         node._useReg = !node._useReg;
-        if (node._useReg) {
-            self.updateRegressionLine(node, self.regressionType, self.polygons);
-            $timeout(() => {
-                node.reg = {
-                    ...node.reg,
-                    lineStyle: [10, 0],
-                    lineColor: node.regColor,
-                    lineWidth: 1
-                };
-            })
-        }
+        self.updateRegressionLine(node, self.regressionType, self.polygons);
+        $timeout(() => {
+            self.regLine = {
+                ...self.regLine,
+                lineStyle: [10, 0],
+                lineColor: self.regLine.lineColor ? self.regLine.lineColor : colorGenerator(),
+                lineWidth: 1
+            };
+        })
     }
 
     //---DISCRIMINATOR---
