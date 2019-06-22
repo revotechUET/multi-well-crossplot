@@ -386,7 +386,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wellSpec[axis] = {};
             return;
         }
-        wellSpec[axis] = {}
+        if (wellSpec[axis] == undefined) wellSpec[axis] = {};
         wellSpec[axis].curveName = curve.name;
         wellSpec[axis].idCurve = curve.idCurve;
         wellSpec[axis].idDataset = curve.idDataset;
@@ -985,7 +985,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             zoneset = zoneset || genZonationAllZS(d3.max([datasetTopX, datasetTopY]), d3.min([datasetBottomX, datasetBottomY]), well.color)
 
             let curveDataX = await wiApi.getCachedCurveDataPromise(curveX.idCurve);
+            if (self.hasDiscriminator(well, 'xAxis')) {
+                let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetX, self.wellSpec[i].xAxis.discriminator);
+                curveDataX = curveDataX.filter((d, idx) => discriminatorCurve[idx]);
+            }
             let curveDataY = await wiApi.getCachedCurveDataPromise(curveY.idCurve);
+            if (self.hasDiscriminator(well, 'yAxis')) {
+                let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetY, self.wellSpec[i].yAxis.discriminator);
+                curveDataY = curveDataY.filter((d, idx) => discriminatorCurve[idx]);
+            }
             let curveDataZ1 = null;
             let curveDataZ2 = null;
             let curveDataZ3 = null;
@@ -996,16 +1004,28 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 datasetZ1 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z1Axis.idDataset);
                 self.colors = zColors(self.getZ1N(), curveZ1.idCurve);
                 curveDataZ1 = await wiApi.getCachedCurveDataPromise(curveZ1.idCurve);
+                if (self.hasDiscriminator(well, 'z1Axis')) {
+                    let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ1, self.wellSpec[i].z1Axis.discriminator);
+                    curveDataZ1 = curveDataZ1.filter((d, idx) => discriminatorCurve[idx]);
+                }
             }
             if (shouldPlotZ2 && curveZ2) {
                 datasetZ2 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z2Axis.idDataset);
                 self.sizes = zSizes(self.getZ2N(), curveZ2.idCurve);
                 curveDataZ2 = await wiApi.getCachedCurveDataPromise(curveZ2.idCurve);
+                if (self.hasDiscriminator(well, 'z2Axis')) {
+                    let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ2, self.wellSpec[i].z2Axis.discriminator);
+                    curveDataZ2 = curveDataZ2.filter((d, idx) => discriminatorCurve[idx]);
+                }
             }
             if (shouldPlotZ3 && curveZ3) {
                 datasetZ3 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z3Axis.idDataset);
                 self.symbols = zSymbols(self.getZ3N(), curveZ3.idCurve);
                 curveDataZ3 = await wiApi.getCachedCurveDataPromise(curveZ3.idCurve);
+                if (self.hasDiscriminator(well, 'z3Axis')) {
+                    let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ3, self.wellSpec[i].z3Axis.discriminator);
+                    curveDataZ3 = curveDataZ3.filter((d, idx) => discriminatorCurve[idx]);
+                }
             }
 
             curveDataX = curveDataX
@@ -1334,5 +1354,22 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 };
             })
         }
+    }
+
+    //---DISCRIMINATOR---
+    this.discriminatorDialog = function(well) {
+        let wSpec = getWellSpec(well);                                          
+        let axis = self.getAxisKey(well.isSettingAxis);
+        let datasetId = wSpec[axis].idDataset;                                        
+        let dataset = well.datasets.find(ds => ds.idDataset === wSpec[axis].idDataset);
+
+        let curvesArr = dataset.curves.map( c => ({type:'curve',name:c.name}) );
+        wiDialog.discriminator(wSpec[axis].discriminator, curvesArr, function(discrmnt) {
+            wSpec[axis].discriminator = discrmnt;                                     
+        });                                                                     
+    }                                                                           
+    this.hasDiscriminator = function(well, axis) {
+        let wSpec = getWellSpec(well);
+        return wSpec[axis].discriminator && Object.keys(wSpec[axis].discriminator).length > 0 && wSpec[axis].discriminator.active;
     }
 }

@@ -55,6 +55,11 @@
                     ng-click="self.toggleWell(well)"
                     style="cursor: pointer; margin-right: 15px;">
                 </span>
+                <span class="fa fa-filter"
+                    ng-class="{'blue-color': self.hasDiscriminator(well, self.getAxisKey(well.isSettingAxis))}"
+                    ng-click="self.discriminatorDialog(well)"
+                    style="cursor: pointer; margin-right: 17px;">
+                </span>
                 <span class="fa fa-times-circle" ng-click="self.removeWell(well)"
                     style="color: rgb(163, 163, 163);cursor: pointer;margin-right: 15px;">
                 </span>
