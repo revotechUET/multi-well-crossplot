@@ -683,7 +683,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.saveAs = function() {
         console.log("saveAs");
         wiDialog.promptDialog({
-            title: 'New Crossplot',
+            title: 'Save As Crossplot',
             inputName: 'Crossplot Name',
             input: '',
         }, function(name) {
