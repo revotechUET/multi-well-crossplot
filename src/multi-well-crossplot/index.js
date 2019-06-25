@@ -87,9 +87,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             hMargin: 0
         };
         self.udls = self.udls || [];
-        self.udls.forEach(udl => {
-            setUDLFn(udl);
-        })
         self.polygons = self.polygons || [];
         self.polygonExclude = self.polygonExclude || false;
         self.selectionValueList = self.selectionValueList || self.initSelectionValueList();
@@ -947,8 +944,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return text.replace(/\+-/g, '-').replace(/--/g, '+');
     }
     function setUDLFn(udl) {
-        if (!udl.fn)  {
-            udl.fn = (function(x) { 
+        if (!udl.fn) {
+            udl.fn = (function(x) {
+                //this.value = (selected;ItemProps || {}).name;
                 return eval(this.text);
             }).bind(udl);
         }
@@ -1162,6 +1160,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }
             }
         }
+
+        self.udls.forEach(udl => {
+            setUDLFn(udl);
+        })
         wiLoading.hide();
         self.layers = layers;
         self._notUsedLayer = _notUsedLayer;
