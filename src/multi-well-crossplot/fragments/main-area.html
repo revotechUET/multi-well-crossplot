@@ -66,7 +66,7 @@
         <p style="position: absolute;top: 23px;left: 15px; font-weight: bold; transform: translateY(-50%);">
             {{self.getConfigYLabel()}}</p>
     </div>
-    <div class="statistic-table">
+    <div class="statistic-table" resizable r-directions="['top']" r-flex="true">
         <div style="overflow-x: auto; position: absolute; top: 0; right: 0; left: 0; bottom: 0;">
             <wi-table-view ng-if="self.layers.length" row-count="self.getZoneNames().length"
                 col-count="self.getHeaders().length" col-headers="self.getHeaders()"
