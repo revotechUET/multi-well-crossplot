@@ -28,6 +28,7 @@ app.component(componentName, {
         config: '<',
         printSettings: '<',
         onSave: '<',
+        onSaveAs: '<',
         udls: '<',
         polygons: '<',
         polygonExclude: '<',
@@ -665,7 +666,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     self.setConfigTitle(null, name);
                     self.idCrossplot = res.idParameterSet;
                     wiLoading.hide();
-                    //self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
+                    self.onSave && self.onSave(res);
                 })
                     .catch(e => {
                         console.error(e);
@@ -707,7 +708,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 self.idCrossplot = res.idParameterSet;
                 console.log(res);
-                //self.onSave && self.onSave('multi-well-crossplot' + res.idParameterSet, name);
+                self.onSaveAs && self.onSaveAs(res);
             })
                 .catch(e => {
                     console.error(e);
