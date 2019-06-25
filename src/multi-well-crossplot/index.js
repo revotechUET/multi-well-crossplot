@@ -94,7 +94,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.selectionValueList.forEach(s => {
             setOnChangeFn(s);
         })
-        self.statisticHeaders = ['xAxis','yAxis','z1Axis','z2Axis','z3Axis','#pts'];
+        self.statisticHeaders = ['xAxis','yAxis','z1Axis','z2Axis','z3Axis','points'];
         self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
@@ -185,7 +185,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     return statsArray[row].curveZ2Info || 'N/A';
                 case 'z3Axis':
                     return statsArray[row].curveZ3Info || 'N/A';
-                case '#pts':
+                case 'points':
                     return statsArray[row].numPoints;
                 default:
                     return "this default";

@@ -4,12 +4,12 @@
     <div>
         <span ng-class="{'active' : self.selectionType === 'family-group'}"
             ng-click="self.selectionType='family-group'" class="button-with-lable"
-            style="margin-right: 8px;">family-group</span>
+            style="margin-right: 8px;">Family Group</span>
         <span ng-class="{'active' : self.selectionType === 'family'}"
             ng-click="self.selectionType='family'" class="button-with-lable"
-            style="margin-right: 8px;">family</span>
+            style="margin-right: 8px;">Family</span>
         <span ng-class="{'active' : self.selectionType === 'curve'}"
-            ng-click="self.selectionType='curve'" class="button-with-lable">curve</span>
+            ng-click="self.selectionType='curve'" class="button-with-lable">Curve</span>
     </div>
 </div>
 <div class="lable-option-sidebar"
@@ -18,15 +18,15 @@
     <div>
         <span ng-class="{'active' : self.getSelectionValue('Z1').isUsed}" style="margin-right: 8px;"
             ng-click="self.getSelectionValue('Z1').isUsed = !self.getSelectionValue('Z1').isUsed" class="button-with-lable">
-            Z1-Axist
+            Color Z1
         </span>
         <span ng-class="{'active' : self.getSelectionValue('Z2').isUsed}" style="margin-right: 8px;"
             ng-click="self.getSelectionValue('Z2').isUsed = !self.getSelectionValue('Z2').isUsed" class="button-with-lable">
-            Z2-Axist
+            Point size Z2
         </span>
         <span ng-class="{'active' : self.getSelectionValue('Z3').isUsed}" style="margin-right: 8px;"
             ng-click="self.getSelectionValue('Z3').isUsed = !self.getSelectionValue('Z3').isUsed" class="button-with-lable">
-            Z3-Axist 
+            Lable Z3 
         </span>
     </div>
 </div>
