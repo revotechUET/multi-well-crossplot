@@ -158,6 +158,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         $scope.hPadding = 60;
     }
 
+    this.eqnOffsetY = function($index) {
+        return `calc(${$index * 100}% + ${$scope.vPadding}px)`;
+    }
+
     self.updateShowZStats = function() {
         let z1Idx = self.statisticHeaders.indexOf('z1Axis');
         let z2Idx = self.statisticHeaders.indexOf('z2Axis');
