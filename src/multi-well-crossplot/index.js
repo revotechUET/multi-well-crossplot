@@ -110,6 +110,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             $scope.$watch(() => self.zonesetName, (newVal, oldVal) => {
                 self.isSettingChange = true;
             })
+            $scope.$watch(() => (self.wellSpec.map(wsp => wsp.discriminator)), () => {
+                self.isSettingChange = true;
+            }, true)
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
                 self.isSettingChange = true;
                 getTree();
