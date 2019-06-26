@@ -94,8 +94,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.selectionValueList.forEach(s => {
             setOnChangeFn(s);
         })
-        self.statisticHeaders = ['xAxis','yAxis','z1Axis','z2Axis','z3Axis','points'];
-        self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true];
+        self.statisticHeaders = ['xAxis','yAxis','z1Axis','z2Axis','z3Axis','points','correlation'];
+        self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
 
@@ -187,6 +187,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     return statsArray[row].curveZ3Info || 'N/A';
                 case 'points':
                     return statsArray[row].numPoints;
+                case 'msi':
+                    return statsArray[row].msi;
+                case 'correlation':
+                    return statsArray[row].correlation;
                 default:
                     return "this default";
             }
@@ -201,6 +205,35 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return {
             'background-color': self.layers[rowIdx].layerColor
         }
+    }
+    this.calcMSE = function(x, y) {
+        let result = _.mean(y.map((yi, idx) => {
+            return Math.pow(yi - self.regLine.predict(x[idx])[1], 2);
+        }));
+        return result.toFixed(4);
+    }
+    this.calcCorrelation = function(x, y) {
+        let xDeviation = deviation(x);
+        let yDeviation = deviation(y);
+        let num = _.sum(xDeviation.map(function (xi, i) {
+            return xi * yDeviation[i];
+        }));
+        let den = Math.sqrt(_.sum(xDeviation.map(function (xi) {
+            return Math.pow(xi, 2);
+        })) * _.sum(yDeviation.map(function (yi) {
+            return Math.pow(yi, 2);
+        })));
+        return (num / den).toFixed(4);
+        function deviation(x) {
+            var xBar, n, d, i;
+            xBar = _.mean(x);
+            n = x.length;
+            d = new Array(n);
+            for (i = 0; i < n; i++) {
+                d[i] = x[i] - xBar;
+            }
+            return d;
+        };
     }
 
     this.initSelectionValueList = () => {
@@ -1107,7 +1140,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
                         curveZ2Info: shouldPlotZ2 ? `${datasetZ2.name}.${curveZ2.name}` : 'N/A',
                         curveZ3Info: shouldPlotZ3 ? `${datasetZ3.name}.${curveZ3.name}` : 'N/A',
-                        numPoints: dataArray.length
+                        numPoints: dataArray.length,
+                        correlation: self.calcCorrelation(dataArray.map(d => d.x), dataArray.map(d => d.y))
                     }
                     layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
                         return getTransformZ1()(this.dataZ1[idx]);
@@ -1144,7 +1178,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
                         curveZ2Info: shouldPlotZ2 ? `${datasetZ2.name}.${curveZ2.name}` : 'N/A',
                         curveZ3Info: shouldPlotZ3 ? `${datasetZ3.name}.${curveZ3.name}` : 'N/A',
-                        numPoints: pointset.length
+                        numPoints: pointset.length,
+                        correlation: self.calcCorrelation(dataArray.map(d => d.x), dataArray.map(d => d.y))
                     }
                     layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
                         return getTransformZ1()(this.dataZ1[idx]);
@@ -1363,29 +1398,44 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         switch(regressionType) {
             case 'Linear':
                 result = regression.linear(data, {precision: 6});
+                console.log({
+                    slope: result.equation[0], 
+                    intercept: result.equation[1],
+                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     slope: result.equation[0], 
                     intercept: result.equation[1],
+                    predict: result.predict
                 };
                 break;
             case 'Exponential':
                 result = regression.exponential(data, {precision: 6});
+                console.log({
+                    ae: result.equation[0], 
+                    b: result.equation[1],
+                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     ae: result.equation[0], 
                     b: result.equation[1],
+                    predict: result.predict
                 };
                 break;
             case 'Power':
                 result = regression.power(data, {precision: 6});
+                console.log({
+                    coefficient: result.equation[0], 
+                    exponent: result.equation[1],
+                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     coefficient: result.equation[0], 
                     exponent: result.equation[1],
+                    predict: result.predict
                 };
                 break;
         }
@@ -1401,6 +1451,21 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 lineWidth: 1
             };
         })
+
+        // Calc MSE
+        let x = [];
+        let y = [];
+        for (let i = 0; i < self.layers.length; i++) {
+            let layer = self.layers[i];
+            if (layer._useReg) {
+                x = x.concat(layer.dataX);
+                y = y.concat(layer.dataY);
+            }
+        }
+        self.mse = {
+            family: 'mse',
+            mse: self.calcMSE(x, y)
+        }
     }
 
     //---DISCRIMINATOR---

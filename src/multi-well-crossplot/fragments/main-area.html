@@ -32,7 +32,7 @@
                 max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"
                 loga="self.getLogaX()" formula="self.regLine" eqn-offsets="['50px', '0%']"
                 line-color="self.regLine.lineColor" line-dash="self.regLine.lineStyle.join(' ')"
-                line-width="self.regLine.lineWidth" show-equation='true'>
+                line-width="self.regLine.lineWidth" show-equation='true' mse="self.mse">
             </line-formula-layer>
             <!--<line-formula-layer ng-show="layer._useReg" min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'-->
                 <!--max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"-->
@@ -67,6 +67,13 @@
             {{self.getConfigYLabel()}}</p>
     </div>
     <div class="statistic-table" resizable r-directions="['top']" r-flex="true">
+        <div style="overflow-x: auto; position: absolute; top: 0; right: 0; left: 0; bottom: 0;">
+            <wi-table-view ng-if="self.layers.length" row-count="self.getZoneNames().length"
+                col-count="self.getHeaders().length" col-headers="self.getHeaders()"
+                get-row-icons="self.getStatsRowIcons" get-row-icon-style="self.getStatsIconStyle"
+                row-headers="self.getZoneNames()" accessor="self.statsValue">
+            </wi-table-view>
+        </div>
         <div style="overflow-x: auto; position: absolute; top: 0; right: 0; left: 0; bottom: 0;">
             <wi-table-view ng-if="self.layers.length" row-count="self.getZoneNames().length"
                 col-count="self.getHeaders().length" col-headers="self.getHeaders()"
