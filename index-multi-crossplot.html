@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>multi-tab-crossplot</title>
+
+    <link rel="stylesheet" href="./bower_components/jquery-ui/themes/base/jquery-ui.min.css">
+    <link rel="stylesheet" href="./bower_components/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./bower_components/themify-icons/css/themify-icons.css">
+    <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./bower_components/angular-ui-select/dist/select.min.css">
+    <link rel="stylesheet" href="./bower_components/angular-resizable/angular-resizable.min.css">
+    <link rel="stylesheet" href="./src/vendor/css/bootstrap-colorpicker.min.css">
+    <link rel="stylesheet" href="./src/vendor/css/color-picker.css">
+    <link href="./bower_components/toastr/toastr.min.css" rel="stylesheet"/>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <script src="./bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="./bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="./bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<!--<script src="./bower_components/async/dist/async.min.js"></script>-->
+    <script src="./bower_components/angular/angular.min.js"></script>
+    <script src="./bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="./bower_components/d3/d3.min.js"></script>
+    <script src="./bower_components/katex/dist/katex.min.js"></script>
+    <script src="./bower_components/clipboard/dist/clipboard.min.js"></script>
+    <script src="./bower_components/ngclipboard/dist/ngclipboard.min.js"></script>
+    <script src="./bower_components/spin.js/spin.js"></script>
+    <script src="./bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="./bower_components/angular-resizable/angular-resizable.min.js"></script>
+    <script src="./bower_components/ng-file-upload/ng-file-upload.min.js"></script>
+    <script src="./bower_components/angular-modal-service/dst/angular-modal-service.min.js"></script>
+    <script src="./bower_components/angular-ui-select/dist/select.min.js"></script>
+    <script src="./bower_components/lodash/dist/lodash.min.js"></script>
+    <script src="./bower_components/misc-component/dist/misc-components.js"></script>
+    <script src="./bower_components/plot-toolkit/dist/library/library.dll.js"></script>
+    <script src="./bower_components/plot-toolkit/dist/plot-toolkit.js"></script>
+    <script src="./bower_components/toastr/toastr.min.js"></script>
+    <script src="./dist/multi-well-crossplot.js"></script>
+    <script src="./src/vendor/js/bootstrap-colorpicker.min.js"></script>
+</head>
+
+<body ng-app="myApp" style="font-size: 12px;">
+    <div style="width: 1200px; height:900px; margin: 10px;">
+        <multi-crossplot
+            token="'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imh1bmduayIsIndob2FtaSI6Im1haW4tc2VydmljZSIsInJvbGUiOjIsImNvbXBhbnkiOiJFU1MiLCJpYXQiOjE1NjE1MTkzNDUsImV4cCI6MTU2MTY5MjE0NX0.0ydD-bW_xLB8ZAQCmp4q_xg39PNuuAi8Ze9fiaLY94I'"
+            well-specs="[[{idWell:164}]]" zoneset-names="['Default']" 
+            selection-types="['family-group']" selection-x-values='["Slowness"]' selection-y-values='["Gamma Ray"]'
+			selection-z1-values="['Angle']" selection-z2-values="['Diameter']" selection-z3-values="['Density']">
+        </multi-crossplot>
+        <multi-well-crossplot
+            token="'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImhvYW5nIiwid2hvYW1pIjoibWFpbi1zZXJ2aWNlIiwicm9sZSI6MiwiY29tcGFueSI6IkVTUyIsImlhdCI6MTU2MTEwNjk5NywiZXhwIjoxNTYxOTcwOTk3fQ.sb1WuU9ZtJdWcfZIEdIhOcCp0PmKkBHlcRl1D68pRrs'"
+            well-spec="[{idWell:43}]" zoneset-name="'Default'" 
+            selection-type="'family-group'" selection-x-value='"Slowness"' selection-y-value='"Gamma Ray"'
+			selection-z1-value='"Angle"' selection-z2-value='"Diameter"' selection-z3-value='"Density"'>
+        </multi-well-crossplot>
+    </div>
+    <script>
+        angular.module("myApp", ["multiCrossplot"]);
+    </script>
+</body>
+
+</html>

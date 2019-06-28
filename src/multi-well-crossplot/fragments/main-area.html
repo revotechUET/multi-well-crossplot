@@ -1,12 +1,9 @@
-<div class="label-list-view ng-scope"
-    style="display :flex; background: #f4f4f4; padding: 12px 15px; justify-content: flex-start;">
-    <span ng-click="self.refresh()" class="reload-16x16"
-        style="cursor: pointer; margin-right: 10px;"></span>
-    <span ng-click="self.saveToAsset()" class="save-16x16"
-        style="cursor: pointer; margin-right: 10px;"></span>
-    <span ng-click="self.saveAs()" class="save-as-16x16"
-        style="cursor: pointer; margin-right: 10px;"></span>
-    <span ng-click="" class="print-16x16" style="cursor: pointer; margin-right: 10px;"></span>
+<div class="label-list-view ng-scope" style="display :flex; background: #f4f4f4; padding: 12px 15px; justify-content: flex-start;">
+
+    <span class="fn-button" ng-click="self.refresh()">RELOAD</span>
+    <span class="fn-button" ng-click="self.saveToAsset()">SAVE</span>
+    <span class="fn-button" ng-click="self.saveAs()">SAVE AS</span>
+    <span class="fn-button" ng-click="()">PRINT</span>
 </div>
 <div style="flex: 1; display: flex; flex-direction: column;">
     <div class="main-body-center border-style" style="position: relative;" id='layer-collection'>

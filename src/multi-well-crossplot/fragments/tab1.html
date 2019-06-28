@@ -69,7 +69,7 @@
         <div style="display: flex; flex-direction: row ; flex-wrap: wrap; max-width: 420px;border-top: 1px solid #dbdbdb; background: #f4f4f4; align-items: center;justify-content: flex-start;text-align: center;">
             <div class="axis-bar" ng-class='{"selected": well.isSettingAxis == selectionValue.name}'
              ng-click="well.isSettingAxis = selectionValue.name"ng-repeat="selectionValue in self.selectionValueList" ng-show="selectionValue.isUsed">
-                <div ng-bind="selectionValue.name"> </div>
+                <div ng-bind="selectionValue.name" style="font-weight: bold;"></div>
                 <div style="margin: 0 10px; max-width: 70px; flex: 1;white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                     ng-bind="self.getWellSpec(well)[self.getAxis(selectionValue.name)].datasetName"></div>
                 <div ng-bind="self.getCurve(well, self.getAxisKey(selectionValue.name)).name"></div>

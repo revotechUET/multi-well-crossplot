@@ -32,7 +32,8 @@ app.component(componentName, {
         udls: '<',
         polygons: '<',
         polygonExclude: '<',
-        regressionType: '<'
+        regressionType: '<',
+        silent: "<"
     },
     transclude: true
 });
@@ -40,6 +41,7 @@ app.component(componentName, {
 function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi, wiDialog, wiLoading) {
     let self = this;
     self.treeConfig = [];
+    self.silent = true;
     self.selectedNode = null;
     self.datasets = {};
     //--------------
@@ -366,7 +368,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         getTree();
     };
     async function getTree(callback) {
-        wiLoading.show($element.find('.main')[0]);
+        wiLoading.show($element.find('.main')[0], self.silent);
         self.treeConfig = [];
         let promises = [];
         for (let w of self.wellSpec) {
@@ -694,7 +696,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 input: self.getConfigTitle(),
             }, function(name) {
                 content.config.title = name;
-                wiLoading.show($element.find('.main')[0]);
+                wiLoading.show($element.find('.main')[0],self.silent);
                 wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                     self.setConfigTitle(null, name);
                     self.idCrossplot = res.idParameterSet;
@@ -708,7 +710,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     })
             });
         } else {
-            wiLoading.show($element.find('.main')[0]);
+            wiLoading.show($element.find('.main')[0],self.silent);
             content.idParameterSet = self.idParameterSet;
             wiApi.editAssetPromise(self.idCrossplot, content).then(res => {
                 wiLoading.hide();
@@ -1029,7 +1031,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let shouldPlotZ1 = self.getSelectionValue('Z1').isUsed;
         let shouldPlotZ2 = self.getSelectionValue('Z2').isUsed;
         let shouldPlotZ3 = self.getSelectionValue('Z3').isUsed;
-        wiLoading.show($element.find('.main')[0]);
+        wiLoading.show($element.find('.main')[0],self.silent);
         for (let i =0; i < self.treeConfig.length; i++) {
             let well = self.treeConfig[i];
             if (well._notUsed) {
