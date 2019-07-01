@@ -1,0 +1,102 @@
+multi-crossplot {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    multi-well-crossplot {
+        height: 100%;
+    }
+    input, select {
+        box-shadow: none;
+    }
+    ::-webkit-scrollbar-button:horizontal:increment { /* Right */
+        background-image: none;
+    }
+    
+    ::-webkit-scrollbar-button:horizontal:decrement { /* Left */
+        background-image: none;
+    }
+    
+    ::-webkit-scrollbar-button:vertical:increment { /* Down */
+        background-image: none;
+    }
+    
+    ::-webkit-scrollbar-button:vertical:decrement { /* Up */
+        background-image: none;
+    }
+
+    .ui-select-match-text {
+        text-align: right;
+    }
+
+    button.disable {
+        color       : #aaa;
+        border-color: #aaa;
+    }
+
+    .main {
+        display       : flex;
+        height        : 100%;
+        flex-direction: column;
+    }
+
+    ::-webkit-scrollbar {
+        background: #f4f4f4;
+        width     : 5px;
+        height: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #dcdcdc;
+    }
+
+    .tab{
+        display: flex;
+        z-index: 1;
+        color: #000;
+        background: #fff;
+        flex-basis: 40px;
+        
+        .tab-name{
+            display: flex;
+            align-items: center;
+            padding: 11px 20px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition   : all 0.2s ease-in;
+            border-right: 1px solid #d9d9d9;
+            border-bottom: 2px solid #fff;
+            &:hover {
+                background: #fff;
+                transition   : all 0.2s ease-in;
+            }
+        }
+        .tab-drop {
+            display: flex;
+            align-items: center;
+            padding: 11px 20px;
+            letter-spacing: 1px;
+            transition   : all 0.2s ease-in;
+        }
+        .active {
+            color: #0077be;
+            background: #fff;
+            border-bottom: 2px solid #0077be;
+        }
+        
+    }
+    .warning {
+        display: none;
+    }
+    .show-warning {
+        display: flex !important;
+        align-items: center;
+        background: #f47a7a;
+        padding: 10px;
+        height: 26px;
+        color: #fff;
+        border-radius: 2px;
+        margin-top: 7px;
+    }
+    
+
+}

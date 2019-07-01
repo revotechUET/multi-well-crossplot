@@ -3,7 +3,7 @@
     <span class="fn-button" ng-click="self.refresh()">RELOAD</span>
     <span class="fn-button" ng-click="self.saveToAsset()">SAVE</span>
     <span class="fn-button" ng-click="self.saveAs()">SAVE AS</span>
-    <span class="fn-button" ng-click="()">PRINT</span>
+    <span class="fn-button" >PRINT</span>
 </div>
 <div style="flex: 1; display: flex; flex-direction: column;">
     <div class="main-body-center border-style" style="position: relative;" id='layer-collection'>
@@ -71,12 +71,6 @@
                 row-headers="self.getZoneNames()" accessor="self.statsValue">
             </wi-table-view>
         </div>
-        <div style="overflow-x: auto; position: absolute; top: 0; right: 0; left: 0; bottom: 0;">
-            <wi-table-view ng-if="self.layers.length" row-count="self.getZoneNames().length"
-                col-count="self.getHeaders().length" col-headers="self.getHeaders()"
-                get-row-icons="self.getStatsRowIcons" get-row-icon-style="self.getStatsIconStyle"
-                row-headers="self.getZoneNames()" accessor="self.statsValue">
-            </wi-table-view>
-        </div>
+        
     </div>
 </div>
