@@ -1,4 +1,9 @@
-<div class="lable-option-sidebar" style="padding: 15px 15px 0 15px;">
+<div class="label-option-sidebar" style="padding: 12px 20px;display: flex;background: #f4f4f4;border-bottom: 1px solid #dcdcdc;justify-content: space-between;flex-direction: column;">
+    <div>
+        Configuration
+    </div>
+</div>
+<div class="label-option-sidebar" style="padding: 15px 15px 0 15px;">
     <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
         <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
             item-label="'Title'" item-value="self.getConfigTitle"
@@ -7,10 +12,10 @@
         </editable>
     </div>
 </div>
-<div class="lable-option-sidebar" style="margin-top: 10px;">
+<div class="label-option-sidebar" style="margin-top: 10px;">
     <span>X-Axis Scale</span>
 </div>
-<div class="lable-option-sidebar">
+<div class="label-option-sidebar">
     <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
         <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
             item-label="'Left'" item-value="self.getConfigLeft" set-value="self.setConfigLeft" enabled="true" label-style="{}"
@@ -51,10 +56,10 @@
     </div>
     <div style="margin-bottom: 15px; "></div>
 </div>
-<div class="lable-option-sidebar" style="margin-top: 10px;">
+<div class="label-option-sidebar" style="margin-top: 10px;">
     <span>Y-Axis Scale</span>
 </div>
-<div class="lable-option-sidebar">
+<div class="label-option-sidebar">
     <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
         <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
             item-label="'Top'" item-value="self.getConfigTop" set-value="self.setConfigTop"
@@ -98,10 +103,10 @@
     </div>
 </div>
 <div ng-show="self.getSelectionValue('Z1').isUsed">
-    <div class="lable-option-sidebar" style="margin-top: 10px;">
+    <div class="label-option-sidebar" style="margin-top: 10px;">
         <span>Color (Z1 Axis)</span>
     </div>
-    <div class="lable-option-sidebar">
+    <div class="label-option-sidebar">
         <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
             <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                 item-label="'Min'" item-value="self.getZ1Min" set-value="self.setZ1Min"
@@ -129,14 +134,14 @@
     </div>
     <div style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
         <span ng-class="{}" style="margin-right: 8px;"
-            ng-click="self.modifyColorZ1()" class="button-with-lable">Modify Color</span>
+            ng-click="self.modifyColorZ1()" class="button-with-label">Modify Color</span>
     </div>
 </div>
 <div ng-show="self.getSelectionValue('Z2').isUsed">
-    <div class="lable-option-sidebar" style="margin-top: 10px;">
+    <div class="label-option-sidebar" style="margin-top: 10px;">
         <span>Size (Z2 Axis)</span>
     </div>
-    <div class="lable-option-sidebar">
+    <div class="label-option-sidebar">
         <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
             <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                 item-label="'Min'" item-value="self.getZ2Min" set-value="self.setZ2Min"
@@ -164,10 +169,10 @@
     </div>
 </div>
 <div ng-show="self.getSelectionValue('Z3').isUsed">
-    <div class="lable-option-sidebar" style="margin-top: 10px;">
+    <div class="label-option-sidebar" style="margin-top: 10px;">
         <span>Label (Z3 Axis)</span>
     </div>
-    <div class="lable-option-sidebar">
+    <div class="label-option-sidebar">
         <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
             <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                 item-label="'Min'" item-value="self.getZ3Min" set-value="self.setZ3Min"
@@ -194,56 +199,56 @@
         </div>
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Log scales
+    <div style="display: flex;margin-bottom: 16px;">Log scales
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
     </div>
     <div>
         <span ng-class="{'active' : self.getLogaX()}" style="margin-right: 8px;"
-            ng-click="self.config.logaX=!self.config.logaX" class="button-with-lable">Loga
+            ng-click="self.config.logaX=!self.config.logaX" class="button-with-label">Loga
             X</span>
         <span ng-class="{'active' : self.getLogaY()}" style="margin-right: 8px;"
-            ng-click="self.config.logaY=!self.config.logaY" class="button-with-lable">Loga
+            ng-click="self.config.logaY=!self.config.logaY" class="button-with-label">Loga
             Y</span>
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Color Mode
+    <div style="display: flex;margin-bottom: 16px;">Color Mode
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
     </div>
     <div>
         <span ng-class="{'active' : self.config.colorMode === 'zone'}"
-            ng-click="self.config.colorMode='zone'" class="button-with-lable"
+            ng-click="self.config.colorMode='zone'" class="button-with-label"
             style="margin-right: 8px;"> Zone Color</span>
         <span ng-class="{'active' : self.config.colorMode === 'well'}"
             style="margin-right: 8px;" ng-click="self.config.colorMode='well'"
-            class="button-with-lable">Well Color</span>
+            class="button-with-label">Well Color</span>
         <!-- <span ng-class="{'active' : self.config.colorMode === 'user'}"
-            ng-click="self.config.colorMode='user'" class="button-with-lable">User
+            ng-click="self.config.colorMode='user'" class="button-with-label">User
             Defined</span> -->
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Reverse Axis
+    <div style="display: flex;margin-bottom: 16px;">Reverse Axis
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
     </div>
     <div>
-        <span ng-click="self.reverseAxis()" class="button-with-lable"
+        <span ng-click="self.reverseAxis()" class="button-with-label"
             style="margin-right: 8px;">Reverse Axis</span>
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Table Header
+    <div style="display: flex;margin-bottom: 16px;">Table Header
         <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
     </div>
@@ -254,9 +259,9 @@
             {{header}}</span>
     </div>
 </div>
-<!-- <div class="lable-option-sidebar"
+<!-- <div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Depth Limitation
+    <div style="display: flex;margin-bottom: 16px;">Depth Limitation
         Mode
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
@@ -282,10 +287,10 @@
             <div style="margin-bottom: 15px; "></div>
         </div>
         <span ng-class="{'active' : self.config.limitType === 'interval'}"
-            ng-click="self. config.limitType = 'interval'" class="button-with-lable"
+            ng-click="self. config.limitType = 'interval'" class="button-with-label"
             style="margin-right: 8px;"> Interval Depth</span>
         <span ng-class="{'active' : self.config.limitType === 'zonal'}"
-            ng-click="self.config.limitType = 'zonal'" class="button-with-lable">Zonal
+            ng-click="self.config.limitType = 'zonal'" class="button-with-label">Zonal
             Depth</span>
         <div style="margin-bottom: 15px; "></div>
     </div>

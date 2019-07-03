@@ -1,57 +1,60 @@
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar" style="padding: 12px 20px;display: flex;background: #f4f4f4;border-bottom: 1px solid #dcdcdc;justify-content: space-between;flex-direction: column;">
+    <div>Print Setting</div>
+</div>
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Orientation
+    <div style="display: flex;margin-bottom: 16px;">Orientation
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
     </div>
     <div>
         <span ng-class="{'active' : self.printSettings.orientation === 'portrait'}"
-            ng-click="self.printSettings.orientation='portrait'" class="button-with-lable"
+            ng-click="self.printSettings.orientation='portrait'" class="button-with-label"
             style="margin-right: 8px;">Portrait</span>
         <span ng-class="{'active' : self.printSettings.orientation === 'landscape'}"
             style="margin-right: 8px;" ng-click="self.printSettings.orientation='landscape'"
-            class="button-with-lable">Landscape</span>
+            class="button-with-label">Landscape</span>
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Aspect Ratio
+    <div style="display: flex;margin-bottom: 16px;">Aspect Ratio
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
     </div>
     <div>
         <span ng-class="{'active' : self.printSettings.aspectRatio === '16:9'}"
-            ng-click="self.printSettings.aspectRatio='16:9'" class="button-with-lable"
+            ng-click="self.printSettings.aspectRatio='16:9'" class="button-with-label"
             style="margin-right: 8px;">16:9</span>
         <span ng-class="{'active' : self.printSettings.aspectRatio === '4:3'}"
             style="margin-right: 8px;" ng-click="self.printSettings.aspectRatio='4:3'"
-            class="button-with-lable">4:3</span>
+            class="button-with-label">4:3</span>
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Alignment
+    <div style="display: flex;margin-bottom: 16px;">Alignment
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
     </div>
     <div>
         <span ng-class="{'active' : self.printSettings.alignment === 'left'}"
-            ng-click="self.printSettings.alignment='left'" class="button-with-lable"
+            ng-click="self.printSettings.alignment='left'" class="button-with-label"
             style="margin-right: 8px;">Left</span>
         <span ng-class="{'active' : self.printSettings.alignment === 'center'}"
             style="margin-right: 8px;" ng-click="self.printSettings.alignment='center'"
-            class="button-with-lable">Center</span>
+            class="button-with-label">Center</span>
         <span ng-class="{'active' : self.printSettings.alignment === 'right'}"
             style="margin-right: 8px;" ng-click="self.printSettings.alignment='right'"
-            class="button-with-lable">Right</span>
+            class="button-with-label">Right</span>
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Width
+    <div style="display: flex;margin-bottom: 16px;">Width
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
@@ -64,16 +67,16 @@
         </editable>
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="padding: 20px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
-    <div style="font-size: 10px;display: flex;margin-bottom: 16px;">Misc
+    <div style="display: flex;margin-bottom: 16px;">Misc
         <div
             style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
         </div>
     </div>
     <div>
         <span ng-class="{'active' : self.printSettings.border}"
-            ng-click="self.printSettings.border = !self.printSettings.border" class="button-with-lable"
+            ng-click="self.printSettings.border = !self.printSettings.border" class="button-with-label"
             style="margin-right: 8px;">Border</span>
     </div>
     <div style="margin-bottom: 15px; "></div>

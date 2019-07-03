@@ -44,22 +44,33 @@ function multiCrossplotController($scope, $timeout, $element, wiToken, wiApi, wi
     }
     this.onDrop = function (event, helper, myData) {
         let idCurves = helper.data("idCurves");
-        let curveName;
+        let selectionXValue;
         let idWell;
-        if(idCurves){
-            self.warning = false;
+        console.log(idCurves);
+        if(idCurves && idCurves.length >= 2){
+            $timeout(()=>{
+                self.warning = false;
+            })
             wiApi.getCurveInfoPromise(idCurves[0]).then(curveInfo => {
-                console.log(curveInfo);
-                curveName = curveInfo.name;
+                console.log(curveInfo.name);
+                selectionXValue = curveInfo.name;
                 return wiApi.getDatasetInfoPromise(curveInfo.idDataset);
             }).then(datasetInfo => {
                 idWell = datasetInfo.idWell;
                 $timeout(()=>{
                     self.wellSpecs.push([{idWell}]);
                     self.selectionTypes.push('curve');
-                    // self.selectionValues.push(curveName);
+                    self.selectionXValues.push(selectionXValue);
+                    wiApi.getCurveInfoPromise(idCurves[1]).then(curveInfo => {
+                        // console.log(curveInfo.name);
+                        $timeout(()=>{
+                            console.log(curveInfo);
+                            self.selectionYValues.push(curveInfo.name);
+                        });
+                    })
                 });
             });
+            
         } else {
             $timeout(()=>{
                 self.warning = true;

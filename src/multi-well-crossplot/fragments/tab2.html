@@ -1,4 +1,7 @@
-<div class="lable-option-sidebar">
+<div class="label-option-sidebar" style="padding: 12px 20px;display: flex;background: #f4f4f4;border-bottom: 1px solid #dcdcdc;justify-content: space-between;flex-direction: column;">
+    <div>Zone</div>
+</div>
+<div class="label-option-sidebar">
     <div class="selection-sidebar">
         <span>Zoneset</span>
         <wi-dropdown-list style="flex:1; margin-left: 10px;" items='self.zonesetList'
@@ -7,14 +10,14 @@
         </wi-dropdown-list>
     </div>
 </div>
-<div style="display: flex; padding: 0 16px 7px 16px;">
-    <span ng-click="self.hideSelectedZone()" class="button-with-lable-layer"
+<div style="display: flex; padding: 0 15px 10px 15px;">
+    <span ng-click="self.hideSelectedZone()" class="button-with-label-layer"
         style="margin-left: 0;">Hide</span>
-    <span ng-click="self.showSelectedZone()" class="button-with-lable-layer"
+    <span ng-click="self.showSelectedZone()" class="button-with-label-layer"
         style="margin-left: 10px;">Show</span>
-    <span ng-click="self.hideAllZone()" class="button-with-lable-layer"
+    <span ng-click="self.hideAllZone()" class="button-with-label-layer"
         style="margin-left: 10px;">Hide All</span>
-    <span ng-click="self.showAllZone()" class="button-with-lable-layer"
+    <span ng-click="self.showAllZone()" class="button-with-label-layer"
         style="margin-left: 10px;">Show All</span>
 </div>
 <div ng-show="self.zoneTree"

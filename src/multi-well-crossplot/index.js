@@ -22,7 +22,7 @@ app.component(componentName, {
         idProject: "<",
         wellSpec: "<",
         zonesetName: "<",
-        selectionType: "<",
+        selectionType: "=",
         selectionValueList: '<',
         idCrossplot: "<",
         config: '<',
@@ -96,7 +96,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.selectionValueList.forEach(s => {
             setOnChangeFn(s);
         })
-        self.statisticHeaders = ['xAxis','yAxis','z1Axis','z2Axis','z3Axis','points','correlation'];
+        self.statisticHeaders = ['X-Axis','Y-Axis','Z1-Axis','Z2-Axis','Z3-Axis','Points','Correlation'];
         self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();

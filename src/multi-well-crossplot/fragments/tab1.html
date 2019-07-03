@@ -1,36 +1,39 @@
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar" style="padding: 12px 20px;display: flex;background: #f4f4f4;border-bottom: 1px solid #dcdcdc;justify-content: space-between;flex-direction: column;">
+    <div>Wells</div>
+</div>
+<div class="label-option-sidebar"
     style="margin-top: 10px; padding-bottom: 5px; display: flex; justify-content: space-between;">
     <span>Input</span>
     <div>
         <span ng-class="{'active' : self.selectionType === 'family-group'}"
-            ng-click="self.selectionType='family-group'" class="button-with-lable"
+            ng-click="self.selectionType='family-group'" class="button-with-label"
             style="margin-right: 8px;">Family Group</span>
         <span ng-class="{'active' : self.selectionType === 'family'}"
-            ng-click="self.selectionType='family'" class="button-with-lable"
+            ng-click="self.selectionType='family'" class="button-with-label"
             style="margin-right: 8px;">Family</span>
         <span ng-class="{'active' : self.selectionType === 'curve'}"
-            ng-click="self.selectionType='curve'" class="button-with-lable">Curve</span>
+            ng-click="self.selectionType='curve'" class="button-with-label">Curve</span>
     </div>
 </div>
-<div class="lable-option-sidebar"
+<div class="label-option-sidebar"
     style="display: flex; justify-content: space-between; padding-top: 20px;">
     <span>Scale Axis</span>
     <div>
         <span ng-class="{'active' : self.getSelectionValue('Z1').isUsed}" style="margin-right: 8px;"
-            ng-click="self.getSelectionValue('Z1').isUsed = !self.getSelectionValue('Z1').isUsed" class="button-with-lable">
+            ng-click="self.getSelectionValue('Z1').isUsed = !self.getSelectionValue('Z1').isUsed" class="button-with-label">
             Color Z1
         </span>
         <span ng-class="{'active' : self.getSelectionValue('Z2').isUsed}" style="margin-right: 8px;"
-            ng-click="self.getSelectionValue('Z2').isUsed = !self.getSelectionValue('Z2').isUsed" class="button-with-lable">
+            ng-click="self.getSelectionValue('Z2').isUsed = !self.getSelectionValue('Z2').isUsed" class="button-with-label">
             Point size Z2
         </span>
         <span ng-class="{'active' : self.getSelectionValue('Z3').isUsed}" style="margin-right: 8px;"
-            ng-click="self.getSelectionValue('Z3').isUsed = !self.getSelectionValue('Z3').isUsed" class="button-with-lable">
-            Lable Z3 
+            ng-click="self.getSelectionValue('Z3').isUsed = !self.getSelectionValue('Z3').isUsed" class="button-with-label">
+            label Z3 
         </span>
     </div>
 </div>
-<div style="padding: 8px 16px;" class="lable-option-sidebar"
+<div style="padding: 8px 15px;" class="label-option-sidebar"
     ng-repeat="selectionValue in self.selectionValueList"
     ng-show="selectionValue.isUsed">
     <div class="selection-sidebar">
