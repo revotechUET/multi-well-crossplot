@@ -387,6 +387,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         wiLoading.hide();
     }
     function getZonesetsFromWells(wells) {
+        if (!wells.length) return;
         let zsList;
         for (let well of wells) {
             let zonesets = well.zone_sets;
@@ -442,7 +443,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (!Object.keys(wellSpec).length) return {};
         let axis = requiredAxis || self.getAxisKey(well.isSettingAxis);
         let curves = getCurvesInWell(well).filter(c => self.runWellMatch(c, self.getFilterForWell(axis)));
-        let curve = wellSpec[axis] && wellSpec[axis].idCurve ? curves.find(c => c.idCurve === wellSpec[axis].idCurve) : curves[0];
+        let curve = wellSpec[axis] && wellSpec[axis].idCurve ? (curves.find(c => c.idCurve === wellSpec[axis].idCurve) || curves[0]) : curves[0];
         if (!curve) {
             wellSpec[axis] = {};
             return;
