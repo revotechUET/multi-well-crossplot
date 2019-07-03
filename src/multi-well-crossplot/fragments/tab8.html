@@ -1,0 +1,13 @@
+<!-- <ul>
+    <li ng-repeat="overlayLine in self.listOverlayLine">
+        {{ overlayLine.name }}
+    </li>
+</ul> -->
+<div style="margin: 15px;overflow: hidden;border: 1px solid #ddd;border-radius: 2px;" class="disable-node-caret">
+    <wi-tree-view tree-root="self.listOverlayLine" 
+        get-label="self.getOvlLabel" get-icon="self.getOvlIcon"
+        get-children="self.getOvlChildren" keep-children='true' uncollapsible='true'
+        run-match="self.runOvlMatch" hide-unmatched="true" hide-search='false'
+        click-fn='self.clickOvlFunction'>
+    </wi-tree-view>
+</div>

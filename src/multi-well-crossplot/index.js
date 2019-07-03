@@ -55,7 +55,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     $scope.isSet = function(tabNum){
         return $scope.tab === tabNum;
     };
-
     //--------------
     this.getDataset = function(well) {
         wiApi.getCachedWellPromise(well.idWell).then((well) => {
@@ -80,6 +79,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.isSettingChange = true;
         self.defaultConfig = self.defaultConfig || {};
         self.wellSpec = self.wellSpec || [];
+        self.listOverlayLine = self.listOverlayLine || [];
         self.selectionType = self.selectionType || 'family-group';
         self.zoneTree = [];
         self.zonesetName = self.zonesetName || "ZonationAll";
@@ -621,6 +621,23 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
         })
 
+        //overlay line---------------------------------------------------
+        if(self.treeConfig.length){
+            let well = self.treeConfig[0];
+            let curveX = self.getCurve(well, 'xAxis');
+            let curveY = self.getCurve(well, 'yAxis');
+            if(curveX && curveY && curveX.idCurve && curveY.idCurve){
+                wiApi.getOverlayLinesPromise(curveX.idCurve, curveY.idCurve).then((data) => {
+                    $timeout(()=>{
+                        self.listOverlayLine = data;
+                    })
+                }).catch((err) => {
+                    console.error(err);
+                })
+            }
+        }
+        //END overlay line---------------------------------------------------
+        
         function setDefaultConfig(axis) {
             let curve = getCurve(self.treeConfig[0], axis);
             if (!curve) return;
@@ -873,6 +890,35 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }
             })
         }
+       
+    }
+
+    this.getOvlLabel = function(node){
+        return node.name;
+    }
+    this.getOvlIcon = function (node){
+        return (node && !node._used) ? 'fa fa-eye-slash': 'blue-color fa fa-eye';
+    }
+    this.getOvlChildren = function (node){
+        return [];
+    }
+    this.runOvlMatch = function (node, keysearch){
+        return node.name.toLowerCase().includes(keysearch.toLowerCase());
+    }
+    this.clickOvlFunction = function (event, node){
+        // console.log(node);
+        self.listOverlayLine.forEach((item)=>{
+            item._used = false;
+        });
+        node._used = true;
+
+        wiApi.getOverlayLinePromise(node.idOverlayLine).then((ovlProps) => {
+            $timeout(() => {
+                self.overlayLineSpec = ovlProps.data;
+            })
+        }).catch((err) => {
+            console.error(err);
+        })
     }
     this.toggleWell = function(well) {
         well._notUsed = !well._notUsed;

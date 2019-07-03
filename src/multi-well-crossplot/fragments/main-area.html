@@ -54,6 +54,14 @@
                 points="polygon.points"
                 mode="polygon.mode">
             </polygon-layer>
+            <overlay-line-layer ng-if="self.overlayLineSpec"
+                min-val='self.getLeft()' max-val="self.getRight()" 
+                min-draw='self.getLeft()' max-draw="self.getRight()" 
+                min-y="self.getBottom()" min-draw-y="self.getBottom()"
+                max-y="self.getTop()" max-draw-y="self.getTop()" 
+                ortho-loga="self.getLogaY()" loga="self.getLogaX()"
+                overlay-line-spec="self.overlayLineSpec">
+            </overlay-line-layer>
         </layer-collection>
         <p style="position: absolute;left: 50%; transform: translateX(-50%); font-weight: bold; bottom: 0">
             {{self.getConfigXLabel()}} </p>

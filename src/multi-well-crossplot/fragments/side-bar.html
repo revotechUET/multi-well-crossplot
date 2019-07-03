@@ -32,6 +32,9 @@
             <div ng-show="isSet(7)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                 ${require('./tab7.html')}
             </div>
+            <div ng-show="isSet(8)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+                ${require('./tab8.html')}
+            </div>
         </div>
         <div style="display: flex;" >
             <span class="button-update" ng-class="{'disabled-click': !self.isSettingChange}"
@@ -78,8 +81,13 @@
                     Layers
                 </div>
             </div>
+            <div class="tab-with-lable" ng-class="{'active' : isSet(8)}" ng-click="setTab(8)">
+                <div style="margin: 3px;">
+                    Overlay Line
+                </div>
+            </div>
             <div class="tab-with-lable" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">
-                <div style="margin: 22x;">
+                <div style="margin: 19px;">
                     Print Setting
                 </div>
             </div>
