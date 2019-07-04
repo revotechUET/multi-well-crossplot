@@ -41,12 +41,13 @@
             </line-formula-layer>
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()"
                 min-draw='self.getLeft()' max-draw="self.getRight()"
-                min-y="self.getBottom()" min-draw-y="self.getBottom()"
-                max-y="self.getTop()" max-draw-y="self.getTop()"
+                min-y="self.getBottom()" max-y="self.getTop()"
+                min-draw-y="self.getBottom()" max-draw-y="self.getTop()"
                 ortho-loga="self.getLogaY()" loga="self.getLogaX()"
                 formula="pickett" show-equation='false'
                 ng-repeat="(pickettIdx, pickett) in self.pickettLines"
-                ng-if='self.getLogaX() && self.getLogaY() && self.pickettLines'>
+                ng-if='self.getLogaX() && self.getLogaY() && self.pickettLines'
+                resolution='500'>
             </line-formula-layer>
             <polygon-layer
                 ng-show="!polygon._notShow"

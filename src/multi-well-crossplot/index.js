@@ -102,7 +102,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
-        self.pickettParams = self.pickettParams || {rw: 0.0134, m: 2, n: 2, a: 1};
+        self.pickettParams = self.pickettParams || {rw: 0.03, m: 2, n: 2, a: 1};
 
         if (self.token)
             wiToken.setToken(self.token);
@@ -387,6 +387,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 console.error(e);
             }
         }
+        if (!$scope.$root.$$phase) $scope.$digest();
         callback && callback();
         wiLoading.hide();
     }
