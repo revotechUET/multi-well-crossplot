@@ -46,7 +46,7 @@
                 ortho-loga="self.getLogaY()" loga="self.getLogaX()"
                 formula="pickett" show-equation='false'
                 ng-repeat="(pickettIdx, pickett) in self.pickettLines"
-                ng-if='self.getLogaX() && self.getLogaY() && self.pickettLines'
+                ng-if='self.getLogaX() && self.getLogaY() && self.pickettLines && !self.notShowPickett'
                 resolution='500'>
             </line-formula-layer>
             <polygon-layer

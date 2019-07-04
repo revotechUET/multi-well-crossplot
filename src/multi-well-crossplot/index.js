@@ -108,7 +108,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wiToken.setToken(self.token);
         $timeout(() => {
             //$scope.$watch(() => (self.pickettParams), () => {
-                //self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
+            //self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
             //})
             $scope.$watch(() => self.config, (newVal, oldVal) => {
                 self.isSettingChange = true;
@@ -212,11 +212,18 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             'background-color': self.layers[rowIdx].layerColor
         }
     }
-    this.calcMSE = function(x, y) {
-        let result = _.mean(y.map((yi, idx) => {
-            return Math.pow(yi - self.regLine.predict(x[idx])[1], 2);
-        }));
-        return result.toFixed(4);
+    this.calcMSE = function(a, b) {
+        let error = 0
+        for (let i = 0; i < a.length; i++) {
+            error += Math.pow((b[i] - a[i]), 2)
+        }
+        return error / a.length
+        //let result = _.sum(y.map((yi, idx) => {
+        //y_predict = self.regLine.predict(x[idx]);
+        //console.log(x, y_predict);
+        //return Math.pow(yi - self.regLine.predict(x[idx])[1], 2);
+        //})) / y.length;
+        //return result.toFixed(6);
     }
     this.calcCorrelation = function(x, y) {
         let xDeviation = deviation(x);
@@ -643,7 +650,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
         }
         //END overlay line---------------------------------------------------
-        
+
         function setDefaultConfig(axis, index) {
             if (index >= self.treeConfig.length) return;
             let curve = getCurve(self.treeConfig[index], axis);
@@ -902,7 +909,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }
             })
         }
-       
+
     }
 
     this.getOvlLabel = function(node){
@@ -1493,44 +1500,35 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         switch(regressionType) {
             case 'Linear':
                 result = regression.linear(data, {precision: 6});
-                console.log({
-                    slope: result.equation[0], 
-                    intercept: result.equation[1],
-                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     slope: result.equation[0], 
                     intercept: result.equation[1],
-                    predict: result.predict
+                    predict: result.predict,
+                    r2: result.r2
                 };
                 break;
             case 'Exponential':
                 result = regression.exponential(data, {precision: 6});
-                console.log({
-                    ae: result.equation[0], 
-                    b: result.equation[1],
-                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     ae: result.equation[0], 
                     b: result.equation[1],
-                    predict: result.predict
+                    predict: result.predict,
+                    r2: result.r2
                 };
                 break;
             case 'Power':
                 result = regression.power(data, {precision: 6});
-                console.log({
-                    coefficient: result.equation[0], 
-                    exponent: result.equation[1],
-                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     coefficient: result.equation[0], 
                     exponent: result.equation[1],
-                    predict: result.predict
+                    predict: result.predict,
+                    r2: result.r2
                 };
                 break;
         }
@@ -1557,9 +1555,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 y = y.concat(layer.dataY);
             }
         }
+        x = x.map(xi => {
+            return self.regLine.predict(xi)[1];
+        });
         self.mse = {
             family: 'mse',
-            mse: self.calcMSE(x, y)
+            mse: self.calcMSE(y, x)
         }
     }
 
@@ -1604,6 +1605,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.addPickettLine = function() {
+        if (self.pickettLines.length >= 5) return;
         self.pickettLines.push({
             family: 'pickett',
             sw: 1,
