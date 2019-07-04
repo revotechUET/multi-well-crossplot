@@ -33,7 +33,9 @@ app.component(componentName, {
         polygons: '<',
         polygonExclude: '<',
         regressionType: '<',
-        silent: "<"
+        silent: "<",
+        pickettLines: '<',
+        pickettParams: '<'
     },
     transclude: true
 });
@@ -100,10 +102,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
+        self.pickettParams = self.pickettParams || {rw: 0.0134, m: 2, n: 2, a: 1}
+        self.pickettLines = self.pickettLines || [];
+        self.pickettLines.unshift({sw: 1, ...self.pickettParams});
 
         if (self.token)
             wiToken.setToken(self.token);
         $timeout(() => {
+            $scope.$watch(() => (self.pickettParams), () => {
+                self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
+            })
             $scope.$watch(() => self.config, (newVal, oldVal) => {
                 self.isSettingChange = true;
             }, true)
@@ -1038,6 +1046,36 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }).bind(udl);
         }
     }
+    this.getRwParam = function(index) {
+        return self.pickettParams.rw || '[empty]';
+    }
+    this.setRwParam = function(index, newValue) {
+        self.pickettParams.rw = newValue;
+    }
+    this.getAParam = function(index) {
+        return self.pickettParams.a || '[empty]';
+    }
+    this.setAParam = function(index, newValue) {
+        self.pickettParams.a = newValue;
+    }
+    this.getMParam = function(index) {
+        return self.pickettParams.m || '[empty]';
+    }
+    this.setMParam = function(index, newValue) {
+        self.pickettParams.m = newValue;
+    }
+    this.getNParam = function(index) {
+        return self.pickettParams.n || '[empty]';
+    }
+    this.setNParam = function(index, newValue) {
+        self.pickettParams.n = newValue;
+    }
+    this.getSwParam = function(index) {
+        return self.pickettLines[index].sw || '[empty]';
+    }
+    this.setSwParam = function(index, newValue) {
+        self.pickettLines[index].sw = newValue;
+    }
     this.getFnUDL = function(index) {
         return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
     }
@@ -1071,6 +1109,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.layers = [];
     this.genLayers = async function() {
         if (!self.isSettingChange) return;
+        if (!self.getSelectionValue('X').value || !self.getSelectionValue('Y').value) return;
         self.isSettingChange = false;
         self.layers = self.layers || []	;
         let layers = [];
@@ -1555,5 +1594,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             return Math.floor(Math.random() * 255);
         }
         return "rgb(" + rand() + "," + rand() + "," + rand() + ")";
+    }
+
+    this.addPickettLine = function() {
+        self.pickettLines.push({
+            sw: 1,
+            ...self.pickettParams
+        })
     }
 }

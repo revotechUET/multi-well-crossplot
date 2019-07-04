@@ -8,10 +8,10 @@
 <div style="flex: 1; display: flex; flex-direction: column;">
     <div class="main-body-center border-style" style="position: relative;" id='layer-collection'>
         <layer-collection v-padding="vPadding" h-padding='hPadding'>
-            <axis-layer min-val="self.getLeft()" max-val="self.getRight()" loga="self.getLogaX()"
-                n-ticks="self.getMajorX() * self.getMinorX()" minor-ticks="self.getMinorX()" precision="4"
-                grid="!!self.config.grid" placement="1">
-            </axis-layer>
+            <axis-layer min-val='self.getLeft()' max-val='self.getRight()'
+                n-ticks="self.getMajorX() * self.getMinorX()" minor-ticks="self.getMinorX()"
+                loga="self.getLogaX()" precision="4" grid="!!self.config.grid"
+                placement="1"></axis-layer>
             <axis-layer min-val='self.getBottom()' max-val='self.getTop()'
                 n-ticks="self.getMajorY() * self.getMinorY()" minor-ticks="self.getMinorY()"
                 loga="self.getLogaY()" precision="4" grid="!!self.config.grid" axis-direction="'up'"
@@ -31,13 +31,6 @@
                 line-color="self.regLine.lineColor" line-dash="self.regLine.lineStyle.join(' ')"
                 line-width="self.regLine.lineWidth" show-equation='true' mse="self.mse">
             </line-formula-layer>
-            <!--<line-formula-layer ng-show="layer._useReg" min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'-->
-                <!--max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"-->
-                <!--max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"-->
-                <!--loga="self.getLogaX()" formula="layer.reg" eqn-offsets="['50px', '0%']"-->
-                <!--line-color="layer.reg.lineColor" line-dash="layer.reg.lineStyle.join(' ')"-->
-                <!--line-width="layer.reg.lineWidth" ng-repeat="layer in self.layers" show-equation='true'>-->
-            <!--</line-formula-layer>-->
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
                 max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"
                 max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"
@@ -45,6 +38,15 @@
                 line-color="udl.lineStyle.lineColor" line-dash="udl.lineStyle.lineStyle.join(' ')"
                 line-width="udl.lineStyle.lineWidth" ng-repeat="(udlIdx, udl) in self.udls" show-equation='true'
                 ng-show='!udl._notUsed'>
+            </line-formula-layer>
+            <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()"
+                min-draw='self.getLeft()' max-draw="self.getRight()"
+                min-y="self.getBottom()" min-draw-y="self.getBottom()"
+                max-y="self.getTop()" max-draw-y="self.getTop()"
+                ortho-loga="self.getLogaY()" loga="self.getLogaX()"
+                formula="pickett" show-equation='false'
+                line-color="pickett.lineColor" line-dash="pickett.lineStyle.join(' ')" line-width="pickett.lineWidth"
+                ng-repeat="(pickettIdx, pickett) in self.pickettLines" ng-show='!pickett._notUsed'>
             </line-formula-layer>
             <polygon-layer
                 ng-show="!polygon._notShow"
