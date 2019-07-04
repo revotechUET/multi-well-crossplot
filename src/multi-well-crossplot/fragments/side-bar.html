@@ -35,6 +35,9 @@
             <div ng-show="isSet(8)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                 ${require('./tab8.html')}
             </div>
+            <div ng-show="isSet(9)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+                ${require('./tab9.html')}
+            </div>
         </div>
         <div style="display: flex;" >
             <span class="button-update" ng-class="{'disabled-click': !self.isSettingChange}"
@@ -84,6 +87,11 @@
             <div class="tab-with-label" ng-class="{'active' : isSet(8)}" ng-click="setTab(8)">
                 <div style="margin: 3px;">
                     Overlay Line
+                </div>
+            </div>
+            <div class="tab-with-label" ng-class="{'active' : isSet(9)}" ng-click="setTab(9)">
+                <div style="margin: 20px;">
+                    Pickett Plot
                 </div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">
