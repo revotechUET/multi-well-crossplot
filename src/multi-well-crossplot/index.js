@@ -102,16 +102,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
-        self.pickettParams = self.pickettParams || {rw: 0.0134, m: 2, n: 2, a: 1}
-        self.pickettLines = self.pickettLines || [];
-        self.pickettLines.unshift({sw: 1, ...self.pickettParams});
+        self.pickettParams = self.pickettParams || {rw: 0.0134, m: 2, n: 2, a: 1};
 
         if (self.token)
             wiToken.setToken(self.token);
         $timeout(() => {
-            $scope.$watch(() => (self.pickettParams), () => {
-                self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
-            })
+            //$scope.$watch(() => (self.pickettParams), () => {
+                //self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
+            //})
             $scope.$watch(() => self.config, (newVal, oldVal) => {
                 self.isSettingChange = true;
             }, true)
@@ -185,21 +183,19 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let statsArray = self.layers;
         try {
             switch(_headers[col]){
-                case 'xAxis':
+                case 'X-Axis':
                     return statsArray[row].curveXInfo || 'N/A';
-                case 'yAxis':
+                case 'Y-Axis':
                     return statsArray[row].curveYInfo || 'N/A';
-                case 'z1Axis':
+                case 'Z1-Axis':
                     return statsArray[row].curveZ1Info || 'N/A';
-                case 'z2Axis':
+                case 'Z2-Axis':
                     return statsArray[row].curveZ2Info || 'N/A';
-                case 'z3Axis':
+                case 'Z3-Axis':
                     return statsArray[row].curveZ3Info || 'N/A';
-                case 'points':
+                case 'Points':
                     return statsArray[row].numPoints;
-                case 'msi':
-                    return statsArray[row].msi;
-                case 'correlation':
+                case 'Correlation':
                     return statsArray[row].correlation;
                 default:
                     return "this default";
@@ -626,7 +622,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         clearDefaultConfig();
         self.selectionValueList.forEach(s => {
             if (s.isUsed) {
-                setDefaultConfig(self.getAxisKey(s.name));
+                setDefaultConfig(self.getAxisKey(s.name), 0);
             }
         })
 
@@ -647,38 +643,44 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         //END overlay line---------------------------------------------------
         
-        function setDefaultConfig(axis) {
-            let curve = getCurve(self.treeConfig[0], axis);
-            if (!curve) return;
-            let family = wiApi.getFamily(curve.idFamily);
-            if (!family) return;
-            switch (axis) {
-                case 'xAxis':
-                    self.defaultConfig.left = family.family_spec[0].minScale;
-                    self.defaultConfig.right = family.family_spec[0].maxScale;
-                    self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
-                    break;
-                case 'yAxis':
-                    self.defaultConfig.top = family.family_spec[0].maxScale;
-                    self.defaultConfig.bottom = family.family_spec[0].minScale;
-                    self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
-                    break;
-                case 'z1Axis':
-                    self.config.z1Max = family.family_spec[0].maxScale;
-                    self.config.z1Min = family.family_spec[0].minScale;
-                    self.config.z1N = 5;
-                    break;
-                case 'z2Axis':
-                    self.config.z2Max = family.family_spec[0].maxScale;
-                    self.config.z2Min = family.family_spec[0].minScale;
-                    self.config.z2N = 5;
-                    break;
-                case 'z3Axis':
-                    self.config.z3Max = family.family_spec[0].maxScale;
-                    self.config.z3Min = family.family_spec[0].minScale;
-                    self.config.z3N = 5;
-                    break;
-                default:
+        function setDefaultConfig(axis, index) {
+            if (index >= self.treeConfig.length) return;
+            let curve = getCurve(self.treeConfig[index], axis);
+            if (!curve) {
+                setDefaultConfig(axis, index + 1);
+            } else {
+                let family = wiApi.getFamily(curve.idFamily);
+                if (!family) return;
+                switch (axis) {
+                    case 'xAxis':
+                        self.setConfigXLabel(null, curve.name);
+                        self.defaultConfig.left = family.family_spec[0].minScale;
+                        self.defaultConfig.right = family.family_spec[0].maxScale;
+                        self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                        break;
+                    case 'yAxis':
+                        self.setConfigYLabel(null, curve.name);
+                        self.defaultConfig.top = family.family_spec[0].maxScale;
+                        self.defaultConfig.bottom = family.family_spec[0].minScale;
+                        self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                        break;
+                    case 'z1Axis':
+                        self.config.z1Max = family.family_spec[0].maxScale;
+                        self.config.z1Min = family.family_spec[0].minScale;
+                        self.config.z1N = 5;
+                        break;
+                    case 'z2Axis':
+                        self.config.z2Max = family.family_spec[0].maxScale;
+                        self.config.z2Min = family.family_spec[0].minScale;
+                        self.config.z2N = 5;
+                        break;
+                    case 'z3Axis':
+                        self.config.z3Max = family.family_spec[0].maxScale;
+                        self.config.z3Min = family.family_spec[0].minScale;
+                        self.config.z3N = 5;
+                        break;
+                    default:
+                }
             }
         }
     }
@@ -1110,6 +1112,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.genLayers = async function() {
         if (!self.isSettingChange) return;
         if (!self.getSelectionValue('X').value || !self.getSelectionValue('Y').value) return;
+        if (!self.getConfigXLabel() || !self.getConfigYLabel()) return;
         self.isSettingChange = false;
         self.layers = self.layers || []	;
         let layers = [];
@@ -1292,6 +1295,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.udls.forEach(udl => {
             setUDLFn(udl);
         })
+        if (self.getLogaX() && self.getLogaY()) {
+            self.pickettLines = self.pickettLines || [{family: 'pickett', sw: 1, ...self.pickettParams}];
+        }
         wiLoading.hide();
         self.layers = layers;
         self._notUsedLayer = _notUsedLayer;
@@ -1598,6 +1604,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
     this.addPickettLine = function() {
         self.pickettLines.push({
+            family: 'pickett',
             sw: 1,
             ...self.pickettParams
         })

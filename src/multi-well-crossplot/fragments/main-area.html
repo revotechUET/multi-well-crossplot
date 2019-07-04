@@ -45,8 +45,8 @@
                 max-y="self.getTop()" max-draw-y="self.getTop()"
                 ortho-loga="self.getLogaY()" loga="self.getLogaX()"
                 formula="pickett" show-equation='false'
-                line-color="pickett.lineColor" line-dash="pickett.lineStyle.join(' ')" line-width="pickett.lineWidth"
-                ng-repeat="(pickettIdx, pickett) in self.pickettLines" ng-show='!pickett._notUsed'>
+                ng-repeat="(pickettIdx, pickett) in self.pickettLines"
+                ng-if='self.getLogaX() && self.getLogaY() && self.pickettLines'>
             </line-formula-layer>
             <polygon-layer
                 ng-show="!polygon._notShow"
