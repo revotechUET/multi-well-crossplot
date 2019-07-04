@@ -72,11 +72,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return curves;
     }
 
-    function getFamilyInWell(well) {
-        let curves = getCurvesInWell(well);
-        let familyList = curves.map(c => wiApi.getFamily(c.idFamily));
-        return familyList;
-    }
     this.$onInit = function () {
         self.isSettingChange = true;
         self.defaultConfig = self.defaultConfig || {};
@@ -218,12 +213,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             error += Math.pow((b[i] - a[i]), 2)
         }
         return error / a.length
-        //let result = _.sum(y.map((yi, idx) => {
-        //y_predict = self.regLine.predict(x[idx]);
-        //console.log(x, y_predict);
-        //return Math.pow(yi - self.regLine.predict(x[idx])[1], 2);
-        //})) / y.length;
-        //return result.toFixed(6);
     }
     this.calcCorrelation = function(x, y) {
         let xDeviation = deviation(x);
@@ -346,26 +335,31 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
         switch(treeRoot.isSettingAxis) {
             case 'X':
+                if(node.idDataset != wellSpec.yAxis.idDataset) return;
                 wellSpec.xAxis = {};
                 wellSpec.xAxis.idCurve = node.idCurve;
                 wellSpec.xAxis.idDataset = node.idDataset;
                 break;
             case 'Y':
+                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.yAxis = {};
                 wellSpec.yAxis.idCurve = node.idCurve;
                 wellSpec.yAxis.idDataset = node.idDataset;
                 break;
             case 'Z1':
+                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z1Axis = {};
                 wellSpec.z1Axis.idCurve = node.idCurve;
                 wellSpec.z1Axis.idDataset = node.idDataset;
                 break;
             case 'Z2':
+                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z2Axis = {};
                 wellSpec.z2Axis.idCurve = node.idCurve;
                 wellSpec.z2Axis.idDataset = node.idDataset;
                 break;
             case 'Z3':
+                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z3Axis = {};
                 wellSpec.z3Axis.idCurve = node.idCurve;
                 wellSpec.z3Axis.idDataset = node.idDataset;
@@ -374,6 +368,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
     }
     this.refresh = function(){
+        self.isSettingChange = true;
         self.layers.length = 0;
         self.treeConfig.length = 0;
         getTree();
@@ -420,6 +415,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             properties: zs
         }));
         self.zonesetList.splice(0, 0, {data: {label: 'ZonationAll'}, properties: genZonationAllZS(0, 1)});
+        let selectedZonesetProps = (self.zonesetList.find(zs => zs.properties.name === self.zonesetName) || {}).properties;
+        if (!selectedZonesetProps) return;
+        self.onZonesetSelectionChanged(selectedZonesetProps);
+        if (!$scope.$root.$$phase) $scope.$digest();
     }
     function intersectAndMerge(dstZoneList, srcZoneList) {
         return dstZoneList.filter(zs => {
@@ -558,14 +557,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.getConfigXLabel = function() {
         self.config = self.config || {};
-        return (self.config.xLabel || "").length ? self.config.xLabel : ((self.getCurve(self.treeConfig[0], 'xAxis')||{}).name || '[Unknown]');
+        return (self.config.xLabel || "").length ? self.config.xLabel : ((self.getSelectionValue('X')||{}).value || '[Unknown]');
     }
     this.setConfigXLabel = function(notUse, newValue) {
         self.config.xLabel = newValue;
     }
     this.getConfigYLabel = function() {
         self.config = self.config || {};
-        return (self.config.yLabel || "").length ? self.config.yLabel : ((self.getCurve(self.treeConfig[0], 'yAxis') || {}).name || '[Unknown]');
+        return (self.config.yLabel || "").length ? self.config.yLabel : ((self.getSelectionValue('Y') || {}).value || '[Unknown]');
     }
     this.setConfigYLabel = function(notUse, newValue) {
         self.config.yLabel = newValue;
@@ -1496,6 +1495,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (usedPolygon.length) {
             data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
         }
+        if (!data.length) {
+            self.regLine.family = undefined;
+            return;
+        }
         let result;
         switch(regressionType) {
             case 'Linear':
@@ -1532,19 +1535,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 };
                 break;
         }
-    }
-    this.click2ToggleRegression = function ($event, node, selectedObjs) {
-        node._useReg = !node._useReg;
-        self.updateRegressionLine(node, self.regressionType, self.polygons);
-        $timeout(() => {
-            self.regLine = {
-                ...self.regLine,
-                lineStyle: [10, 0],
-                lineColor: self.regLine.lineColor ? self.regLine.lineColor : colorGenerator(),
-                lineWidth: 1
-            };
-        })
-
         // Calc MSE
         let x = [];
         let y = [];
@@ -1560,8 +1550,20 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         });
         self.mse = {
             family: 'mse',
-            mse: self.calcMSE(y, x)
+            mse: self.calcMSE(y, x).toFixed(6)
         }
+    }
+    this.click2ToggleRegression = function ($event, node, selectedObjs) {
+        node._useReg = !node._useReg;
+        self.updateRegressionLine(node, self.regressionType, self.polygons);
+        $timeout(() => {
+            self.regLine = {
+                ...self.regLine,
+                lineStyle: [10, 0],
+                lineColor: self.regLine.lineColor ? self.regLine.lineColor : colorGenerator(),
+                lineWidth: 1
+            };
+        })
     }
 
     //---DISCRIMINATOR---
@@ -1611,5 +1613,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             sw: 1,
             ...self.pickettParams
         })
+    }
+    this.removePickett = ($index) => {
+        self.pickettLines.splice($index, 1);
+    }
+
+    this.conditionForPickettPlot = conditionForPickettPlot;
+    function conditionForPickettPlot() {
+        let curveX = self.getCurve(self.wellSpec[0], 'xAxis');
+        let curveY = self.getCurve(self.wellSpec[0], 'yAxis');
     }
 }
