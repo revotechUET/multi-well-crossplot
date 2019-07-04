@@ -9,10 +9,11 @@
             <div ng-if="self.selectionTypes[$index] === 'family-group'" class="family-group-16x16"
                 style="margin-right: 10px;"></div>
             {{self.selectionXValues[$index]}} - {{self.selectionYValues[$index]}}
+            <div ng-click="self.removeTab($index)" style="margin-left: 15px;font-size: 10px;" class="ti-close"></div>
         </div>
         <div class="tab-drop">
-            Drop curve here
-            <div style="margin-left: 15px; opacity: 0.4;" class="plus-16x16"></div>
+            Drop curves here
+            <div style="margin-left: 15px; opacity: 0.4;" class="ti-plus"></div>
         </div>
     </div>
     <div ng-class="{'show-warning': self.warning}" class="warning">

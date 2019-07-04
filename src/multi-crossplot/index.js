@@ -46,13 +46,11 @@ function multiCrossplotController($scope, $timeout, $element, wiToken, wiApi, wi
         let idCurves = helper.data("idCurves");
         let selectionXValue;
         let idWell;
-        console.log(idCurves);
         if(idCurves && idCurves.length >= 2){
             $timeout(()=>{
                 self.warning = false;
             })
             wiApi.getCurveInfoPromise(idCurves[0]).then(curveInfo => {
-                console.log(curveInfo.name);
                 selectionXValue = curveInfo.name;
                 return wiApi.getDatasetInfoPromise(curveInfo.idDataset);
             }).then(datasetInfo => {
@@ -64,7 +62,6 @@ function multiCrossplotController($scope, $timeout, $element, wiToken, wiApi, wi
                     wiApi.getCurveInfoPromise(idCurves[1]).then(curveInfo => {
                         // console.log(curveInfo.name);
                         $timeout(()=>{
-                            console.log(curveInfo);
                             self.selectionYValues.push(curveInfo.name);
                         });
                     })
@@ -77,5 +74,10 @@ function multiCrossplotController($scope, $timeout, $element, wiToken, wiApi, wi
             })
         }
         
+    }
+    this.removeTab = function (index){
+        $timeout(() => {
+            self.wellSpecs.splice(index, 1);
+        })
     }
 }
