@@ -72,11 +72,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return curves;
     }
 
-    function getFamilyInWell(well) {
-        let curves = getCurvesInWell(well);
-        let familyList = curves.map(c => wiApi.getFamily(c.idFamily));
-        return familyList;
-    }
     this.$onInit = function () {
         self.isSettingChange = true;
         self.defaultConfig = self.defaultConfig || {};
@@ -102,9 +97,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
-        self.pickettParams = self.pickettParams || {rw: 0.0134, m: 2, n: 2, a: 1}
-        self.pickettLines = self.pickettLines || [];
-        self.pickettLines.unshift({sw: 1, ...self.pickettParams});
+        self.pickettParams = self.pickettParams || {rw: 0.03, m: 2, n: 2, a: 1};
 
         if (self.token)
             wiToken.setToken(self.token);
@@ -185,21 +178,19 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let statsArray = self.layers;
         try {
             switch(_headers[col]){
-                case 'xAxis':
+                case 'X-Axis':
                     return statsArray[row].curveXInfo || 'N/A';
-                case 'yAxis':
+                case 'Y-Axis':
                     return statsArray[row].curveYInfo || 'N/A';
-                case 'z1Axis':
+                case 'Z1-Axis':
                     return statsArray[row].curveZ1Info || 'N/A';
-                case 'z2Axis':
+                case 'Z2-Axis':
                     return statsArray[row].curveZ2Info || 'N/A';
-                case 'z3Axis':
+                case 'Z3-Axis':
                     return statsArray[row].curveZ3Info || 'N/A';
-                case 'points':
+                case 'Points':
                     return statsArray[row].numPoints;
-                case 'msi':
-                    return statsArray[row].msi;
-                case 'correlation':
+                case 'Correlation':
                     return statsArray[row].correlation;
                 default:
                     return "this default";
@@ -216,11 +207,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             'background-color': self.layers[rowIdx].layerColor
         }
     }
-    this.calcMSE = function(x, y) {
-        let result = _.mean(y.map((yi, idx) => {
-            return Math.pow(yi - self.regLine.predict(x[idx])[1], 2);
-        }));
-        return result.toFixed(4);
+    this.calcMSE = function(a, b) {
+        let error = 0
+        for (let i = 0; i < a.length; i++) {
+            error += Math.pow((b[i] - a[i]), 2)
+        }
+        return error / a.length
     }
     this.calcCorrelation = function(x, y) {
         let xDeviation = deviation(x);
@@ -343,26 +335,31 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
         switch(treeRoot.isSettingAxis) {
             case 'X':
+                if(node.idDataset != wellSpec.yAxis.idDataset) return;
                 wellSpec.xAxis = {};
                 wellSpec.xAxis.idCurve = node.idCurve;
                 wellSpec.xAxis.idDataset = node.idDataset;
                 break;
             case 'Y':
+                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.yAxis = {};
                 wellSpec.yAxis.idCurve = node.idCurve;
                 wellSpec.yAxis.idDataset = node.idDataset;
                 break;
             case 'Z1':
+                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z1Axis = {};
                 wellSpec.z1Axis.idCurve = node.idCurve;
                 wellSpec.z1Axis.idDataset = node.idDataset;
                 break;
             case 'Z2':
+                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z2Axis = {};
                 wellSpec.z2Axis.idCurve = node.idCurve;
                 wellSpec.z2Axis.idDataset = node.idDataset;
                 break;
             case 'Z3':
+                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z3Axis = {};
                 wellSpec.z3Axis.idCurve = node.idCurve;
                 wellSpec.z3Axis.idDataset = node.idDataset;
@@ -371,6 +368,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
     }
     this.refresh = function(){
+        self.isSettingChange = true;
         self.layers.length = 0;
         self.treeConfig.length = 0;
         getTree();
@@ -391,6 +389,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 console.error(e);
             }
         }
+        if (!$scope.$root.$$phase) $scope.$digest();
         callback && callback();
         wiLoading.hide();
     }
@@ -416,6 +415,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             properties: zs
         }));
         self.zonesetList.splice(0, 0, {data: {label: 'ZonationAll'}, properties: genZonationAllZS(0, 1)});
+        let selectedZonesetProps = (self.zonesetList.find(zs => zs.properties.name === self.zonesetName) || {}).properties;
+        if (!selectedZonesetProps) return;
+        self.onZonesetSelectionChanged(selectedZonesetProps);
+        if (!$scope.$root.$$phase) $scope.$digest();
     }
     function intersectAndMerge(dstZoneList, srcZoneList) {
         return dstZoneList.filter(zs => {
@@ -554,14 +557,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.getConfigXLabel = function() {
         self.config = self.config || {};
-        return (self.config.xLabel || "").length ? self.config.xLabel : ((self.getCurve(self.treeConfig[0], 'xAxis')||{}).name || '[Unknown]');
+        return (self.config.xLabel || "").length ? self.config.xLabel : ((self.getSelectionValue('X')||{}).value || '[Unknown]');
     }
     this.setConfigXLabel = function(notUse, newValue) {
         self.config.xLabel = newValue;
     }
     this.getConfigYLabel = function() {
         self.config = self.config || {};
-        return (self.config.yLabel || "").length ? self.config.yLabel : ((self.getCurve(self.treeConfig[0], 'yAxis') || {}).name || '[Unknown]');
+        return (self.config.yLabel || "").length ? self.config.yLabel : ((self.getSelectionValue('Y') || {}).value || '[Unknown]');
     }
     this.setConfigYLabel = function(notUse, newValue) {
         self.config.yLabel = newValue;
@@ -626,7 +629,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         clearDefaultConfig();
         self.selectionValueList.forEach(s => {
             if (s.isUsed) {
-                setDefaultConfig(self.getAxisKey(s.name));
+                setDefaultConfig(self.getAxisKey(s.name), 0);
             }
         })
 
@@ -646,39 +649,45 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
         }
         //END overlay line---------------------------------------------------
-        
-        function setDefaultConfig(axis) {
-            let curve = getCurve(self.treeConfig[0], axis);
-            if (!curve) return;
-            let family = wiApi.getFamily(curve.idFamily);
-            if (!family) return;
-            switch (axis) {
-                case 'xAxis':
-                    self.defaultConfig.left = family.family_spec[0].minScale;
-                    self.defaultConfig.right = family.family_spec[0].maxScale;
-                    self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
-                    break;
-                case 'yAxis':
-                    self.defaultConfig.top = family.family_spec[0].maxScale;
-                    self.defaultConfig.bottom = family.family_spec[0].minScale;
-                    self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
-                    break;
-                case 'z1Axis':
-                    self.config.z1Max = family.family_spec[0].maxScale;
-                    self.config.z1Min = family.family_spec[0].minScale;
-                    self.config.z1N = 5;
-                    break;
-                case 'z2Axis':
-                    self.config.z2Max = family.family_spec[0].maxScale;
-                    self.config.z2Min = family.family_spec[0].minScale;
-                    self.config.z2N = 5;
-                    break;
-                case 'z3Axis':
-                    self.config.z3Max = family.family_spec[0].maxScale;
-                    self.config.z3Min = family.family_spec[0].minScale;
-                    self.config.z3N = 5;
-                    break;
-                default:
+
+        function setDefaultConfig(axis, index) {
+            if (index >= self.treeConfig.length) return;
+            let curve = getCurve(self.treeConfig[index], axis);
+            if (!curve) {
+                setDefaultConfig(axis, index + 1);
+            } else {
+                let family = wiApi.getFamily(curve.idFamily);
+                if (!family) return;
+                switch (axis) {
+                    case 'xAxis':
+                        self.setConfigXLabel(null, curve.name);
+                        self.defaultConfig.left = family.family_spec[0].minScale;
+                        self.defaultConfig.right = family.family_spec[0].maxScale;
+                        self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                        break;
+                    case 'yAxis':
+                        self.setConfigYLabel(null, curve.name);
+                        self.defaultConfig.top = family.family_spec[0].maxScale;
+                        self.defaultConfig.bottom = family.family_spec[0].minScale;
+                        self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                        break;
+                    case 'z1Axis':
+                        self.config.z1Max = family.family_spec[0].maxScale;
+                        self.config.z1Min = family.family_spec[0].minScale;
+                        self.config.z1N = 5;
+                        break;
+                    case 'z2Axis':
+                        self.config.z2Max = family.family_spec[0].maxScale;
+                        self.config.z2Min = family.family_spec[0].minScale;
+                        self.config.z2N = 5;
+                        break;
+                    case 'z3Axis':
+                        self.config.z3Max = family.family_spec[0].maxScale;
+                        self.config.z3Min = family.family_spec[0].minScale;
+                        self.config.z3N = 5;
+                        break;
+                    default:
+                }
             }
         }
     }
@@ -713,7 +722,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             polygons: self.polygons,
             polygonExclude: self.polygonExclude,
             regressionType: self.regressionType,
-            config: self.config	
+            config: self.config,
+            pickettLines: self.pickettLines,
+            pickettParams: self.pickettParams
         }
         if (!self.idCrossplot) {
             wiDialog.promptDialog({
@@ -764,7 +775,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 polygons: self.polygons,
                 polygonExclude: self.polygonExclude,
                 regressionType: self.regressionType,
-                config: {...self.config, title: name} 
+                config: {...self.config, title: name},
+                pickettLines: self.pickettLines,
+                pickettParams: self.pickettParams
             }
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 self.idCrossplot = res.idParameterSet;
@@ -899,7 +912,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }
             })
         }
-       
+
     }
 
     this.getOvlLabel = function(node){
@@ -1110,6 +1123,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.genLayers = async function() {
         if (!self.isSettingChange) return;
         if (!self.getSelectionValue('X').value || !self.getSelectionValue('Y').value) return;
+        if (!self.getConfigXLabel() || !self.getConfigYLabel()) return;
         self.isSettingChange = false;
         self.layers = self.layers || []	;
         let layers = [];
@@ -1292,6 +1306,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.udls.forEach(udl => {
             setUDLFn(udl);
         })
+        if (self.getLogaX() && self.getLogaY()) {
+            self.pickettLines = self.pickettLines || [{family: 'pickett', sw: 1, ...self.pickettParams}];
+        }
         wiLoading.hide();
         self.layers = layers;
         self._notUsedLayer = _notUsedLayer;
@@ -1482,50 +1499,62 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (usedPolygon.length) {
             data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
         }
+        if (!data.length) {
+            self.regLine.family = undefined;
+            return;
+        }
         let result;
         switch(regressionType) {
             case 'Linear':
                 result = regression.linear(data, {precision: 6});
-                console.log({
-                    slope: result.equation[0], 
-                    intercept: result.equation[1],
-                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     slope: result.equation[0], 
                     intercept: result.equation[1],
-                    predict: result.predict
+                    predict: result.predict,
+                    r2: result.r2
                 };
                 break;
             case 'Exponential':
                 result = regression.exponential(data, {precision: 6});
-                console.log({
-                    ae: result.equation[0], 
-                    b: result.equation[1],
-                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     ae: result.equation[0], 
                     b: result.equation[1],
-                    predict: result.predict
+                    predict: result.predict,
+                    r2: result.r2
                 };
                 break;
             case 'Power':
                 result = regression.power(data, {precision: 6});
-                console.log({
-                    coefficient: result.equation[0], 
-                    exponent: result.equation[1],
-                })
                 self.regLine = {
                     ...self.regLine,
                     family: self.regressionType.toLowerCase(), 
                     coefficient: result.equation[0], 
                     exponent: result.equation[1],
-                    predict: result.predict
+                    predict: result.predict,
+                    r2: result.r2
                 };
                 break;
+        }
+        // Calc MSE
+        let x = [];
+        let y = [];
+        for (let i = 0; i < self.layers.length; i++) {
+            let layer = self.layers[i];
+            if (layer._useReg) {
+                x = x.concat(layer.dataX);
+                y = y.concat(layer.dataY);
+            }
+        }
+        x = x.map(xi => {
+            return self.regLine.predict(xi)[1];
+        });
+        self.mse = {
+            family: 'mse',
+            mse: self.calcMSE(y, x).toFixed(6)
         }
     }
     this.click2ToggleRegression = function ($event, node, selectedObjs) {
@@ -1539,21 +1568,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 lineWidth: 1
             };
         })
-
-        // Calc MSE
-        let x = [];
-        let y = [];
-        for (let i = 0; i < self.layers.length; i++) {
-            let layer = self.layers[i];
-            if (layer._useReg) {
-                x = x.concat(layer.dataX);
-                y = y.concat(layer.dataY);
-            }
-        }
-        self.mse = {
-            family: 'mse',
-            mse: self.calcMSE(x, y)
-        }
     }
 
     //---DISCRIMINATOR---
@@ -1597,9 +1611,31 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.addPickettLine = function() {
+        if (self.pickettLines.length >= 5) return;
         self.pickettLines.push({
+            family: 'pickett',
             sw: 1,
             ...self.pickettParams
         })
+    }
+    this.removePickett = ($index) => {
+        self.pickettLines.splice($index, 1);
+    }
+
+    this.conditionForPickettPlot = conditionForPickettPlot;
+    function conditionForPickettPlot() {
+        let familyGroupX;
+        let familyGroupY;
+        if (!self.treeConfig.length) {
+            familyGroupX = undefined;
+        } else {
+            let curveX = self.getCurve(self.treeConfig[0], 'xAxis');
+            familyGroupX = wiApi.getFamily(curveX.idFamily).familyGroup;
+            let curveY = self.getCurve(self.treeConfig[0], 'yAxis');
+            familyGroupY = wiApi.getFamily(curveY.idFamily).familyGroup;
+        }
+        return self.getLogaX() && self.getLogaY()
+            && ((familyGroupX == 'Porosity' && familyGroupY == 'Resistivity')
+                || (familyGroupX == 'Resistivity' && familyGroupY == 'Porosity'))
     }
 }

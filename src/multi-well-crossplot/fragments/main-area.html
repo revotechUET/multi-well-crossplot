@@ -29,7 +29,7 @@
                 max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"
                 loga="self.getLogaX()" formula="self.regLine" eqn-offsets="['50px', '0%']"
                 line-color="self.regLine.lineColor" line-dash="self.regLine.lineStyle.join(' ')"
-                line-width="self.regLine.lineWidth" show-equation='true' mse="self.mse">
+                line-width="self.regLine.lineWidth" show-equation='true' mse="self.mse" ng-if='self.regLine && self.regLine.family'>
             </line-formula-layer>
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
                 max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"
@@ -41,12 +41,13 @@
             </line-formula-layer>
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()"
                 min-draw='self.getLeft()' max-draw="self.getRight()"
-                min-y="self.getBottom()" min-draw-y="self.getBottom()"
-                max-y="self.getTop()" max-draw-y="self.getTop()"
+                min-y="self.getBottom()" max-y="self.getTop()"
+                min-draw-y="self.getBottom()" max-draw-y="self.getTop()"
                 ortho-loga="self.getLogaY()" loga="self.getLogaX()"
                 formula="pickett" show-equation='false'
-                line-color="pickett.lineColor" line-dash="pickett.lineStyle.join(' ')" line-width="pickett.lineWidth"
-                ng-repeat="(pickettIdx, pickett) in self.pickettLines" ng-show='!pickett._notUsed'>
+                ng-repeat="(pickettIdx, pickett) in self.pickettLines"
+                ng-if='self.conditionForPickettPlot() && self.pickettLines && !self.notShowPickett'
+                resolution='500'>
             </line-formula-layer>
             <polygon-layer
                 ng-show="!polygon._notShow"
