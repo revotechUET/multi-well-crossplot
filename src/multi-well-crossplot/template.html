@@ -1,9 +1,10 @@
 <div class="main">
-    <wi-droppable style="display:flex; width: 100%;;" on-drop="self.onDrop"
-        container-style="{display:'flex',flex: 1, position: 'relative'}">
-        <div class="main-body">
-            ${require('./fragments/main-area.html')}
-        </div>
+
+    <div class="main-body">
+        ${require('./fragments/main-area.html')}
+    </div>
+    <wi-droppable style="display:flex;" on-drop="self.onDrop"
+        container-style="{}">
         <div style=" height: 100%; right: 0; border-left: 1px solid #ccc; box-shadow: 0 0 20px #0000001c;">
             ${require('./fragments/side-bar.html')}
         </div>
