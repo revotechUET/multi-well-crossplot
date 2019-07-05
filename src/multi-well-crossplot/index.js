@@ -4,6 +4,7 @@ require('./style.less');
 const regression = require('../../bower_components/regression-js/dist/regression.min.js');
 
 const _DECIMAL_LEN = 4;
+const _PICKETT_LIMIT = 5;
 
 var app = angular.module(componentName, [
     'sideBar', 'wiTreeView', 'wiTableView',
@@ -35,7 +36,8 @@ app.component(componentName, {
         regressionType: '<',
         silent: "<",
         pickettLines: '<',
-        pickettParams: '<'
+        pickettParams: '<',
+        pointSize: '<'
     },
     transclude: true
 });
@@ -73,6 +75,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.$onInit = function () {
+        self.pointSize = self.pointSize || 5;
         self.isSettingChange = true;
         self.defaultConfig = self.defaultConfig || {};
         self.wellSpec = self.wellSpec || [];
@@ -622,6 +625,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let cMode = self.getColorMode();
         return cMode === 'zone' ? zone.zone_template.background:(cMode === 'well'?well.color:'red');
     }
+    this.getPointSize = () => (self.pointSize);
+    this.setPointSize = (notUse, newVal) => {
+        self.isSettingChange = true;
+        self.pointSize = parseFloat(newVal);
+    }
 
     // ---DEFAULT CONFIG
     function clearDefaultConfig() {
@@ -726,7 +734,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             regressionType: self.regressionType,
             config: self.config,
             pickettLines: self.pickettLines,
-            pickettParams: self.pickettParams
+            pickettParams: self.pickettParams,
+            pointSize: self.pointSize
         }
         if (!self.idCrossplot) {
             wiDialog.promptDialog({
@@ -779,7 +788,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 regressionType: self.regressionType,
                 config: {...self.config, title: name},
                 pickettLines: self.pickettLines,
-                pickettParams: self.pickettParams
+                pickettParams: self.pickettParams,
+                pointSize: self.pointSize
             }
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 self.idCrossplot = res.idParameterSet;
@@ -1250,9 +1260,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
                         return getTransformZ1()(this.dataZ1[idx]);
                     }).bind(layer) : self.getColor(zone, well);
-                    layer.size = curveZ2 && shouldPlotZ2 ? (function(data, idx) {
-                        return getTransformZ2()(this.dataZ2[idx]);
-                    }).bind(layer) : null;
+                    layer.size = (function(data, idx) {
+                        if (curveZ2 && shouldPlotZ2) {
+                            return getTransformZ2()(this.dataZ2[idx]);
+                        } else {
+                            return self.pointSize;
+                        }
+                    }).bind(layer);
                     layer.textSymbol = curveZ3 && shouldPlotZ3 ? (function(data, idx) {
                         return getTransformZ3()(this.dataZ3[idx]);
                     }).bind(layer) : null;
@@ -1288,9 +1302,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
                         return getTransformZ1()(this.dataZ1[idx]);
                     }).bind(layer) : well.color;
-                    layer.size = curveZ2 && shouldPlotZ2 ? (function(data, idx) {
-                        return getTransformZ2()(this.dataZ2[idx]);
-                    }).bind(layer) : null;
+                    layer.size = (function(data, idx) {
+                        if (curveZ2 && shouldPlotZ2) {
+                            return getTransformZ2()(this.dataZ2[idx]);
+                        } else {
+                            return self.pointSize;
+                        }
+                    }).bind(layer);
                     layer.textSymbol = curveZ3 && shouldPlotZ3 ? (function(data, idx) {
                         return getTransformZ3()(this.dataZ3[idx]);
                     }).bind(layer) : null;
@@ -1614,7 +1632,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
     this.addPickettLine = function() {
         if (!self.pickettLines) self.pickettLines = [];
-        if (self.pickettLines.length >= 5) return;
+        if (self.pickettLines.length >= _PICKETT_LIMIT) return;
         self.pickettLines.push({
             family: 'pickett',
             sw: 1,
