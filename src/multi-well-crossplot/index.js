@@ -102,9 +102,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (self.token)
             wiToken.setToken(self.token);
         $timeout(() => {
-            //$scope.$watch(() => (self.pickettParams), () => {
-            //self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
-            //})
+            $scope.$watch(() => (self.pickettParams), () => {
+                self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
+            })
             $scope.$watch(() => self.config, (newVal, oldVal) => {
                 self.isSettingChange = true;
             }, true)
@@ -722,7 +722,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             polygons: self.polygons,
             polygonExclude: self.polygonExclude,
             regressionType: self.regressionType,
-            config: self.config	
+            config: self.config,
+            pickettLines: self.pickettLines,
+            pickettParams: self.pickettParams
         }
         if (!self.idCrossplot) {
             wiDialog.promptDialog({
@@ -773,7 +775,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 polygons: self.polygons,
                 polygonExclude: self.polygonExclude,
                 regressionType: self.regressionType,
-                config: {...self.config, title: name} 
+                config: {...self.config, title: name},
+                pickettLines: self.pickettLines,
+                pickettParams: self.pickettParams
             }
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 self.idCrossplot = res.idParameterSet;
@@ -1620,7 +1624,18 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
     this.conditionForPickettPlot = conditionForPickettPlot;
     function conditionForPickettPlot() {
-        let curveX = self.getCurve(self.wellSpec[0], 'xAxis');
-        let curveY = self.getCurve(self.wellSpec[0], 'yAxis');
+        let familyGroupX;
+        let familyGroupY;
+        if (!self.treeConfig.length) {
+            familyGroupX = undefined;
+        } else {
+            let curveX = self.getCurve(self.treeConfig[0], 'xAxis');
+            familyGroupX = wiApi.getFamily(curveX.idFamily).familyGroup;
+            let curveY = self.getCurve(self.treeConfig[0], 'yAxis');
+            familyGroupY = wiApi.getFamily(curveY.idFamily).familyGroup;
+        }
+        return self.getLogaX() && self.getLogaY()
+            && ((familyGroupX == 'Porosity' && familyGroupY == 'Resistivity')
+                || (familyGroupX == 'Resistivity' && familyGroupY == 'Porosity'))
     }
 }
