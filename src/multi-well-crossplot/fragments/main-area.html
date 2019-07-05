@@ -47,7 +47,8 @@
                 formula="pickett" show-equation='false'
                 ng-repeat="(pickettIdx, pickett) in self.pickettLines"
                 ng-if='self.conditionForPickettPlot() && self.pickettLines && !self.notShowPickett'
-                resolution='500'>
+                resolution='500'
+                line-label='pickett.label'>
             </line-formula-layer>
             <polygon-layer
                 ng-show="!polygon._notShow"

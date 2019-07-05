@@ -1100,6 +1100,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.setSwParam = function(index, newValue) {
         self.pickettLines[index].sw = newValue;
+        self.pickettLines[index].label = `Sw = ${newValue}`;
     }
     this.getFnUDL = function(index) {
         return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
@@ -1327,7 +1328,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             setUDLFn(udl);
         })
         if (self.getLogaX() && self.getLogaY()) {
-            self.pickettLines = self.pickettLines || [{family: 'pickett', sw: 1, ...self.pickettParams}];
+            self.pickettLines = self.pickettLines || [{family: 'pickett', label: 'Sw = 1', sw: 1, ...self.pickettParams}];
         }
         wiLoading.hide();
         self.layers = layers;
@@ -1635,6 +1636,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (self.pickettLines.length >= _PICKETT_LIMIT) return;
         self.pickettLines.push({
             family: 'pickett',
+            label: 'Sw = 1',
             sw: 1,
             ...self.pickettParams
         })
