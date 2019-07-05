@@ -2,7 +2,7 @@
     <div>Wells</div>
 </div>
 <div class="label-option-sidebar"
-    style="margin-top: 10px; padding-bottom: 5px; display: flex; justify-content: space-between;">
+    style=" margin-top: 5px;padding-bottom: 5px; display: flex; justify-content: space-between;">
     <span>Input</span>
     <div>
         <span ng-class="{'active' : self.selectionType === 'family-group'}"
@@ -25,11 +25,11 @@
         </span>
         <span ng-class="{'active' : self.getSelectionValue('Z2').isUsed}" style="margin-right: 8px;"
             ng-click="self.getSelectionValue('Z2').isUsed = !self.getSelectionValue('Z2').isUsed" class="button-with-label">
-            Point size Z2
+            Point Size Z2
         </span>
         <span ng-class="{'active' : self.getSelectionValue('Z3').isUsed}" style="margin-right: 8px;"
             ng-click="self.getSelectionValue('Z3').isUsed = !self.getSelectionValue('Z3').isUsed" class="button-with-label">
-            label Z3 
+            Label Z3 
         </span>
     </div>
 </div>
@@ -52,7 +52,7 @@
                     <i class="header-icon"
                         ng-class="{'fa fa-caret-down': !well._hidden, 'fa fa-caret-right': well._hidden}"
                         ng-click="well._hidden = !well._hidden"></i>
-                    <div ng-bind="well.name" style="font-weight: bold; max-width: 80px; white-space: nowrap;text-overflow: ellipsis; overflow: hidden;"></div>
+                    <div ng-bind="well.name" style="font-weight: bold; max-width: 120px; white-space: nowrap;text-overflow: ellipsis; overflow: hidden;"></div>
                 </div>
                
                 <div>
