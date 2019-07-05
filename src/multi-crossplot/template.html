@@ -20,7 +20,7 @@
         DROP CURVES, TRY AGIAN!
     </div>
 </wi-droppable>
-<div ng-if="tabIndex === $index" class="main" ng-repeat="wellSpec in self.wellSpecs track by $index">
+<div ng-show="tabIndex === $index" class="main" ng-repeat="wellSpec in self.wellSpecs track by $index">
     <multi-well-crossplot well-spec="wellSpec" zoneset-name="self.zoneNames[$index]" 
         selection-type="self.selectionTypes[$index]" 
         selection-value-list="[{
