@@ -103,7 +103,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wiToken.setToken(self.token);
         $timeout(() => {
             $scope.$watch(() => (self.pickettParams), () => {
-                self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
+                if (self.pickettLines) {
+                    self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
+                }
             })
             $scope.$watch(() => self.config, (newVal, oldVal) => {
                 self.isSettingChange = true;
@@ -1611,6 +1613,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.addPickettLine = function() {
+        if (!self.pickettLines) self.pickettLines = [];
         if (self.pickettLines.length >= 5) return;
         self.pickettLines.push({
             family: 'pickett',
