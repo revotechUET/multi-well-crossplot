@@ -75,7 +75,9 @@ function multiCrossplotController($scope, $timeout, $element, wiToken, wiApi, wi
         }
         
     }
-    this.removeTab = function (index){
+    this.removeTab = function ($event, index){
+        $event.stopPropagation();
+        $event.preventDefault();
         $timeout(() => {
             self.wellSpecs.splice(index, 1);
         })

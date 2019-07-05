@@ -9,7 +9,7 @@
             <div ng-if="self.selectionTypes[$index] === 'family-group'" class="family-group-16x16"
                 style="margin-right: 10px;"></div>
             {{self.selectionXValues[$index]}} - {{self.selectionYValues[$index]}}
-            <div ng-click="self.removeTab($index)" style="margin-left: 15px;font-size: 10px;" class="ti-close"></div>
+            <!-- <div ng-click="self.removeTab($event, $index)" style="margin-left: 15px;font-size: 10px; cursor: pointer;" class="ti-close"></div> -->
         </div>
         <div class="tab-drop">
             Drop curves here
@@ -20,14 +20,15 @@
         DROP CURVES, TRY AGIAN!
     </div>
 </wi-droppable>
-<div ng-show="tabIndex === $index" class="main" ng-repeat="wellSpec in self.wellSpecs track by $index">
-    <multi-well-crossplot well-spec="wellSpec" zoneset-name="self.zoneNames[$index]" selection-type="self.selectionTypes[$index]" 
+<div ng-if="tabIndex === $index" class="main" ng-repeat="wellSpec in self.wellSpecs track by $index">
+    <multi-well-crossplot well-spec="wellSpec" zoneset-name="self.zoneNames[$index]" 
+        selection-type="self.selectionTypes[$index]" 
         selection-value-list="[{
             name: 'X',
             label: 'X Axis',
             value: self.selectionXValues[$index],
             isUsed: true
-        },{
+        }, {
             name: 'Y',
             label: 'Y Axis',
             value: self.selectionYValues[$index],
