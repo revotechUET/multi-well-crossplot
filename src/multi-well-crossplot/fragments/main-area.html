@@ -76,6 +76,59 @@
         ">
             {{self.getConfigYLabel()}}</p>
     </div>
+    <div>
+        <div style="display: flex; flex-direction: column; padding: 10px 15px;">
+            <!-- Z1 -->
+            <div style="flex: 1;display: flex;flex-direction: column; height: 33px;" ng-if="self.getSelectionValue('Z1').isUsed && self.zColors">
+                <div style="flex:1;display: flex;flex-direction: row">
+                    <div ng-repeat="segColor in self.zColors track by $index" style="flex:1;background-color:{{segColor}};width:20px;"></div>
+                </div>
+                <div style="display: flex; flex-direction: row; padding-left: 5px;">
+                    <div style="flex:1;">{{ self.getZ1Min() }}</div>
+                    <div style="flex:1;width:16px;">
+                        <div>
+                            {{ self.getSelectionValue('Z1').value }}
+                        </div>
+                    </div>
+                    <div>{{ self.getZ1Max() }}</div>
+                </div>
+            </div>
+            <!-- Z2 -->
+            <div style="flex: 1;display: flex;flex-direction: column; height: 33px;" ng-if="self.getSelectionValue('Z2').isUsed && self.zSizes">
+                <div style="flex:1;display: flex;flex-direction: row">
+                    <div ng-repeat="segSize in self.zSizes" style="flex:1;width:20px;border: 1px solid darkgray;">
+                        <span>{{segSize}}</span>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: row; padding-left: 5px;">
+                    <div style="flex:1;">{{ self.getZ2Min() }}</div>
+                    <div style="flex:1;width:16px;">
+                        <div>
+                            {{ self.getSelectionValue('Z2').value }}
+                        </div>
+                    </div>
+                    <div>{{ self.getZ2Max() }}</div>
+                </div>
+            </div>
+            <!-- Z3 -->
+            <div style="flex: 1;display: flex;flex-direction: column; height: 33px;" ng-if="self.getSelectionValue('Z3').isUsed && self.zSymbols">
+                <div style="flex:1;display: flex;flex-direction: row">
+                    <div ng-repeat="segSymbol in self.zSymbols" style="flex:1;width:20px;border: 1px solid darkgray;">
+                        <span>{{segSymbol}}</span>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: row; padding-left: 5px;">
+                    <div style="flex:1;">{{ self.getZ3Min() }}</div>
+                    <div style="flex:1;width:16px;">
+                        <div>
+                            {{ self.getSelectionValue('Z3').value }}
+                        </div>
+                    </div>
+                    <div>{{ self.getZ3Max() }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="statistic-table" resizable r-directions="['top']" r-flex="true">
         <div style="overflow-x: auto; position: absolute; top: 0; right: 0; left: 0; bottom: 0;">
             <wi-table-view ng-if="self.layers.length" row-count="self.getZoneNames().length"

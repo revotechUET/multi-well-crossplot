@@ -670,13 +670,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 if (!family) return;
                 switch (axis) {
                     case 'xAxis':
-                        self.setConfigXLabel(null, curve.name);
+                        self.setConfigXLabel(null, self.getSelectionValue('X').value);
                         self.defaultConfig.left = family.family_spec[0].minScale;
                         self.defaultConfig.right = family.family_spec[0].maxScale;
                         self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
                         break;
                     case 'yAxis':
-                        self.setConfigYLabel(null, curve.name);
+                        self.setConfigYLabel(null, self.getSelectionValue('Y').value);
                         self.defaultConfig.top = family.family_spec[0].maxScale;
                         self.defaultConfig.bottom = family.family_spec[0].minScale;
                         self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
@@ -1189,7 +1189,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             let datasetZ3 = null;
             if (shouldPlotZ1 && curveZ1) {
                 datasetZ1 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z1Axis.idDataset);
-                self.colors = zColors(self.getZ1N(), curveZ1.idCurve);
+                self.zColors = zColorsFn(self.getZ1N(), curveZ1.idCurve);
                 curveDataZ1 = await wiApi.getCachedCurveDataPromise(curveZ1.idCurve);
                 if (self.hasDiscriminator(well)) {
                     let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ1, self.wellSpec[i].discriminator);
@@ -1198,7 +1198,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
             if (shouldPlotZ2 && curveZ2) {
                 datasetZ2 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z2Axis.idDataset);
-                self.sizes = zSizes(self.getZ2N(), curveZ2.idCurve);
+                self.zSizes = zSizesFn(self.getZ2N(), curveZ2.idCurve);
                 curveDataZ2 = await wiApi.getCachedCurveDataPromise(curveZ2.idCurve);
                 if (self.hasDiscriminator(well)) {
                     let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ2, self.wellSpec[i].discriminator);
@@ -1207,7 +1207,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
             if (shouldPlotZ3 && curveZ3) {
                 datasetZ3 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z3Axis.idDataset);
-                self.symbols = zSymbols(self.getZ3N(), curveZ3.idCurve);
+                self.zSymbols = zSymbolsFn(self.getZ3N(), curveZ3.idCurve);
                 curveDataZ3 = await wiApi.getCachedCurveDataPromise(curveZ3.idCurve);
                 if (self.hasDiscriminator(well)) {
                     let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ3, self.wellSpec[i].discriminator);
@@ -1353,23 +1353,23 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let reverse = wdZ[0] > wdZ[1];
         return d3.scaleQuantize()
             .domain(sort(wdZ))
-            .range(reverse ? clone(self.colors).reverse() : self.colors);
+            .range(reverse ? clone(self.zColors).reverse() : self.zColors);
     }
     function getTransformZ2() {
         let wdZ = [self.getZ2Min(), self.getZ2Max()];
         let reverse = wdZ[0] > wdZ[1];
         return d3.scaleQuantize()
             .domain(sort(wdZ))
-            .range(reverse ? clone(self.sizes).reverse() : self.sizes);
+            .range(reverse ? clone(self.zSizes).reverse() : self.zSizes);
     }
     function getTransformZ3() {
         let wdZ = [self.getZ3Min(), self.getZ3Max()];
         let reverse = wdZ[0] > wdZ[1];
         return d3.scaleQuantize()
             .domain(sort(wdZ))
-            .range(reverse ? clone(self.symbols).reverse() : self.symbols);
+            .range(reverse ? clone(self.zSymbols).reverse() : self.zSymbols);
     }
-    function zColors(numColor, doHaveColorAxis) {
+    function zColorsFn(numColor, doHaveColorAxis) {
         if (!doHaveColorAxis) return [];
         if (numColor <= 0) return [];
         let colors = [];
@@ -1383,7 +1383,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         return colors;
     }
-    function zSizes(numSize, doHaveSizeAxis) {
+    function zSizesFn(numSize, doHaveSizeAxis) {
         if (!doHaveSizeAxis) return [];
         if (numSize <= 0) return [];
         const minSize = 5;
@@ -1394,7 +1394,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         return sizes;
     }
-    function zSymbols(numSymbol, doHaveSymbolAxis) {
+    function zSymbolsFn(numSymbol, doHaveSymbolAxis) {
         if (!doHaveSymbolAxis) return [];
         if (numSymbol <= 0) return [];
         const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
