@@ -1,4 +1,66 @@
 multi-well-crossplot {
+	.rg-bottom span, .rg-top span {
+		margin: 3px 0 0 -10px;
+	}
+	.axis-info {
+		display: flex;
+		padding: 15px;
+		flex-direction: column;
+		border-bottom: 1px solid #ccc;
+		.axis-Z {
+			flex: 1;
+			display: flex;
+			margin-bottom: 15px;
+			.line {
+				border-bottom: 2px solid #8e8e8e;
+				position: absolute;
+				width: calc(100% - 15px);
+				margin-top: 10px;
+			}
+			.axis {
+				border: 1px solid #cccccc;
+				color: #646464;
+				background: #f4f4f4;
+				font-size: 12px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				margin-right: 15px;
+				border-radius: 2px;
+				// height: 22px
+			}
+			.ellipsis-text {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.label {
+				padding: 0 10px;
+				font-weight: bold;
+			}
+			.axis-type {
+				width: 100px;
+				color: #0077be;
+				height: 22px
+			}
+			.axis-min {
+				width: 40px;
+				color: #0077be;
+				margin-right: -1px;
+				height: 22px
+			}
+			.axis-line {
+				flex: 1;
+				margin-right: -1px;
+				background: #fff;
+			}
+			.axis-max {
+				width: 80px;
+				color: #0077be;
+				height: 22px
+			}
+		}
+	}
 	.red-color {
 		color: #cc6d6d;
 	}
@@ -124,8 +186,19 @@ multi-well-crossplot {
 			border-left: none; 
 		}
 		& div.table {
+			// margin-top: 0;
 			margin-top: 0;
+			border-radius: 2px;
+			border-top: 1px solid #ccc;  
+			border-left: 1px solid #ccc;  
+			border-bottom: none;  
+			border-right: none;  
+
 		}
+	}
+	editable div.my-content {
+		float: left;
+		color: #a9a9a9;
 	}
 
 	wi-dropdown-list {
@@ -221,6 +294,7 @@ multi-well-crossplot {
 
 		}
 	}
+	
 
 	.ui-select-match-text {
 		text-align: right;
@@ -514,7 +588,7 @@ multi-well-crossplot {
 		}
 
 		.selection-sidebar {
-			border       : 1px solid #e4e4e4;
+			border       : 1px solid #c7c7c7;
 			border-radius: 2px;
 			padding      : 2px 10px;
 			align-items  : center;

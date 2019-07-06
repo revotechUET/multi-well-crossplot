@@ -1,70 +1,56 @@
-<div class="label-list-view ng-scope" style="display :flex; background: #f4f4f4; padding: 9px 15px; justify-content: flex-start;">
+<div class="label-list-view ng-scope"
+    style="display :flex; background: #f4f4f4; padding: 9px 15px; justify-content: flex-start;">
 
     <span class="fn-button" ng-click="self.refresh()">RELOAD</span>
     <span class="fn-button" ng-click="self.saveToAsset()">SAVE</span>
     <span class="fn-button" ng-click="self.saveAs()">SAVE AS</span>
-    <span class="fn-button" >PRINT</span>
+    <span class="fn-button">PRINT</span>
 </div>
 <div style="flex: 1; display: flex; flex-direction: column;">
     <div class="main-body-center border-style" style="position: relative;" id='layer-collection'>
         <layer-collection v-padding="vPadding" h-padding='hPadding'>
-            <axis-layer min-val='self.getLeft()' max-val='self.getRight()'
-                n-ticks="self.getMajorX() * self.getMinorX()" minor-ticks="self.getMinorX()"
-                loga="self.getLogaX()" precision="4" grid="!!self.config.grid"
+            <axis-layer min-val='self.getLeft()' max-val='self.getRight()' n-ticks="self.getMajorX() * self.getMinorX()"
+                minor-ticks="self.getMinorX()" loga="self.getLogaX()" precision="4" grid="!!self.config.grid"
                 placement="1"></axis-layer>
-            <axis-layer min-val='self.getBottom()' max-val='self.getTop()'
-                n-ticks="self.getMajorY() * self.getMinorY()" minor-ticks="self.getMinorY()"
-                loga="self.getLogaY()" precision="4" grid="!!self.config.grid" axis-direction="'up'"
-                placement="0"></axis-layer>
+            <axis-layer min-val='self.getBottom()' max-val='self.getTop()' n-ticks="self.getMajorY() * self.getMinorY()"
+                minor-ticks="self.getMinorY()" loga="self.getLogaY()" precision="4" grid="!!self.config.grid"
+                axis-direction="'up'" placement="0"></axis-layer>
             <scatter-layer ng-show="!layer._notUsed" min-val="self.getLeft()" max-val="self.getRight()"
-                min-y="self.getBottom()" max-y="self.getTop()" loga="self.getLogaX()"
-                ortho-loga="self.getLogaY()" my-data-x="layer.dataX" 
-                my-data-y="layer.dataY" symbol="self.getSelectionValue('Z3').isUsed ? 'textSymbol' : 'circle'"
-                symbol-size="5" symbol-fill-style="layer.color" symbol-stroke-style="'transparent'"
-                color-func="layer.color" point-size-func="layer.size" symbol-func="layer.textSymbol"
-                ng-repeat="layer in self.layers">
+                min-y="self.getBottom()" max-y="self.getTop()" loga="self.getLogaX()" ortho-loga="self.getLogaY()"
+                my-data-x="layer.dataX" my-data-y="layer.dataY"
+                symbol="self.getSelectionValue('Z3').isUsed ? 'textSymbol' : 'circle'" symbol-size="5"
+                symbol-fill-style="layer.color" symbol-stroke-style="'transparent'" color-func="layer.color"
+                point-size-func="layer.size" symbol-func="layer.textSymbol" ng-repeat="layer in self.layers">
             </scatter-layer>
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
-                max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"
-                max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"
-                loga="self.getLogaX()" formula="self.regLine" eqn-offsets="['50px', '0%']"
-                line-color="self.regLine.lineColor" line-dash="self.regLine.lineStyle.join(' ')"
-                line-width="self.regLine.lineWidth" show-equation='true' mse="self.mse" ng-if='self.regLine && self.regLine.family'>
+                max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()" max-y="self.getTop()"
+                max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="self.regLine"
+                eqn-offsets="['50px', '0%']" line-color="self.regLine.lineColor"
+                line-dash="self.regLine.lineStyle.join(' ')" line-width="self.regLine.lineWidth" show-equation='true'
+                mse="self.mse" ng-if='self.regLine && self.regLine.family'>
             </line-formula-layer>
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
-                max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()"
-                max-y="self.getTop()" max-draw-y="self.getTop()" ortho-loga="self.getLogaY()"
-                loga="self.getLogaX()" formula="udl" eqn-offsets="['65px', self.eqnOffsetY(udlIdx)]"
-                line-color="udl.lineStyle.lineColor" line-dash="udl.lineStyle.lineStyle.join(' ')"
-                line-width="udl.lineStyle.lineWidth" ng-repeat="(udlIdx, udl) in self.udls" show-equation='true'
-                ng-show='!udl._notUsed'>
+                max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()" max-y="self.getTop()"
+                max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="udl"
+                eqn-offsets="['65px', self.eqnOffsetY(udlIdx)]" line-color="udl.lineStyle.lineColor"
+                line-dash="udl.lineStyle.lineStyle.join(' ')" line-width="udl.lineStyle.lineWidth"
+                ng-repeat="(udlIdx, udl) in self.udls" show-equation='true' ng-show='!udl._notUsed'>
             </line-formula-layer>
-            <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()"
-                min-draw='self.getLeft()' max-draw="self.getRight()"
-                min-y="self.getBottom()" max-y="self.getTop()"
-                min-draw-y="self.getBottom()" max-draw-y="self.getTop()"
-                ortho-loga="self.getLogaY()" loga="self.getLogaX()"
-                formula="pickett" show-equation='false'
-                ng-repeat="(pickettIdx, pickett) in self.pickettLines"
-                ng-if='self.conditionForPickettPlot() && self.pickettLines && !self.notShowPickett'
-                resolution='500'
+            <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
+                max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"
+                max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="pickett"
+                show-equation='false' ng-repeat="(pickettIdx, pickett) in self.pickettLines"
+                ng-if='self.conditionForPickettPlot() && self.pickettLines && !self.notShowPickett' resolution='500'
                 line-label='pickett.label'>
             </line-formula-layer>
-            <polygon-layer
-                ng-show="!polygon._notShow"
-                min-val="self.getLeft()" max-val="self.getRight()"
-                min-y="self.getBottom()" max-y="self.getTop()"
-                ng-repeat="polygon in self.polygons"
-                points="polygon.points"
-                mode="polygon.mode">
+            <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
+                min-y="self.getBottom()" max-y="self.getTop()" ng-repeat="polygon in self.polygons"
+                points="polygon.points" mode="polygon.mode">
             </polygon-layer>
-            <overlay-line-layer ng-if="self.overlayLineSpec"
-                min-val='self.getLeft()' max-val="self.getRight()" 
-                min-draw='self.getLeft()' max-draw="self.getRight()" 
-                min-y="self.getBottom()" min-draw-y="self.getBottom()"
-                max-y="self.getTop()" max-draw-y="self.getTop()" 
-                ortho-loga="self.getLogaY()" loga="self.getLogaX()"
-                overlay-line-spec="self.overlayLineSpec">
+            <overlay-line-layer ng-if="self.overlayLineSpec" min-val='self.getLeft()' max-val="self.getRight()"
+                min-draw='self.getLeft()' max-draw="self.getRight()" min-y="self.getBottom()"
+                min-draw-y="self.getBottom()" max-y="self.getTop()" max-draw-y="self.getTop()"
+                ortho-loga="self.getLogaY()" loga="self.getLogaX()" overlay-line-spec="self.overlayLineSpec">
             </overlay-line-layer>
         </layer-collection>
         <p style="position: absolute;left: 50%; transform: translateX(-50%); font-weight: bold; bottom: 0">
@@ -76,57 +62,88 @@
         ">
             {{self.getConfigYLabel()}}</p>
     </div>
-    <div>
-        <div style="display: flex; flex-direction: column; padding: 10px 15px;">
-            <!-- Z1 -->
-            <div style="flex: 1;display: flex;flex-direction: column; height: 33px;" ng-if="self.getSelectionValue('Z1').isUsed && self.zColors">
-                <div style="flex:1;display: flex;flex-direction: row">
-                    <div ng-repeat="segColor in self.zColors track by $index" style="flex:1;background-color:{{segColor}};width:20px;"></div>
+
+    <div class="axis-info" ng-if="(self.getSelectionValue('Z1').isUsed && self.zColors) || (self.getSelectionValue('Z2').isUsed && self.zSizes) || (self.getSelectionValue('Z3').isUsed && self.zSymbols)">
+        <div class="axis-Z" ng-if="self.getSelectionValue('Z1').isUsed && self.zColors">
+            <div class="axis axis-type label">
+                <span class="ellipsis-text">
+                        {{ self.getSelectionValue('Z1').value }}
+                </span>
+            </div>
+            <div style="display: flex; flex: 1;">
+                <div class="axis axis-min label">
+                    <span class="ellipsis-text">
+                            {{ self.getZ1Min() }}
+                    </span>
                 </div>
-                <div style="display: flex; flex-direction: row; padding-left: 5px;">
-                    <div style="flex:1;">{{ self.getZ1Min() }}</div>
-                    <div style="flex:1;width:16px;">
-                        <div>
-                            {{ self.getSelectionValue('Z1').value }}
+                <div style="display: flex; flex: 1;position: relative;">
+                    <div style="display: flex; flex: 1; z-index: 1; ">
+                        <div class="axis axis-line"  ng-repeat="segColor in self.zColors track by $index" style="background-color:{{segColor}};">
+                            <span></span>
                         </div>
                     </div>
-                    <div>{{ self.getZ1Max() }}</div>
+                </div>
+                <div class="axis axis-max label" style="margin-right: 0;">
+                    <span class="ellipsis-text">
+                            {{ self.getZ1Max() }}
+                    </span>
                 </div>
             </div>
-            <!-- Z2 -->
-            <div style="flex: 1;display: flex;flex-direction: column; height: 33px;" ng-if="self.getSelectionValue('Z2').isUsed && self.zSizes">
-                <div style="flex:1;display: flex;flex-direction: row">
-                    <div ng-repeat="segSize in self.zSizes" style="flex:1;width:20px;border: 1px solid darkgray;">
-                        <span>{{segSize}}</span>
-                    </div>
+
+        </div>
+        <div class="axis-Z" ng-if="self.getSelectionValue('Z2').isUsed && self.zSizes">
+            <div class="axis axis-type label">
+                <span class="ellipsis-text">
+                        {{ self.getSelectionValue('Z2').value }}
+                </span>
+            </div>
+            <div style="display: flex; flex: 1;">
+                <div class="axis axis-min label">
+                    <span class="ellipsis-text">
+                            {{ self.getZ2Min() }}
+                    </span>
                 </div>
-                <div style="display: flex; flex-direction: row; padding-left: 5px;">
-                    <div style="flex:1;">{{ self.getZ2Min() }}</div>
-                    <div style="flex:1;width:16px;">
-                        <div>
-                            {{ self.getSelectionValue('Z2').value }}
+                <div style="display: flex; flex: 1;position: relative;">
+                    <div style="display: flex; flex: 1; z-index: 1; ">
+                        <div class="axis axis-line" ng-repeat="segSize in self.zSizes">
+                            <span>{{segSize}}</span>
                         </div>
                     </div>
-                    <div>{{ self.getZ2Max() }}</div>
+                </div>
+                <div class="axis axis-max label" style="margin-right: 0;">
+                    <span class="ellipsis-text">
+                            {{ self.getZ2Max() }}
+                    </span>
                 </div>
             </div>
-            <!-- Z3 -->
-            <div style="flex: 1;display: flex;flex-direction: column; height: 33px;" ng-if="self.getSelectionValue('Z3').isUsed && self.zSymbols">
-                <div style="flex:1;display: flex;flex-direction: row">
-                    <div ng-repeat="segSymbol in self.zSymbols" style="flex:1;width:20px;border: 1px solid darkgray;">
-                        <span>{{segSymbol}}</span>
-                    </div>
+
+        </div>
+        <div class="axis-Z" style="margin-bottom: 0;" ng-if="self.getSelectionValue('Z3').isUsed && self.zSymbols">
+            <div class="axis axis-type label">
+                <span class="ellipsis-text">
+                        {{ self.getSelectionValue('Z3').value }}
+                </span>
+            </div>
+            <div style="display: flex; flex: 1;">
+                <div class="axis axis-min label">
+                    <span class="ellipsis-text">
+                            {{ self.getZ3Min() }}
+                    </span>
                 </div>
-                <div style="display: flex; flex-direction: row; padding-left: 5px;">
-                    <div style="flex:1;">{{ self.getZ3Min() }}</div>
-                    <div style="flex:1;width:16px;">
-                        <div>
-                            {{ self.getSelectionValue('Z3').value }}
+                <div style="display: flex; flex: 1;position: relative;">
+                    <div style="display: flex; flex: 1; z-index: 1; ">
+                        <div class="axis axis-line" ng-repeat="segSymbol in self.zSymbols">
+                            <span>{{segSymbol}}</span>
                         </div>
                     </div>
-                    <div>{{ self.getZ3Max() }}</div>
+                </div>
+                <div class="axis axis-max label" style="margin-right: 0;">
+                    <span class="ellipsis-text">
+                            {{ self.getZ3Max() }}
+                    </span>
                 </div>
             </div>
+
         </div>
     </div>
     <div class="statistic-table" resizable r-directions="['top']" r-flex="true">
@@ -137,6 +154,6 @@
                 row-headers="self.getZoneNames()" accessor="self.statsValue">
             </wi-table-view>
         </div>
-        
+
     </div>
 </div>

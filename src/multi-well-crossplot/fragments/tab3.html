@@ -13,10 +13,12 @@
             </editable>
         </div>
     </div>
-    <div class="label-option-sidebar" >
-        <span>X-Axis Scale</span>
-    </div>
+ 
     <div class="label-option-sidebar" style="padding: 0 15px;">
+            <div style="display: flex;margin: 15px 0;">X-Axis Scale
+                    <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+                    </div>
+                </div>
         <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
             <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                 item-label="'X Label'" item-value="self.getConfigXLabel"
@@ -60,11 +62,12 @@
                     </div>
         </div>
     </div>
-    <div class="label-option-sidebar">
-        <span>Y-Axis Scale</span>
-    </div>
+  
     <div class="label-option-sidebar" style="padding: 0 15px;">
-    
+        <div style="display: flex;margin: 15px 0;">Y-Axis Scale
+            <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+            </div>
+        </div>
         <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
             <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                 item-label="'Y Label'" item-value="self.getConfigYLabel"
@@ -114,10 +117,12 @@
         
     </div>
     <div ng-show="self.getSelectionValue('Z1').isUsed">
-        <div class="label-option-sidebar">
-            <span>Color (Z1 Axis)</span>
-        </div>
+      
         <div class="label-option-sidebar" style="padding: 0 15px;">
+                <div style="display: flex;margin: 15px 0;">Color Z1
+                        <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+                        </div>
+                    </div>
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
@@ -150,10 +155,11 @@
         </div> -->
     </div>
     <div ng-show="self.getSelectionValue('Z2').isUsed">
-        <div class="label-option-sidebar" >
-            <span>Size (Z2 Axis)</span>
-        </div>
         <div class="label-option-sidebar" style="padding: 0 15px;">
+            <div style="display: flex;margin: 15px 0;">Point Size Z2
+                <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+                </div>
+            </div>
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
@@ -182,10 +188,11 @@
         </div>
     </div>
     <div ng-show="self.getSelectionValue('Z3').isUsed">
-        <div class="label-option-sidebar" >
-            <span>Label (Z3 Axis)</span>
-        </div>
         <div class="label-option-sidebar" style="padding: 0 15px;">
+            <div style="display: flex;margin: 15px 0;">Label Z3
+                <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
+                </div>
+            </div>
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
