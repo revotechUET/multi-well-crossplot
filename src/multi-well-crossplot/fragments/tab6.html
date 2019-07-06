@@ -13,10 +13,10 @@
 </div>
 <div ng-show="self.layers"
     style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; ">
-    <wi-tree-view tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
+    <wi-tree-view-virtual tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
         filter="self.layerFilter" get-icon="self.getLayerIcon"
         get-icons="self.getLayerIcons" icon-style="self.getLayerIconStyle" get-children="self.noChildren" keep-children='true'
         run-match="self.runLayerMatch" hide-unmatched="true" hide-search='false'
         click-fn='self.click2ToggleLayer'>
-    </wi-tree-view>
+    </wi-tree-view-virtual>
 </div>

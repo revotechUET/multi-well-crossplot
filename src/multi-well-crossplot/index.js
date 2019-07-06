@@ -7,7 +7,7 @@ const _DECIMAL_LEN = 4;
 const _PICKETT_LIMIT = 5;
 
 var app = angular.module(componentName, [
-    'sideBar', 'wiTreeView', 'wiTableView',
+    'sideBar', 'wiTreeView','wiTreeViewVirtual', 'wiTableView',
     'wiApi', 'editable', 
     'wiDialog',
     'wiDroppable', 'wiDropdownList', 'angularResizable',

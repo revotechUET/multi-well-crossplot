@@ -81,11 +81,11 @@
                 <div ng-bind="self.getCurve(well, self.getAxisKey(selectionValue.name)).name"></div>
             </div>
         </div>
-        <wi-tree-view ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
+        <wi-tree-view-virtual ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
             filter="self.getFilterForWell(self.getAxisKey(well.isSettingAxis))" get-icon="self.getIcon"
             get-children="self.getChildren" keep-children='true' uncollapsible='true'
             run-match="self.runWellMatch" hide-unmatched="true" hide-search='true'
             click-fn='self.clickFunction'>
-        </wi-tree-view>
+        </wi-tree-view-virtual>
     </div>
 </div>
