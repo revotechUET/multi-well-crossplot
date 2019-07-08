@@ -21,7 +21,7 @@
         style="margin-left: 10px;">Show All</span>
 </div>
 <div ng-show="self.zoneTree"
-    style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; ">
+    style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; " class="disable-node-caret">
     <wi-tree-view-virtual tree-root="self.zoneTree" get-label="self.getZoneLabel"
         filter="self.zoneFilter" get-icon="self.getZoneIcon" get-children="self.noChildren"
         keep-children='true' run-match="self.runZoneMatch" hide-unmatched="true"

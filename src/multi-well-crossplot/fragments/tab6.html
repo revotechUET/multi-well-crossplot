@@ -12,7 +12,7 @@
         style="margin-left: 15px;">Show All</span>
 </div>
 <div ng-show="self.layers"
-    style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; ">
+    style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px;flex: 1;overflow: auto; " class="disable-node-caret">
     <wi-tree-view-virtual tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
         filter="self.layerFilter" get-icon="self.getLayerIcon"
         get-icons="self.getLayerIcons" icon-style="self.getLayerIconStyle" get-children="self.noChildren" keep-children='true'

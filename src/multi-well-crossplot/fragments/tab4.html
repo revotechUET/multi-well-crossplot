@@ -3,10 +3,20 @@
         Formular
     </div>
 </div>
-<div style="margin: 15px;" class='bottom-add' ng-click="self.addUDL()">Add</div>
+<div style="display: flex; padding: 15px;">
+    <span ng-click="self.addUDL()" class="button-with-label-layer"
+        style="margin-left: 0px;">Add</span>
+    <span ng-click="self.showSelectedLayer()" class="button-with-label-layer"
+        style="margin-left: 15px;">Save</span>
+    <span ng-click="self.saveAsUDL()" class="button-with-label-layer"
+        style="margin-left: 15px;">Save As</span>
+    <span ng-click="self.loadUDL()" class="button-with-label-layer"
+        style="margin-left: 15px;">Load</span>
+</div>
+<!-- <div style="margin: 15px;" class='bottom-add' ng-click="self.addUDL()">Add</div>
 <div style="margin: 15px;" class='bottom-add' ng-click="self.saveUDL()">Save</div>
 <div style="margin: 15px;" class='bottom-add' ng-click="self.saveAsUDL()">Save As</div>
-<div style="margin: 15px;" class='bottom-add' ng-click="self.loadUDL()">Load</div>
+<div style="margin: 15px;" class='bottom-add' ng-click="self.loadUDL()">Load</div> -->
 <div style="overflow: overlay;">
     <div class="list-formular" ng-repeat="udl in self.udls">
         <div class="selection-sidebar"
