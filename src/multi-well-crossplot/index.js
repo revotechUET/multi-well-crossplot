@@ -767,7 +767,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
     }
     this.saveAs = function() {
-        console.log("saveAs");
         wiDialog.promptDialog({
             title: 'Save As Crossplot',
             inputName: 'Crossplot Name',
@@ -789,7 +788,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 self.idCrossplot = res.idParameterSet;
-                console.log(res);
                 self.onSaveAs && self.onSaveAs(res);
             })
                 .catch(e => {
@@ -936,7 +934,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return node.name.toLowerCase().includes(keysearch.toLowerCase());
     }
     this.clickOvlFunction = function (event, node){
-        // console.log(node);
         self.listOverlayLine.forEach((item)=>{
             item._used = false;
         });
@@ -1048,7 +1045,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let udl = {};
         udl.text = "";
         setUDLFn(udl);
-        udl.latex = "";
+        udl.latex = normalizeFormation(udl.text);
         udl.lineStyle = {
             lineColor: colorGenerator(),
             lineWidth: 1,
@@ -1519,6 +1516,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
         }
         if (!data.length) {
+            self.regLine = {};
             self.regLine.family = undefined;
             return;
         }
@@ -1662,7 +1660,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
     this.loadUDL = function() { 
         wiApi.listAssetsPromise(self.idProject, 'FormulaArray').then(listAssets => {
-            console.log(listAssets);
             self.udlSelectionList = listAssets.map(item => ({ 
                 data:{label:item.name}, 
                 properties:item
@@ -1703,7 +1700,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 wiApi.newAssetPromise(self.idProject, name, type, content)
                     .then(res => {
                         self.udlsAsset = res;
-                        console.log(res);
                         wiLoading.hide();
                     })
                     .catch(e => {
@@ -1715,7 +1711,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
     }
     this.saveAsUDL = function() {
-        console.log("saveAs");
         wiDialog.promptDialog({
             title: 'Save As User Defined Lines',
             inputName: 'UDL Name',
@@ -1726,7 +1721,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wiApi.newAssetPromise(self.idProject, name, type, content)
                 .then(res => {
                     self.udlsAsset = res;
-                    console.log(res);
                 })
                 .catch(e => {
                     self.saveAsUDL();
@@ -1750,7 +1744,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return formulaArray.map(udl => {
             return {
                 text: udl.function,
-                latex: "",
+                latex: normalizeFormation(udl.function),
                 lineStyle: udl.lineStyle,
                 fn: function(x) {
                     return eval(udl.function);
