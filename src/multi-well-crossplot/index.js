@@ -1058,6 +1058,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             lineWidth: 1,
             lineStyle: [10, 0]
         };
+        udl.index = self.udls.length;
         self.udls.push(udl);
     }
     function normalizeFormation(text) {
@@ -1660,5 +1661,91 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return self.getLogaX() && self.getLogaY()
             && ((familyGroupX == 'Porosity' && familyGroupY == 'Resistivity')
                 || (familyGroupX == 'Resistivity' && familyGroupY == 'Porosity'))
+    }
+
+    this.loadUDL = function() { 
+        wiApi.listAssetsPromise(self.idProject, 'FormulaArray').then(listAssets => {
+            console.log(listAssets);
+            self.udlSelectionList = listAssets.map(item => ({ 
+                data:{label:item.name}, 
+                properties:item
+            }));
+            wiDialog.promptListDialog({
+                title: 'Load User Defined Lines',
+                selectionList: self.udlSelectionList,
+                currentSelect: self.udlSelectionList[0].data.label,
+                inputName: 'User Defined Lines'
+            }, (selectedAsset) => {
+                self.udlsAsset = selectedAsset;
+                self.udls = fromFormulaArray2UDLs(selectedAsset.content);
+            });
+        });
+
+    }
+    this.saveUDL = function() {
+        let content = fromUDLs2FormulaArray(self.udls);
+        wiLoading.show($element.find('.main')[0],self.silent);
+        wiApi.editAssetPromise(self.udlsAsset.idParameterSet, content)
+            .then(res => {
+                wiLoading.hide();
+            })
+            .catch(e => {
+                wiLoading.hide();
+                console.error(e);
+            });
+    }
+    this.saveAsUDL = function() {
+        console.log("saveAs");
+        wiDialog.promptDialog({
+            title: 'Save As User Defined Lines',
+            inputName: 'UDL Name',
+            input: '',
+        }, function(name) {
+            let type = 'FormulaArray';
+            let content = fromUDLs2FormulaArray(self.udls);
+            wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
+                self.udlsAsset = res;
+                console.log(res);
+            })
+                .catch(e => {
+                    console.error(e);
+                })
+        });
+
+
+
+        let content = fromUDLs2FormulaArray(self.udls);
+        wiLoading.show($element.find('.main')[0],self.silent);
+        wiApi.editAssetPromise(self.udlsAsset.idParameterSet, content)
+            .then(res => {
+                wiLoading.hide();
+            })
+            .catch(e => {
+                wiLoading.hide();
+                console.error(e);
+            });
+    }
+    function fromUDLs2FormulaArray(UDLs) {
+        return UDLs.map(udl => {
+            return {
+                function: udl.text,
+                lineStyle: udl.lineStyle,
+                index: udl.index
+            }
+        })
+        
+    }
+    function fromFormulaArray2UDLs(formulaArray) {
+        return formulaArray.map(udl => {
+            return {
+                text: udl.function,
+                latex: "",
+                lineStyle: udl.lineStyle,
+                fn: function(x) {
+                    return eval(udl.function);
+                },
+                index: udl.index
+            }
+        })
     }
 }
