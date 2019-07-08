@@ -30,7 +30,6 @@ app.component(componentName, {
         printSettings: '<',
         onSave: '<',
         onSaveAs: '<',
-        udls: '<',
         polygons: '<',
         polygonExclude: '<',
         regressionType: '<',
@@ -89,7 +88,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             vMargin: 0,
             hMargin: 0
         };
-        self.udls = self.udls || [];
         self.polygons = self.polygons || [];
         self.polygonExclude = self.polygonExclude || false;
         self.selectionValueList = self.selectionValueList || self.initSelectionValueList();
@@ -438,7 +436,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             return true;
         });
     }
-    self.getAxisKey = function(isSettingAxis) {
+    this.getAxisKey = function(isSettingAxis) {
         switch(isSettingAxis) {
             case 'X':
                 return 'xAxis';
@@ -728,7 +726,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             zonesetName: self.zonesetName,
             selectionType: self.selectionType,
             selectionValueList: self.selectionValueList,
-            udls: self.udls,
             polygons: self.polygons,
             polygonExclude: self.polygonExclude,
             regressionType: self.regressionType,
@@ -782,7 +779,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 zonesetName: self.zonesetName,
                 selectionType: self.selectionType,
                 selectionValueList: self.selectionValueList,
-                udls: self.udls,
                 polygons: self.polygons,
                 polygonExclude: self.polygonExclude,
                 regressionType: self.regressionType,
@@ -1326,9 +1322,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
         }
 
-        self.udls.forEach(udl => {
-            setUDLFn(udl);
-        })
+        //self.udls.forEach(udl => {
+            //setUDLFn(udl);
+        //})
         if (self.getLogaX() && self.getLogaY()) {
             self.pickettLines = self.pickettLines || [{family: 'pickett', label: 'Sw = 1', sw: 1, ...self.pickettParams}];
         }
@@ -1727,10 +1723,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }, function(name) {
             let type = 'FormulaArray';
             let content = fromUDLs2FormulaArray(self.udls);
-            wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
-                self.udlsAsset = res;
-                console.log(res);
-            })
+            wiApi.newAssetPromise(self.idProject, name, type, content)
+                .then(res => {
+                    self.udlsAsset = res;
+                    console.log(res);
+                })
                 .catch(e => {
                     self.saveAsUDL();
                     console.error(e);
