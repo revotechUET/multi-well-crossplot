@@ -34,7 +34,7 @@
                 max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="udl"
                 eqn-offsets="['65px', self.eqnOffsetY(udlIdx)]" line-color="udl.lineStyle.lineColor"
                 line-dash="udl.lineStyle.lineStyle.join(' ')" line-width="udl.lineStyle.lineWidth"
-                ng-repeat="(udlIdx, udl) in self.udls" show-equation='true' ng-show='!udl._notUsed'>
+                ng-repeat="(udlIdx, udl) in self.udls" show-equation='udl.displayEquation' ng-show='!udl._notUsed'>
             </line-formula-layer>
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
                 max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"

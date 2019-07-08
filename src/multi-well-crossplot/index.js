@@ -1059,6 +1059,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             lineStyle: [10, 0]
         };
         udl.index = self.udls.length;
+        udl.displayEquation = true;
         self.udls.push(udl);
     }
     function normalizeFormation(text) {
@@ -1684,15 +1685,38 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.saveUDL = function() {
         let content = fromUDLs2FormulaArray(self.udls);
-        wiLoading.show($element.find('.main')[0],self.silent);
-        wiApi.editAssetPromise(self.udlsAsset.idParameterSet, content)
-            .then(res => {
-                wiLoading.hide();
-            })
-            .catch(e => {
-                wiLoading.hide();
-                console.error(e);
+        if (self.udlsAsset && self.udlsAsset.idParameterSet) {
+            wiLoading.show($element.find('.main')[0],self.silent);
+            wiApi.editAssetPromise(self.udlsAsset.idParameterSet, content)
+                .then(res => {
+                    wiLoading.hide();
+                })
+                .catch(e => {
+                    wiLoading.hide();
+                    console.error(e);
+                });
+        } else {
+            wiDialog.promptDialog({
+                title: 'Save User Defined Lines',
+                inputName: 'UDL Name',
+                input: '',
+            }, function(name) {
+                wiLoading.show($element.find('.main')[0],self.silent);
+                let type = 'FormulaArray';
+                let content = fromUDLs2FormulaArray(self.udls);
+                wiApi.newAssetPromise(self.idProject, name, type, content)
+                    .then(res => {
+                        self.udlsAsset = res;
+                        console.log(res);
+                        wiLoading.hide();
+                    })
+                    .catch(e => {
+                        self.saveUDL();
+                        console.error(e);
+                        wiLoading.hide();
+                    })
             });
+        }
     }
     this.saveAsUDL = function() {
         console.log("saveAs");
@@ -1708,29 +1732,19 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 console.log(res);
             })
                 .catch(e => {
+                    self.saveAsUDL();
                     console.error(e);
                 })
         });
-
-
-
-        let content = fromUDLs2FormulaArray(self.udls);
-        wiLoading.show($element.find('.main')[0],self.silent);
-        wiApi.editAssetPromise(self.udlsAsset.idParameterSet, content)
-            .then(res => {
-                wiLoading.hide();
-            })
-            .catch(e => {
-                wiLoading.hide();
-                console.error(e);
-            });
     }
     function fromUDLs2FormulaArray(UDLs) {
         return UDLs.map(udl => {
             return {
                 function: udl.text,
                 lineStyle: udl.lineStyle,
-                index: udl.index
+                index: udl.index,
+                displayLine: !udl._notUsed,
+                displayEquation: udl.displayEquation
             }
         })
         
@@ -1744,7 +1758,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 fn: function(x) {
                     return eval(udl.function);
                 },
-                index: udl.index
+                index: udl.index,
+                displayEquation: udl.displayEquation,
+                _notUsed: !udl.displayLine
             }
         })
     }
