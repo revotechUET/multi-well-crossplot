@@ -36,7 +36,8 @@ app.component(componentName, {
         silent: "<",
         pickettLines: '<',
         pickettParams: '<',
-        pointSize: '<'
+        pointSize: '<',
+        udlsAssetId: '<'
     },
     transclude: true
 });
@@ -99,6 +100,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
         self.pickettParams = self.pickettParams || {rw: 0.03, m: 2, n: 2, a: 1};
+        if (self.udlsAssetId) {
+            self.initUDL();
+        }
 
         if (self.token)
             wiToken.setToken(self.token);
@@ -732,7 +736,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             config: self.config,
             pickettLines: self.pickettLines,
             pickettParams: self.pickettParams,
-            pointSize: self.pointSize
+            pointSize: self.pointSize,
+            udlsAssetId: self.udlsAssetId
         }
         if (!self.idCrossplot) {
             wiDialog.promptDialog({
@@ -784,7 +789,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 config: {...self.config, title: name},
                 pickettLines: self.pickettLines,
                 pickettParams: self.pickettParams,
-                pointSize: self.pointSize
+                pointSize: self.pointSize,
+                udlsAssetId: self.udlsAssetId
             }
             wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
                 self.idCrossplot = res.idParameterSet;
@@ -1658,6 +1664,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 || (familyGroupX == 'Resistivity' && familyGroupY == 'Porosity'))
     }
 
+    this.initUDL = function() {
+        wiApi.listAssetsPromise(self.idProject, 'FormulaArray').then(listAssets => {
+            let asset = listAssets.find(a => a.idParameterSet === self.udlsAssetId);
+            let udls = fromFormulaArray2UDLs(asset.content);
+            $timeout(() => {
+                self.udls = udls;
+            }, 700)
+        });
+    }
     this.loadUDL = function() { 
         wiApi.listAssetsPromise(self.idProject, 'FormulaArray').then(listAssets => {
             self.udlSelectionList = listAssets.map(item => ({ 
@@ -1670,17 +1685,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 currentSelect: self.udlSelectionList[0].data.label,
                 inputName: 'User Defined Lines'
             }, (selectedAsset) => {
-                self.udlsAsset = selectedAsset;
+                self.udlsAssetId = selectedAsset.idParameterSet;
                 self.udls = fromFormulaArray2UDLs(selectedAsset.content);
             });
         });
-
     }
     this.saveUDL = function() {
         let content = fromUDLs2FormulaArray(self.udls);
-        if (self.udlsAsset && self.udlsAsset.idParameterSet) {
+        if (self.udlsAssetId) {
             wiLoading.show($element.find('.main')[0],self.silent);
-            wiApi.editAssetPromise(self.udlsAsset.idParameterSet, content)
+            wiApi.editAssetPromise(self.udlsAssetId, content)
                 .then(res => {
                     wiLoading.hide();
                 })
@@ -1699,7 +1713,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 let content = fromUDLs2FormulaArray(self.udls);
                 wiApi.newAssetPromise(self.idProject, name, type, content)
                     .then(res => {
-                        self.udlsAsset = res;
+                        self.udlsAssetId = res.idParameterSet;
                         wiLoading.hide();
                     })
                     .catch(e => {
@@ -1720,7 +1734,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             let content = fromUDLs2FormulaArray(self.udls);
             wiApi.newAssetPromise(self.idProject, name, type, content)
                 .then(res => {
-                    self.udlsAsset = res;
+                    self.udlsAssetId = res.idParameterSet;
                 })
                 .catch(e => {
                     self.saveAsUDL();
