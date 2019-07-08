@@ -85,7 +85,10 @@ multi-well-crossplot {
 	.disable-node-caret {
         .node-caret {
             display: none;
-        }
+		}
+		wi-tree-node-virtual > div {
+			padding-left: 13px;
+		}
     }
     .switch-label{
         display: flex;
@@ -174,6 +177,34 @@ multi-well-crossplot {
 			}
 		}
 	}
+	wi-tree-node, wi-tree-node-virtual {
+
+        .node-caret,
+        .node-label,
+        .node-icon {
+            display      : flex;
+            padding-right: 10px;
+            font-size    : 12px;
+        }
+
+        .node-caret {
+            color    : #cccbcb;
+            font-size: 14px;
+            cursor   : pointer;
+            width    : 16px;
+        }
+
+        .node-content {
+            &.search-mode>div {
+                opacity: 1;
+            }
+            &,
+            &::after {
+                line-height: 3em;
+            }
+
+        }
+    }
 	wi-table-view {
 		& div.cell {
 			display: table-cell;
@@ -658,7 +689,7 @@ multi-well-crossplot {
 	}
 	.list-formular {
 		padding: 0 5px 0 15px;
-		margin: 15px;
+		margin-bottom: 15px;
 		display: flex; 
 		// background: #f4f4f4;
 		border-radius: 2px; 
