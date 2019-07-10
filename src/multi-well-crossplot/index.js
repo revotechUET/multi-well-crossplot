@@ -102,6 +102,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.pickettParams = self.pickettParams || {rw: 0.03, m: 2, n: 2, a: 1};
         if (self.udlsAssetId) {
             self.initUDL();
+        } else {
+            self.udls = [];
         }
 
         if (self.token)
@@ -1076,6 +1078,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
     // ---UDL
     this.addUDL = function() {
+        if (!self.wellSpec || !self.wellSpec.length) return;
         let udl = {};
         udl.text = "";
         setUDLFn(udl);
