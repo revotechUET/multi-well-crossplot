@@ -783,9 +783,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     self.onSave && self.onSave(res);
                 })
                     .catch(e => {
-                        console.error(e);
                         wiLoading.hide();
-                        self.saveToAsset();
+                        wiDialog.errorMessageDialog(`Asset ${name} has been existed`, self.saveToAsset())
                     })
             });
         } else {
@@ -796,7 +795,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             })
                 .catch(e => {
                     wiLoading.hide();
-                    console.error(e);
                 });
         }
     }
@@ -821,13 +819,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 pointSize: self.pointSize,
                 udlsAssetId: self.udlsAssetId
             }
-            wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
-                self.idCrossplot = res.idParameterSet;
-                self.onSaveAs && self.onSaveAs(res);
-            })
+            wiApi.newAssetPromise(self.idProject, name, type, content)
+                .then(res => {
+                    self.idCrossplot = res.idParameterSet;
+                    self.onSaveAs && self.onSaveAs(res);
+                })
                 .catch(e => {
-                    console.error(e);
-                    self.saveAs();
+                    wiDialog.errorMessageDialog(`Asset ${name} has been existed`, self.saveAs())
                 })
         });
     }
@@ -1732,7 +1730,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 })
                 .catch(e => {
                     wiLoading.hide();
-                    console.error(e);
+                    wiDialog.errorMessageDialog(`Asset ${name} has been existed`, self.saveUDL())
                 });
         } else {
             wiDialog.promptDialog({
@@ -1749,8 +1747,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         wiLoading.hide();
                     })
                     .catch(e => {
-                        self.saveUDL();
-                        console.error(e);
+                        wiDialog.errorMessageDialog(`Asset ${name} has been existed`, self.saveUDL())
                         wiLoading.hide();
                     })
             });
@@ -1769,8 +1766,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     self.udlsAssetId = res.idParameterSet;
                 })
                 .catch(e => {
-                    self.saveAsUDL();
-                    console.error(e);
+                    wiDialog.errorMessageDialog(`Asset ${name} has been existed`, self.saveAsUDL())
                 })
         });
     }
