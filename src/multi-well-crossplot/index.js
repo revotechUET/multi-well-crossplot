@@ -123,6 +123,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.discriminator)), () => {
                 self.isSettingChange = true;
             }, true)
+            $scope.$watch(() => (self.polygons), () => {
+                self.isSettingChange = true;
+                self.updateRegressionLine(self.regressionType, self.polygons);
+            }, true)
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
                 self.isSettingChange = true;
                 getTree();
@@ -161,9 +165,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 updateDefaultConfig();
             }, true);
             $scope.$watch(() => `${self.regressionType}-${self.polygonExclude}-${JSON.stringify(self.polygons)}`, () => {
-                self.layers.forEach(l => {
-                    self.updateRegressionLine(l, self.regressionType, self.polygons);
-                })
+                self.updateRegressionLine(self.regressionType, self.polygons);
             })
         }, 700);
 
@@ -1056,14 +1058,25 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 return [point.x, point.y];
             });
         });
-
-        return data.filter(function(d) {
-            let pass = exclude ? false : true;
-            for (let p of ppoints)
-                if (d3.polygonContains(p, d))
-                    return pass;
-            return !pass;
-        });
+        if (exclude) {
+            return data.filter(function(d) {
+                let pass = exclude ? false : true;
+                for (let p of ppoints)
+                    if (d3.polygonContains(p, d))
+                        return pass;
+                return !pass;
+            });
+        } else {
+            let resultData = [];
+            for (let d of data) {
+                for (let p of ppoints) {
+                    if (d3.polygonContains(p, d)) {
+                        resultData.push(d);
+                    };
+                }
+            }
+            return resultData;
+        }
     }
     this.setPolygonLabel = function($index, newLabel) {
         self.polygons[$index].label = newLabel;
@@ -1547,7 +1560,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.getRegIconStyle = (node) => ( {
         'background-color': node.regColor
     })
-    this.updateRegressionLine = function(node, regressionType, polygons) {
+    this.updateRegressionLine = function(regressionType, polygons) {
         let data = [];
         for (let i = 0; i < self.layers.length; i++) {
             let layer = self.layers[i];
@@ -1561,10 +1574,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             return !_.isEmpty(p.points) && !p._notUsed;
         })
         if (usedPolygon.length) {
-            //let includedPolygon = usedPolygon.filter(p => !p.exclude);
+            let includedPolygon = usedPolygon.filter(p => !p.exclude);
             let excludedPolygon = usedPolygon.filter(p => p.exclude);
-            //data = self.filterByPolygons(includedPolygon, data, false);
-            data = self.filterByPolygons(excludedPolygon, data, true);
+            if (excludedPolygon.length) {
+                data = self.filterByPolygons(excludedPolygon, data, true);
+            }
+            if (includedPolygon.length) {
+                data = self.filterByPolygons(includedPolygon, data, false);
+            }
         }
         if (!data.length) {
             self.regLine = {};
@@ -1628,7 +1645,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.click2ToggleRegression = function ($event, node, selectedObjs) {
         self.isSettingChange = true;
         node._useReg = !node._useReg;
-        self.updateRegressionLine(node, self.regressionType, self.polygons);
+        self.updateRegressionLine(self.regressionType, self.polygons);
         $timeout(() => {
             self.regLine = {
                 ...self.regLine,
