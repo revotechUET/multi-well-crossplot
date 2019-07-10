@@ -46,7 +46,8 @@
             </line-formula-layer>
             <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
                 min-y="self.getBottom()" max-y="self.getTop()" ng-repeat="polygon in self.polygons"
-                points="polygon.points" mode="polygon.mode">
+                points="polygon.points" mode="polygon.mode"
+                fill-style="self.polygonFillStyle(polygon)" stroke-style="self.polygonStrokeStyle(polygon)" stroke-width="self.polygonStrokeWidth(polygon)">
             </polygon-layer>
             <overlay-line-layer ng-if="self.overlayLineSpec" min-val='self.getLeft()' max-val="self.getRight()"
                 min-draw='self.getLeft()' max-draw="self.getRight()" min-y="self.getBottom()"

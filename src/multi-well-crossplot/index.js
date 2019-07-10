@@ -75,7 +75,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.$onInit = function () {
-        self.pointSize = self.pointSize || 5;
+        self.pointSize = self.pointSize || 10;
         self.isSettingChange = true;
         self.defaultConfig = self.defaultConfig || {};
         self.wellSpec = self.wellSpec || [];
@@ -1027,6 +1027,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     // ---POLYGON---
     this.currentPolygon = {};
     this.addPolygon = function() {
+        self.isSettingChange = true;
         let polygon = {};
         polygon.label = 'New polygon';
         polygon.mode = 'edit';
@@ -1034,6 +1035,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         polygon._notShow = false;
         polygon.exclude = true;
         polygon.points = [];
+        polygon.lineStyle = {
+            fillStyle: palette2RGB(colorGenerator(polygon.label)),
+            strokeStyle: '',
+            strokeWidth: '2'
+        }
+        polygon.contentStyle = {flex:1,float:'none','text-align':'left', color: palette2RGB(colorGenerator(polygon.label), false)}
         Object.assign(self.currentPolygon, polygon);
         self.polygons.forEach(p => {
             p.mode = null;
@@ -1061,6 +1068,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.setPolygonLabel = function($index, newLabel) {
         self.polygons[$index].label = newLabel;
     }
+
+    this.polygonContentStyle = (polygon) => {
+        polygon.contentStyle.color = palette2RGB(colorGenerator(polygon.label), false);
+        return polygon.contentStyle;
+    }
+    this.polygonFillStyle = polygon => palette2RGB(colorGenerator(polygon.label)) 
+    this.polygonStrokeStyle = polygon => polygon.lineStyle.strokeStyle
+    this.polygonStrokeWidth = polygon => polygon.lineStyle.strokeWidth
+
     this.toggleEditPolygon = function(polygon) {
         let idx = self.polygons.indexOf(polygon);
         self.polygons.forEach((p, i) => {
@@ -1545,7 +1561,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             return !_.isEmpty(p.points) && !p._notUsed;
         })
         if (usedPolygon.length) {
-            data = self.filterByPolygons(usedPolygon, data, self.polygonExclude);
+            //let includedPolygon = usedPolygon.filter(p => !p.exclude);
+            let excludedPolygon = usedPolygon.filter(p => p.exclude);
+            //data = self.filterByPolygons(includedPolygon, data, false);
+            data = self.filterByPolygons(excludedPolygon, data, true);
         }
         if (!data.length) {
             self.regLine = {};
@@ -1653,11 +1672,35 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         [obj[key1], obj[key2]] = [obj[key2], obj[key1]];
     }
 
-    function colorGenerator() {
-        let rand = function () {
-            return Math.floor(Math.random() * 255);
+    function colorGenerator(seed) {
+        if (!seed || !seed.length) {
+            let rand = function () {
+                return Math.floor(Math.random() * 255);
+            }
+            return "rgb(" + rand() + "," + rand() + "," + rand() + ")";
         }
-        return "rgb(" + rand() + "," + rand() + "," + rand() + ")";
+        let n = Math.abs(string2Int(seed));
+        let colorTable = getColorPalette();
+        return colorTable[n % colorTable.length];
+    }
+
+    function string2Int(str) {
+        var hash = 0, i, chr;
+        if (str.length === 0) return hash;
+        for (i = 0; i < str.length; i++) {
+            chr   = str.charCodeAt(i);
+            hash  = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        return hash;
+    };
+    function palette2RGB(palette, semiTransparent = true) {
+        return `rgb(${palette.red},${palette.green},${palette.blue},${semiTransparent ? palette.alpha / 2 : 1})`
+    }
+
+    this.getColorPalette = getColorPalette;
+    function getColorPalette() {
+        return wiApi.getPalette('BGR');
     }
 
     this.addPickettLine = function() {

@@ -31,9 +31,9 @@
     <div style="display: flex; padding: 15px 0;">
         <span ng-click="self.addPolygon()" class="button-with-label-layer"
             style="margin-left: 0px;">Add</span>
-        <span ng-class="{'active' : self.polygonExclude === true}"
-            ng-click="self.polygonExclude = !self.polygonExclude" class="button-with-label-layer"
-            style="margin-left: 15px;">Exclude</span>
+        <!--<span ng-class="{'active' : self.polygonExclude === true}"-->
+            <!--ng-click="self.polygonExclude = !self.polygonExclude" class="button-with-label-layer"-->
+            <!--style="margin-left: 15px;">Exclude</span>-->
     </div>
     <div style="overflow: auto;">
         <div class="list-formular" ng-repeat="polygon in self.polygons">
@@ -42,11 +42,15 @@
                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                     item-label="" item-value="polygon.label" params="$index"
                     set-value="self.setPolygonLabel" enabled="true" label-style="{}"
-                    content-style="{flex:1,float:'none','text-align':'left'}">
+                    content-style="self.polygonContentStyle(polygon)">
                 </editable>
             </div>
             <div class="selection-sidebar"
                 style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
+                <span ng-class="{'active' : true}" style="margin-right: 8px;"
+                    ng-click="polygon.exclude = !polygon.exclude" class="button-with-label">
+                    {{ polygon.exclude ? 'Exclude' : 'Include' }}
+                </span>
                 <span
                     ng-class="{'red-color fa fa-check': polygon._notUsed, 'blue-color fa fa-check': !polygon._notUsed }"
                     ng-click="polygon._notUsed = !polygon._notUsed"
