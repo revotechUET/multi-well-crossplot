@@ -104,6 +104,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             self.initUDL();
         } else {
             self.udls = [];
+            self.udls.name = 'Untitled';
         }
 
         if (self.token)
@@ -1758,6 +1759,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 let udls = fromFormulaArray2UDLs(asset.content);
                 $timeout(() => {
                     self.udls = udls;
+                    self.udls.name = asset.name
                 }, 500)
             })
             .catch(e => {
@@ -1781,6 +1783,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }, (selectedAsset) => {
                     self.udlsAssetId = selectedAsset.idParameterSet;
                     self.udls = fromFormulaArray2UDLs(selectedAsset.content);
+                    self.udls.name = selectedAsset.name;
                 });
             });
     }
