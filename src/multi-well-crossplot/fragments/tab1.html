@@ -50,8 +50,8 @@
         <div style="display: flex; flex-direction: row;padding: 10px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;">
                 <div style=" display: flex;align-items: center;">
                     <i class="header-icon"
-                        ng-class="{'fa fa-caret-down': !well._hidden, 'fa fa-caret-right': well._hidden}"
-                        ng-click="well._hidden = !well._hidden"></i>
+                        ng-class="{'fa fa-caret-down': well._notHidden, 'fa fa-caret-right': !well._notHidden}"
+                        ng-click="well._notHidden = !well._notHidden"></i>
                     <div ng-bind="well.name" style="font-weight: bold; max-width: 120px; white-space: nowrap;text-overflow: ellipsis; overflow: hidden;"></div>
                 </div>
                
@@ -77,15 +77,15 @@
                 ng-repeat="selectionValue in self.selectionValueList" ng-show="selectionValue.isUsed">
                 <div ng-bind="selectionValue.name" style="font-weight: bold;"></div>
                 <div style="margin: 0 10px; max-width: 70px; flex: 1;white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                    ng-bind="self.getWellSpec(well)[self.getAxis(selectionValue.name)].datasetName"></div>
+                    ng-bind="self.getWellSpec(well)[self.getAxisKey(selectionValue.name)].datasetName"></div>
                 <div ng-bind="self.getCurve(well, self.getAxisKey(selectionValue.name)).name"></div>
             </div>
         </div>
-        <wi-tree-view-virtual ng-show="!well._hidden" tree-root="well" get-label="self.getLabel"
+        <wi-tree-view-virtual ng-show="well._notHidden" tree-root="well" get-label="self.getLabel"
             filter="self.getFilterForWell(self.getAxisKey(well.isSettingAxis))" get-icon="self.getIcon"
             get-children="self.getChildren" keep-children='true' uncollapsible='true'
             run-match="self.runWellMatch" hide-unmatched="true" hide-search='true'
-            click-fn='self.clickFunction'>
+            click-fn='self.clickFunction' collapsed="false">
         </wi-tree-view-virtual>
     </div>
 </div>

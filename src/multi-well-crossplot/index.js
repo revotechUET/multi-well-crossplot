@@ -342,7 +342,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
         switch(treeRoot.isSettingAxis) {
             case 'X':
-                if(node.idDataset != wellSpec.yAxis.idDataset) return;
+                //if(node.idDataset != wellSpec.yAxis.idDataset) return;
                 wellSpec.xAxis = {};
                 wellSpec.xAxis.idCurve = node.idCurve;
                 wellSpec.xAxis.idDataset = node.idDataset;
@@ -515,28 +515,28 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.getConfigMajorX = function() {
         self.config = self.config || {};
-        return isNaN(self.config.majorX) ? "[empty]": wiApi.bestNumberFormat(self.config.majorX, 3);
+        return isNaN(self.config.majorX) ? "[empty]": self.config.majorX;
     }
     this.setConfigMajorX = function(notUse, newValue) {
         self.config.majorX = parseFloat(newValue);
     }
     this.getConfigMajorY = function() {
         self.config = self.config || {};
-        return isNaN(self.config.majorY) ? "[empty]": wiApi.bestNumberFormat(self.config.majorY, 3);
+        return isNaN(self.config.majorY) ? "[empty]": self.config.majorY;
     }
     this.setConfigMajorY = function(notUse, newValue) {
         self.config.majorY = parseFloat(newValue);
     }
     this.getConfigMinorX = function() {
         self.config = self.config || {};
-        return isNaN(self.config.minorX) ? "[empty]": wiApi.bestNumberFormat(self.config.minorX, 3);
+        return isNaN(self.config.minorX) ? "[empty]": self.config.minorX;
     }
     this.setConfigMinorX = function(notUse, newValue) {
         self.config.minorX = parseFloat(newValue);
     }
     this.getConfigMinorY = function() {
         self.config = self.config || {};
-        return isNaN(self.config.minorY) ? "[empty]": wiApi.bestNumberFormat(self.config.minorY, 3);
+        return isNaN(self.config.minorY) ? "[empty]": self.config.minorY;
     }
     this.setConfigMinorY = function(notUse, newValue) {
         self.config.minorY = parseFloat(newValue);
@@ -575,6 +575,27 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.setConfigYLabel = function(notUse, newValue) {
         self.config.yLabel = newValue;
+    }
+    this.getConfigZ1Label = function() {
+        self.config = self.config || {};
+        return (self.config.z1Label || "").length ? self.config.z1Label : ((self.getSelectionValue('Z1') || {}).value || '[Unknown]');
+    }
+    this.setConfigZ1Label = function(notUse, newValue) {
+        self.config.z1Label = newValue;
+    }
+    this.getConfigZ2Label = function() {
+        self.config = self.config || {};
+        return (self.config.z2Label || "").length ? self.config.z2Label : ((self.getSelectionValue('Z2') || {}).value || '[Unknown]');
+    }
+    this.setConfigZ2Label = function(notUse, newValue) {
+        self.config.z2Label = newValue;
+    }
+    this.getConfigZ3Label = function() {
+        self.config = self.config || {};
+        return (self.config.z3Label || "").length ? self.config.z3Label : ((self.getSelectionValue('Z3') || {}).value || '[Unknown]');
+    }
+    this.setConfigZ3Label = function(notUse, newValue) {
+        self.config.z3Label = newValue;
     }
     this.setZ1Min = function(notUse, newValue) {
         self.config.z1Min = parseFloat(newValue);
@@ -673,29 +694,35 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 switch (axis) {
                     case 'xAxis':
                         self.setConfigXLabel(null, self.getSelectionValue('X').value);
-                        self.defaultConfig.left = family.family_spec[0].minScale;
-                        self.defaultConfig.right = family.family_spec[0].maxScale;
-                        self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                        //self.defaultConfig.left = family.family_spec[0].minScale;
+                        //self.defaultConfig.right = family.family_spec[0].maxScale;
+                        //self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                        self.config.left = family.family_spec[0].minScale || 0;
+                        self.config.right = family.family_spec[0].maxScale || 100;
+                        self.config.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
                         break;
                     case 'yAxis':
                         self.setConfigYLabel(null, self.getSelectionValue('Y').value);
-                        self.defaultConfig.top = family.family_spec[0].maxScale;
-                        self.defaultConfig.bottom = family.family_spec[0].minScale;
-                        self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                        //self.defaultConfig.top = family.family_spec[0].maxScale;
+                        //self.defaultConfig.bottom = family.family_spec[0].minScale;
+                        //self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
+                        self.config.top = family.family_spec[0].maxScale || 0;
+                        self.config.bottom = family.family_spec[0].minScale || 100;
+                        self.config.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
                         break;
                     case 'z1Axis':
-                        self.config.z1Max = family.family_spec[0].maxScale;
-                        self.config.z1Min = family.family_spec[0].minScale;
+                        self.config.z1Max = family.family_spec[0].maxScale || 100;
+                        self.config.z1Min = family.family_spec[0].minScale || 0;
                         self.config.z1N = 5;
                         break;
                     case 'z2Axis':
-                        self.config.z2Max = family.family_spec[0].maxScale;
-                        self.config.z2Min = family.family_spec[0].minScale;
+                        self.config.z2Max = family.family_spec[0].maxScale || 100;
+                        self.config.z2Min = family.family_spec[0].minScale || 0;
                         self.config.z2N = 5;
                         break;
                     case 'z3Axis':
-                        self.config.z3Max = family.family_spec[0].maxScale;
-                        self.config.z3Min = family.family_spec[0].minScale;
+                        self.config.z3Max = family.family_spec[0].maxScale || 100;
+                        self.config.z3Min = family.family_spec[0].minScale || 0;
                         self.config.z3N = 5;
                         break;
                     default:
@@ -853,6 +880,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.getZoneIcon = (node) => ( (node && !node._notUsed) ? 'zone-16x16': 'fa fa-eye-slash' )
     this._notUsedLayer = [];
     this.click2ToggleZone = function ($event, node, selectedObjs) {
+        self.isSettingChange = true;
         node._notUsed = !node._notUsed;
         self.onUseZoneChange(node);
         self.selectedZones = Object.values(selectedObjs).map(o => o.data);
@@ -1581,6 +1609,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
     }
     this.click2ToggleRegression = function ($event, node, selectedObjs) {
+        self.isSettingChange = true;
         node._useReg = !node._useReg;
         self.updateRegressionLine(node, self.regressionType, self.polygons);
         $timeout(() => {

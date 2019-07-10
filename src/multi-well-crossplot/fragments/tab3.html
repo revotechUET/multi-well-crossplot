@@ -47,7 +47,7 @@
         <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;flex: 1;">
                         <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                            item-label="'Major X'" item-value="self.getConfigMajorX"
+                            item-label="'Major X'" item-value="self.getMajorX"
                             set-value="self.setConfigMajorX" enabled="true" label-style="{}"
                             content-style="{flex:1,float:'none','text-align':'right'}">
                         </editable>
@@ -55,7 +55,7 @@
                     <div style="margin-right: 15px; "></div>
                     <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;flex: 1;">
                         <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                            item-label="'Minor X'" item-value="self.getConfigMinorX"
+                            item-label="'Minor X'" item-value="self.getMinorX"
                             set-value="self.setConfigMinorX" enabled="true" label-style="{}"
                             content-style="{flex:1,float:'none','text-align':'right'}">
                         </editable>
@@ -99,7 +99,7 @@
         <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                         <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                            item-label="'Major Y'" item-value="self.getConfigMajorY"
+                            item-label="'Major Y'" item-value="self.getMajorY"
                             set-value="self.setConfigMajorY" enabled="true" label-style="{}"
                             content-style="{flex:1,float:'none','text-align':'right'}">
                         </editable>
@@ -107,7 +107,7 @@
                     <div style="margin-right: 15px; "></div>
                     <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;flex: 1;">
                         <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                            item-label="'Minor Y'" item-value="self.getConfigMinorY"
+                            item-label="'Minor Y'" item-value="self.getMinorY"
                             set-value="self.setConfigMinorY" enabled="true" label-style="{}"
                             content-style="{flex:1,float:'none','text-align':'right'}">
                         </editable>
@@ -117,12 +117,19 @@
         
     </div>
     <div ng-show="self.getSelectionValue('Z1').isUsed">
-      
         <div class="label-option-sidebar" style="padding: 0 15px;">
-                <div style="display: flex;margin: 15px 0;">Color Z1
-                        <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-                        </div>
+            <div style="display: flex;margin: 15px 0;">Color Z1
+                    <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
                     </div>
+            </div>
+            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                    item-label="'Color Z1 Label'" item-value="self.getConfigZ1Label"
+                    set-value="self.setConfigZ1Label" enabled="true" label-style="{}"
+                    content-style="{flex:1,float:'none','text-align':'right'}">
+                </editable>
+            </div>
+            <div style="margin-bottom: 15px; "></div>
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
@@ -160,6 +167,14 @@
                 <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
                 </div>
             </div>
+            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                    item-label="'Point Size Z2 Label'" item-value="self.getConfigZ2Label"
+                    set-value="self.setConfigZ2Label" enabled="true" label-style="{}"
+                    content-style="{flex:1,float:'none','text-align':'right'}">
+                </editable>
+            </div>
+            <div style="margin-bottom: 15px; "></div>
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
@@ -193,6 +208,14 @@
                 <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
                 </div>
             </div>
+            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+                <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
+                    item-label="'Label Z3 Label'" item-value="self.getConfigZ3Label"
+                    set-value="self.setConfigZ3Label" enabled="true" label-style="{}"
+                    content-style="{flex:1,float:'none','text-align':'right'}">
+                </editable>
+            </div>
+            <div style="margin-bottom: 15px; "></div>
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"

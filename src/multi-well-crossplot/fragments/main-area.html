@@ -11,10 +11,10 @@
         <layer-collection v-padding="vPadding" h-padding='hPadding'>
             <axis-layer min-val='self.getLeft()' max-val='self.getRight()' n-ticks="self.getMajorX() * self.getMinorX()"
                 minor-ticks="self.getMinorX()" loga="self.getLogaX()" precision="4" grid="!!self.config.grid"
-                placement="1"></axis-layer>
+                placement="1" get-min-val='self.getLeft' get-max-val='self.getRight'></axis-layer>
             <axis-layer min-val='self.getBottom()' max-val='self.getTop()' n-ticks="self.getMajorY() * self.getMinorY()"
                 minor-ticks="self.getMinorY()" loga="self.getLogaY()" precision="4" grid="!!self.config.grid"
-                axis-direction="'up'" placement="0"></axis-layer>
+                axis-direction="'up'" placement="0" get-min-val='self.getBottom' get-max-val='self.getTop'></axis-layer>
             <scatter-layer ng-show="!layer._notUsed" min-val="self.getLeft()" max-val="self.getRight()"
                 min-y="self.getBottom()" max-y="self.getTop()" loga="self.getLogaX()" ortho-loga="self.getLogaY()"
                 my-data-x="layer.dataX" my-data-y="layer.dataY"
@@ -68,7 +68,7 @@
         <div class="axis-Z" ng-if="self.getSelectionValue('Z1').isUsed && self.zColors">
             <div class="axis axis-type label">
                 <span class="ellipsis-text">
-                        {{ self.getSelectionValue('Z1').value }}
+                        {{ self.getConfigZ1Label() }}
                 </span>
             </div>
             <div style="display: flex; flex: 1;">
@@ -95,7 +95,7 @@
         <div class="axis-Z" ng-if="self.getSelectionValue('Z2').isUsed && self.zSizes">
             <div class="axis axis-type label">
                 <span class="ellipsis-text">
-                        {{ self.getSelectionValue('Z2').value }}
+                        {{ self.getConfigZ2Label() }}
                 </span>
             </div>
             <div style="display: flex; flex: 1;">
@@ -122,7 +122,7 @@
         <div class="axis-Z" style="margin-bottom: 0;" ng-if="self.getSelectionValue('Z3').isUsed && self.zSymbols">
             <div class="axis axis-type label">
                 <span class="ellipsis-text">
-                        {{ self.getSelectionValue('Z3').value }}
+                        {{ self.getConfigZ3Label() }}
                 </span>
             </div>
             <div style="display: flex; flex: 1;">
