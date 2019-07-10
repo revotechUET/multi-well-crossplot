@@ -1354,9 +1354,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
         }
 
-        //self.udls.forEach(udl => {
-            //setUDLFn(udl);
-        //})
         if (self.getLogaX() && self.getLogaY()) {
             self.pickettLines = self.pickettLines || [{family: 'pickett', label: 'Sw = 1', sw: 1, ...self.pickettParams}];
         }
@@ -1695,30 +1692,37 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.initUDL = function() {
-        wiApi.listAssetsPromise(self.idProject, 'FormulaArray').then(listAssets => {
-            let asset = listAssets.find(a => a.idParameterSet === self.udlsAssetId);
-            let udls = fromFormulaArray2UDLs(asset.content);
-            $timeout(() => {
-                self.udls = udls;
-            }, 700)
-        });
+        wiApi.listAssetsPromise(self.idProject, 'FormulaArray')
+            .then(listAssets => {
+                let asset = listAssets.find(a => a.idParameterSet === self.udlsAssetId);
+                let udls = fromFormulaArray2UDLs(asset.content);
+                $timeout(() => {
+                    self.udls = udls;
+                }, 500)
+            })
+            .catch(e => {
+                $timeout(() => {
+                    self.udls = [];
+                }, 500)
+            });
     }
     this.loadUDL = function() { 
-        wiApi.listAssetsPromise(self.idProject, 'FormulaArray').then(listAssets => {
-            self.udlSelectionList = listAssets.map(item => ({ 
-                data:{label:item.name}, 
-                properties:item
-            }));
-            wiDialog.promptListDialog({
-                title: 'Load User Defined Lines',
-                selectionList: self.udlSelectionList,
-                currentSelect: self.udlSelectionList[0].data.label,
-                inputName: 'User Defined Lines'
-            }, (selectedAsset) => {
-                self.udlsAssetId = selectedAsset.idParameterSet;
-                self.udls = fromFormulaArray2UDLs(selectedAsset.content);
+        wiApi.listAssetsPromise(self.idProject, 'FormulaArray')
+            .then(listAssets => {
+                self.udlSelectionList = listAssets.map(item => ({ 
+                    data:{label:item.name}, 
+                    properties:item
+                }));
+                wiDialog.promptListDialog({
+                    title: 'Load User Defined Lines',
+                    selectionList: self.udlSelectionList,
+                    currentSelect: self.udlSelectionList[0].data.label,
+                    inputName: 'User Defined Lines'
+                }, (selectedAsset) => {
+                    self.udlsAssetId = selectedAsset.idParameterSet;
+                    self.udls = fromFormulaArray2UDLs(selectedAsset.content);
+                });
             });
-        });
     }
     this.saveUDL = function() {
         let content = fromUDLs2FormulaArray(self.udls);
@@ -1735,7 +1739,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         } else {
             wiDialog.promptDialog({
                 title: 'Save User Defined Lines',
-                inputName: 'UDL Name',
+                inputName: 'User Defined Lines Name',
                 input: '',
             }, function(name) {
                 wiLoading.show($element.find('.main')[0],self.silent);
@@ -1756,7 +1760,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.saveAsUDL = function() {
         wiDialog.promptDialog({
             title: 'Save As User Defined Lines',
-            inputName: 'UDL Name',
+            inputName: 'User Defined Lines Name',
             input: '',
         }, function(name) {
             let type = 'FormulaArray';
