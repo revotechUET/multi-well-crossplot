@@ -41,7 +41,7 @@
                 max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"
                 max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="pickett"
                 show-equation='false' ng-repeat="(pickettIdx, pickett) in self.pickettLines"
-                ng-if='self.conditionForPickettPlot() && self.pickettLines && !self.notShowPickett' resolution='500'
+                ng-if='self.conditionForPickettPlot() && self.pickettLines && !self.notShowPickett' resolution='5000'
                 line-label='pickett.label'>
             </line-formula-layer>
             <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
@@ -156,6 +156,5 @@
                 row-headers="self.getZoneNames()" accessor="self.statsValue">
             </wi-table-view>
         </div>
-
     </div>
 </div>
