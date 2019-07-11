@@ -148,18 +148,17 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             $scope.$watch(() => (self.selectionType), (newVal, oldVal) => {
                 self.isSettingChange = true;
                 getSelectionList(self.selectionType, self.treeConfig);
-                updateDefaultConfig();
                 if (newVal != oldVal) {
                     self.selectionValueList.forEach(s => {
                         s.value = self.selectionList[0].properties.name;
                     })
                 }
+                updateDefaultConfig();
             });
             $scope.$watch(() => {
                 return `${JSON.stringify(self.selectionValueList)}`;
             }, () => {
                 self.isSettingChange = true;
-                updateDefaultConfig();
                 self.updateShowZStats();
             });
             $scope.$watch(() => (self.treeConfig.map(w => w.idWell)), () => {
@@ -383,9 +382,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.refresh = function(){
         self.isSettingChange = true;
-        self.layers.length = 0;
-        self.treeConfig.length = 0;
-        getTree();
+        getTree(() => {
+            getZonesetsFromWells(self.treeConfig);
+            self.genLayers();
+        });
     };
     async function getTree(callback) {
         wiLoading.show($element.find('.main')[0], self.silent);
@@ -1739,7 +1739,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         for (let i = 0; i < self.wellSpec.length; i++) {
             swapPropObj(self.wellSpec[i], 'xAxis', 'yAxis');
         }
-        updateDefaultConfig();
+        //updateDefaultConfig();
         [self.config.left, self.config.bottom] = [self.config.bottom, self.config.left];
         [self.config.right, self.config.top] = [self.config.top, self.config.right];
         [self.config.logaX, self.config.logaY] = [self.config.logaY, self.config.logaX];
