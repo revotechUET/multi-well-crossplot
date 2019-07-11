@@ -1119,7 +1119,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         };
         udl.index = self.udls.length;
         udl.displayEquation = true;
-        self.udls.push(udl);
+        let udlExisted = self.udls.find(udlI => udlI.text === udl.text);
+        if (!udlExisted) {
+            self.udls.push(udl);
+        }
     }
     function normalizeFormation(text) {
         return text.replace(/\+-/g, '-').replace(/--/g, '+');
@@ -1167,8 +1170,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
     }
     this.setFnUDL = function(index, newValue) {
-        self.udls[index].text = newValue;
-        self.udls[index].latex = normalizeFormation(`y = ${newValue}`);
+        let udlExisted = self.udls.find((udlI, udlIdx) => udlI.text == newValue && udlIdx != index);
+        if (!udlExisted) {
+            self.udls[index].text = newValue;
+            self.udls[index].latex = normalizeFormation(`y = ${newValue}`);
+        } else {
+            wiDialog.errorMessageDialog(`User Defined Line 'y = ${newValue}' has been existed`);
+        }
     }
     this.getLineStyleUDL = function(index) {
         return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
@@ -1499,21 +1507,41 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
         });
     }
+    this.hideSelectedRegression = function() {
+        if(!self.selectedRegression) return;
+        self.selectedRegression.forEach(layer => layer._useReg = false);
+        self.updateRegressionLine(self.regressionType, self.polygons);
+    }
+    this.showSelectedRegression = function() {
+        if(!self.selectedRegression) return;
+        self.selectedRegression.forEach(layer => layer._useReg = true);
+        self.updateRegressionLine(self.regressionType, self.polygons);
+    }
+    this.hideAllRegression = function() {
+        self.layers.forEach(layer => layer._useReg = false);
+        self.updateRegressionLine(self.regressionType, self.polygons);
+        $timeout(() => {});
+    }
+    this.showAllRegression = function() {
+        self.layers.forEach(layer => layer._useReg = true);
+        self.updateRegressionLine(self.regressionType, self.polygons);
+        $timeout(() => {});
+    }
     this.hideSelectedLayer = function() {
         if(!self.selectedLayers) return;                                        
-        self.selectedLayers.forEach(layer => layer._notUsed = true);            
+        self.selectedLayers.forEach(layer => layer._notUsed = true);
     }                                                                           
     this.showSelectedLayer = function() {                                       
         if(!self.selectedLayers) return;                                        
         self.selectedLayers.forEach(layer => layer._notUsed = false);           
-        $timeout(() => {});                                                     
+        $timeout(() => {});
     }                                                                           
     this.hideAllLayer = function() {                                            
-        self.layers.forEach(bins => bins._notUsed = true);               
-        $timeout(() => {});                                                     
+        self.layers.forEach(layer => layer._notUsed = true);               
+        $timeout(() => {});
     }                                                                           
     this.showAllLayer = function() {                                            
-        self.layers.forEach(bins => bins._notUsed = false);              
+        self.layers.forEach(layer => layer._notUsed = false);              
         $timeout(() => {});                                                     
     }
     this.getFilterForLayer = () => {
@@ -1659,6 +1687,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 lineWidth: 1
             };
         })
+        self.selectedRegression = Object.values(selectedObjs).map(o => o.data);
     }
 
     //---DISCRIMINATOR---

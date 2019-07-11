@@ -12,6 +12,16 @@
         </wi-dropdown-list>
     </div>
 </div>
+<div style="display: flex; padding: 0 15px 10px 15px;">
+    <span ng-click="self.hideSelectedRegression()" class="button-with-label-layer"
+        style="margin-left: 0;">Inactive</span>
+    <span ng-click="self.showSelectedRegression()" class="button-with-label-layer"
+        style="margin-left: 10px;">Active</span>
+    <span ng-click="self.hideAllRegression()" class="button-with-label-layer"
+        style="margin-left: 10px;">Inactive All</span>
+    <span ng-click="self.showAllRegression()" class="button-with-label-layer"
+        style="margin-left: 10px;">Active All</span>
+</div>
 <div ng-show="self.layers"
     style="border: 1px solid #e4e4e4;margin:0 15px;border-radius: 2px;flex: 1;overflow: hidden; " class="disable-node-caret">
     <wi-tree-view-virtual tree-root="self.getLayerTree()" get-label="self.getLayerLabel"
