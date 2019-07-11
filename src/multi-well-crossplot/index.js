@@ -101,7 +101,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         getRegressionTypeList();
         self.pickettParams = self.pickettParams || {rw: 0.03, m: 2, n: 2, a: 1};
         if (self.udlsAssetId) {
-            self.initUDL();
+            initUDL();
         } else {
             self.udls = [];
             self.udls.name = 'Untitled';
@@ -888,21 +888,21 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.onUseZoneChange(node);
         self.selectedZones = Object.values(selectedObjs).map(o => o.data);
     }
-    this.onUseZoneChange = (node) => {
-        if (node._notUsed) {
+    this.onUseZoneChange = (zone) => {
+        if (zone._notUsed) {
             while(layer = self.layers.find(layer => {
-                return layer.zone == node.zone_template.name;
+                return layer.zone == `${zone.zone_template.name}_${zone._idx}`;
             })) {
                 self._notUsedLayer.push(layer);
                 self.layers.splice(self.layers.indexOf(layer), 1);
             }
         } else {
             let layers = self._notUsedLayer.filter(layer => {
-                return layer.zone == node.zone_template.name;
+                return layer.zone == `${zone.zone_template.name}_${zone._idx}`;
             })
             self.layers = self.layers.concat(layers);
             self._notUsedLayer = self._notUsedLayer.filter(l => {
-                return l.zone != node.zone_template.name;
+                return l.zone != `${zone.zone_template.name}_${zone._idx}`;
             })
         }
     }
@@ -913,6 +913,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return zonesets.find(zs => zs.name === zonesetName);
     }
     this.onZonesetSelectionChanged = function(selectedItemProps) {
+        indexZonesForCorrelation((selectedItemProps || {}).zones)
         self.zoneTree = (selectedItemProps || {}).zones;
         self.zonesetName = (selectedItemProps || {}).name || 'ZonationAll';
     }
@@ -925,7 +926,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if(!node || !node.zone_template){
             return 'aaa';
         }
-        return node.zone_template.name;
+        return `${node.zone_template.name}_${node._idx}`;
     }
 
     // ---WELL
@@ -1295,10 +1296,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 zone._notUsed = z._notUsed;
                 return true;
             });
+            indexZonesForCorrelation(zones);
 
             if (self.getColorMode() == 'zone') {
                 for (let j = 0; j < zones.length; j++) {
                     let zone = zones[j];
+                    if (zone._notUsed) continue;
                     let dataArray = filterData(pointset, zone);
                     let layer = {
                         dataX: dataArray.map(d => d.x),
@@ -1308,8 +1311,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         dataZ3: dataArray.map(d => d.z3),
                         regColor: self.getColor(zone, well),
                         layerColor: self.getColor(zone, well),
-                        name: `${well.name}.${zone.zone_template.name}`,
-                        zone: zone.zone_template.name,
+                        name: `${well.name}.${zone.zone_template.name}_${zone._idx}`,
+                        zone: `${zone.zone_template.name}_${zone._idx}`,
                         curveXInfo: `${datasetX.name}.${curveX.name}`,
                         curveYInfo: `${datasetY.name}.${curveY.name}`,
                         curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
@@ -1340,56 +1343,57 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     })
                 }
             } else {
-                for (let j = 0; j < zones.length; j++) {
-                    let zone = zone[j];
-                    let layer = {
-                        dataX: pointset.map(d => d.x),
-                        dataY: pointset.map(d => d.y),
-                        dataZ1: pointset.map(d => d.z1),
-                        dataZ2: pointset.map(d => d.z2),
-                        dataZ3: pointset.map(d => d.z3),
-                        regColor: well.color,
-                        layerColor: well.color,
-                        name: `${well.name}.${zone.zone_template.name}`,
-                        zone: zone.zone_template.name,
-                        curveXInfo: `${datasetX.name}.${curveX.name}`,
-                        curveYInfo: `${datasetY.name}.${curveY.name}`,
-                        curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
-                        curveZ2Info: shouldPlotZ2 ? `${datasetZ2.name}.${curveZ2.name}` : 'N/A',
-                        curveZ3Info: shouldPlotZ3 ? `${datasetZ3.name}.${curveZ3.name}` : 'N/A',
-                        numPoints: pointset.length,
-                        correlation: self.calcCorrelation(dataArray.map(d => d.x), dataArray.map(d => d.y))
-                    }
-                    layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
-                        return getTransformZ1()(this.dataZ1[idx]);
-                    }).bind(layer) : well.color;
-                    layer.size = (function(data, idx) {
-                        if (curveZ2 && shouldPlotZ2) {
-                            return getTransformZ2()(this.dataZ2[idx]);
-                        } else {
-                            return self.pointSize;
-                        }
-                    }).bind(layer);
-                    layer.textSymbol = curveZ3 && shouldPlotZ3 ? (function(data, idx) {
-                        return getTransformZ3()(this.dataZ3[idx]);
-                    }).bind(layer) : null;
-                    $timeout(() => {
-                        if (!zone._notUsed) {
-                            layers.push(layer);
-                        } else {
-                            _notUsedLayer.push(layer)
-                        }
-                    })
+                let layer = {
+                    dataX: [],
+                    dataY: [],
+                    dataZ1: [],
+                    dataZ2: [],
+                    dataZ3: [],
+                    regColor: well.color,
+                    layerColor: well.color,
+                    name: `${well.name}`,
+                    curveXInfo: `${datasetX.name}.${curveX.name}`,
+                    curveYInfo: `${datasetY.name}.${curveY.name}`,
+                    curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
+                    curveZ2Info: shouldPlotZ2 ? `${datasetZ2.name}.${curveZ2.name}` : 'N/A',
+                    curveZ3Info: shouldPlotZ3 ? `${datasetZ3.name}.${curveZ3.name}` : 'N/A',
                 }
+                for (let j = 0; j < zones.length; j++) {
+                    let zone = zones[j];
+                    if (zone._notUsed) continue;
+                    layer.dataX = layer.dataX.concat(pointset.map(d => d.x));
+                    layer.dataY = layer.dataY.concat(pointset.map(d => d.y));
+                    layer.dataZ1 = layer.dataZ1.concat(pointset.map(d => d.z1));
+                    layer.dataZ2 = layer.dataZ2.concat(pointset.map(d => d.z2));
+                    layer.dataZ3 = layer.dataZ3.concat(pointset.map(d => d.z3));
+                }
+                layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
+                    return getTransformZ1()(this.dataZ1[idx]);
+                }).bind(layer) : well.color;
+                layer.size = (function(data, idx) {
+                    if (curveZ2 && shouldPlotZ2) {
+                        return getTransformZ2()(this.dataZ2[idx]);
+                    } else {
+                        return self.pointSize;
+                    }
+                }).bind(layer);
+                layer.textSymbol = curveZ3 && shouldPlotZ3 ? (function(data, idx) {
+                    return getTransformZ3()(this.dataZ3[idx]);
+                }).bind(layer) : null;
+                layer.numPoints = layer.dataX.length;
+                layer.correlation = self.calcCorrelation(layer.dataX, layer.dataY);
+                $timeout(() => {
+                    layers.push(layer);
+                })
             }
         }
 
-        if (self.getLogaX() && self.getLogaY()) {
+        if (conditionForPickettPlot()) {
             self.pickettLines = self.pickettLines || [{family: 'pickett', label: 'Sw = 1', sw: 1, ...self.pickettParams}];
         }
-        wiLoading.hide();
         self.layers = layers;
         self._notUsedLayer = _notUsedLayer;
+        wiLoading.hide();
     }
     function getPointSet(xData, yData, z1Data, z2Data, z3Data) {
         let pointset = [];
@@ -1752,7 +1756,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 || (familyGroupX == 'Resistivity' && familyGroupY == 'Porosity'))
     }
 
-    this.initUDL = function() {
+    function initUDL() {
         wiApi.listAssetsPromise(self.idProject, 'FormulaArray')
             .then(listAssets => {
                 let asset = listAssets.find(a => a.idParameterSet === self.udlsAssetId);
@@ -1806,6 +1810,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 input: '',
             }, function(name) {
                 wiLoading.show($element.find('.main')[0],self.silent);
+                self.udls.name = name;
                 let type = 'FormulaArray';
                 let content = fromUDLs2FormulaArray(self.udls);
                 wiApi.newAssetPromise(self.idProject, name, type, content)
@@ -1863,5 +1868,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 _notUsed: !udl.displayLine
             }
         })
+    }
+    function indexZonesForCorrelation(zones) {
+        let keys = {};
+        for(let z of zones) {
+            let idx = keys[z.idZoneTemplate];
+            if(idx == undefined) idx = 0;
+            else idx ++;
+            z._idx = idx;
+            keys[z.idZoneTemplate] = idx;
+        }
     }
 }
