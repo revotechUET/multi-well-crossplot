@@ -5,6 +5,7 @@ const regression = require('../../bower_components/regression-js/dist/regression
 
 const _DECIMAL_LEN = 4;
 const _PICKETT_LIMIT = 5;
+const _POLYGON_LIMIT = 5;
 
 var app = angular.module(componentName, [
     'sideBar', 'wiTreeView','wiTreeViewVirtual', 'wiTableView',
@@ -110,6 +111,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (self.token)
             wiToken.setToken(self.token);
         $timeout(() => {
+            getTree();
             $scope.$watch(() => (self.pickettParams), () => {
                 if (self.pickettLines) {
                     self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
@@ -130,7 +132,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }, true)
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
                 self.isSettingChange = true;
-                getTree();
+                //getTree();
             }, true);
             $scope.$watch(() => {
                 return self.wellSpec.map(wsp => {
@@ -387,7 +389,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     };
     async function getTree(callback) {
         wiLoading.show($element.find('.main')[0], self.silent);
-        self.treeConfig = [];
+        //self.treeConfig = [];
+        self.treeConfig.length = 0;
         let promises = [];
         for (let w of self.wellSpec) {
             try {
@@ -469,7 +472,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let curve = wellSpec[axis] && wellSpec[axis].idCurve ? (curves.find(c => c.idCurve === wellSpec[axis].idCurve) || curves[0]) : curves[0];
         if (!curve) {
             wellSpec[axis] = {};
-            return;
+            return undefined;
         }
         if (wellSpec[axis] == undefined) wellSpec[axis] = {};
         wellSpec[axis].curveName = curve.name;
@@ -939,24 +942,43 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let idWells = helper.data('idWells');
         if (idWells && idWells.length) {
             $timeout(() => {
-                for (let idWell of idWells) {
-                    wiApi.getCachedWellPromise(idWell).then((well) => {
-                        let zonesets = well.zone_sets;
-                        let hasZonesetName = self.zonesetName != 'ZonationAll' ? zonesets.some(zs => {
-                            zs.name == self.zonesetName;
-                        }) : true;
-                        $timeout(() => {
-                            if (!self.wellSpec.find(wsp => wsp.idWell === idWell) && hasZonesetName) {
-                                self.wellSpec.push({idWell});
-                            } else if (!hasZonesetName) {
-                                toastr.error(`User dataset do not have ${self.zonesetName}`);
-                            }
+                async.eachSeries(idWells, (idWell, next) => {
+                    wiApi.getCachedWellPromise(idWell)
+                        .then((well) => {
+                            let zonesets = well.zone_sets;
+                            let hasZonesetName = self.zonesetName != 'ZonationAll' ? zonesets.some(zs => {
+                                zs.name == self.zonesetName;
+                            }) : true;
+                            $timeout(() => {
+                                if (!self.wellSpec.find(wsp => wsp.idWell === idWell) && hasZonesetName) {
+                                    self.wellSpec.push({idWell});
+                                    let curveX = getCurve(well, 'xAxis');
+                                    let curveY = getCurve(well, 'yAxis');
+                                    if (!curveX || !curveY) {
+                                        self.wellSpec.pop();
+                                        let msg = `Well ${well.name} does not meet requirement`;
+                                        if (__toastr) __toastr.error(msg);
+                                        console.error(new Error(msg));
+                                    }
+                                } else if (!hasZonesetName) {
+                                    let msg = `User dataset do not have ${self.zonesetName}`;
+                                    if (__toastr) __toastr.error(msg);
+                                    console.error(new Error(msg));
+                                }
+                                next();
+                            })
                         })
-                    }).catch(e => console.error(e));
-                }
+                        .catch(e => {
+                            console.error(e);
+                            next();
+                        });
+                }, err => {
+                    if (!err) {
+                        getTree();
+                    }
+                })
             })
         }
-
     }
 
     this.getOvlLabel = function(node){
@@ -993,6 +1015,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if(index >= 0) {
             self.wellSpec.splice(index, 1);
         }
+        getTree();
     }
     this.getFilterForWell = (axis) => {
         switch(axis) {
@@ -1031,6 +1054,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     // ---POLYGON---
     this.currentPolygon = {};
     this.addPolygon = function() {
+        if (self.polygons.length >= _POLYGON_LIMIT) {
+            let msg = "Too many polygons";
+            if (__toastr) __toastr.error(msg);
+            console.error(new Error(msg));
+            return;
+        };
         self.isSettingChange = true;
         let polygon = {};
         polygon.label = 'New polygon';
