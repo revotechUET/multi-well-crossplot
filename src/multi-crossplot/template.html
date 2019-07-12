@@ -1,14 +1,14 @@
 <wi-droppable style="display: flex;width: 100%;background: #ffffff;z-index: 1;box-shadow: 0 4px 9px #00000014;flex-basis: 40px;border-radius: 2px;" on-drop="self.onDrop"
     container-style="{display:'flex',flex: 1, position: 'relative'}">
     <div class="tab">
-        <div class="tab-name" ng-repeat="(stIdx, st) in self.selectionTypes" ng-class="{active: tabIndex === stIdx}"
+        <div class="tab-name" ng-repeat="(stIdx, st) in self.selectionValueCouple" ng-class="{active: tabIndex === stIdx}"
             ng-click="self.activateTab(stIdx)">
             <!-- {{self.wellSpecs[stIdx][0].idWell}} -->
             <div ng-if="self.selectionTypes[stIdx] === 'curve'" class="curve-16x16" style="margin-right: 10px;"></div>
             <div ng-if="self.selectionTypes[stIdx] === 'family'" class="family-16x16" style="margin-right: 10px;"></div>
             <div ng-if="self.selectionTypes[stIdx] === 'family-group'" class="family-group-16x16"
                 style="margin-right: 10px;"></div>
-            {{self.selectionXValues[stIdx]}} - {{self.selectionYValues[stIdx]}}
+            {{self.selectionValueCouple[stIdx][0]}} - {{self.selectionValueCouple[stIdx][1]}}
             <!-- <div ng-click="self.removeTab($event, stIdx)" style="margin-left: 15px;font-size: 10px; cursor: pointer;" class="ti-close"></div> -->
         </div>
         <div class="tab-drop">
@@ -20,18 +20,18 @@
         DROP CURVES, TRY AGIAN!
     </div>
 </wi-droppable>
-<div ng-show="tabIndex === stIdx" class="main" ng-repeat="(stIdx, st) in self.selectionTypes">
-    <multi-well-crossplot well-spec="self.wellSpecs[stIdx]" zoneset-name="self.zoneNames[stIdx]" 
+<div ng-show="tabIndex === stIdx" class="main" ng-repeat="(stIdx, st) in self.selectionValueCouple">
+    <multi-well-crossplot well-spec="self.wellSpecs[stIdx]" zoneset-name="self.zonesetNames[stIdx]" 
         selection-type="self.selectionTypes[stIdx]" 
         selection-value-list="[{
             name: 'X',
             label: 'X Axis',
-            value: self.selectionXValues[stIdx],
+            value: st[0],
             isUsed: true
         }, {
             name: 'Y',
             label: 'Y Axis',
-            value: self.selectionYValues[stIdx],
+            value: st[1],
             isUsed: true
         }, {
             name: 'Z1',

@@ -18,6 +18,7 @@ app.component(componentName, {
         selectionZ1Values: "<",
         selectionZ2Values: "<",
         selectionZ3Values: "<",
+        selectionValueCouple: '<',
 		idHistograms: "<",
 		configs: '<',
         onSave: '<',
