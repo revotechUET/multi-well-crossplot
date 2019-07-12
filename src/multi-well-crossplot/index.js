@@ -899,21 +899,29 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.selectedZones = Object.values(selectedObjs).map(o => o.data);
     }
     this.onUseZoneChange = (zone) => {
-        if (zone._notUsed) {
-            while(layer = self.layers.find(layer => {
-                return layer.zone == `${zone.zone_template.name}_${zone._idx}`;
-            })) {
-                self._notUsedLayer.push(layer);
-                self.layers.splice(self.layers.indexOf(layer), 1);
-            }
-        } else {
-            let layers = self._notUsedLayer.filter(layer => {
-                return layer.zone == `${zone.zone_template.name}_${zone._idx}`;
-            })
-            self.layers = self.layers.concat(layers);
-            self._notUsedLayer = self._notUsedLayer.filter(l => {
-                return l.zone != `${zone.zone_template.name}_${zone._idx}`;
-            })
+        switch(self.getColorMode()) {
+            case 'zone':
+                if (zone._notUsed) {
+                    let layers = self.layers.filter(layer => {
+                        return layer.zone == `${zone.name}`;
+                    })
+                    layers.forEach(layer => {
+                        self._notUsedLayer.push(layer);
+                        self.layers.splice(self.layers.indexOf(layer), 1);
+                    })
+                } else {
+                    let layers = self._notUsedLayer.filter(layer => {
+                        return layer.zone == `${zone.name}`;
+                    })
+                    self.layers = self.layers.concat(layers);
+                    self._notUsedLayer = self._notUsedLayer.filter(layer => {
+                        return layer.zone != `${zone.name}`;
+                    })
+                }
+                break;
+            case 'well':
+                self.genLayers();
+                break;
         }
     }
     function getZoneset(well, zonesetName = "") {
@@ -925,18 +933,21 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.onZonesetSelectionChanged = function(selectedItemProps) {
         indexZonesForCorrelation((selectedItemProps || {}).zones)
         self.zoneTree = (selectedItemProps || {}).zones;
+        self.zoneTreeUniq = _.uniqBy(self.zoneTree.map(zone => ({name: zone.zone_template.name})), zone => {
+            return zone.name;
+        });
         self.zonesetName = (selectedItemProps || {}).name || 'ZonationAll';
     }
     this.runZoneMatch = function (node, criteria) {
         let keySearch = criteria.toLowerCase();
-        let searchArray = node.zone_template.name.toLowerCase();
+        let searchArray = node.name.toLowerCase();
         return searchArray.includes(keySearch);
     }
     this.getZoneLabel = function (node) {
-        if(!node || !node.zone_template){
+        if(!node){
             return 'aaa';
         }
-        return `${node.zone_template.name}_${node._idx}`;
+        return `${node.name}`;
     }
 
     // ---WELL
@@ -953,9 +964,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     wiApi.getCachedWellPromise(idWell)
                         .then((well) => {
                             let zonesets = well.zone_sets;
-                            let hasZonesetName = self.zonesetName != 'ZonationAll' ? zonesets.some(zs => {
-                                zs.name == self.zonesetName;
-                            }) : true;
+                            let hasZonesetName = self.zonesetName != 'ZonationAll' ? zonesets.some(zs => zs.name == self.zonesetName) : true;
                             $timeout(() => {
                                 if (!self.wellSpec.find(wsp => wsp.idWell === idWell) && hasZonesetName) {
                                     self.wellSpec.push({idWell});
@@ -1366,8 +1375,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             })
 
             let zones = zoneset.zones.filter(zone => {
-                let z = self.zoneTree.find(z1 => {
-                    return z1.zone_template.name === zone.zone_template.name;
+                let z = self.zoneTreeUniq.find(z1 => {
+                    return z1.name === zone.zone_template.name;
                 });
                 zone._notUsed = z._notUsed;
                 return true;
@@ -1377,7 +1386,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             if (self.getColorMode() == 'zone') {
                 for (let j = 0; j < zones.length; j++) {
                     let zone = zones[j];
-                    if (zone._notUsed) continue;
                     let dataArray = filterData(pointset, zone);
                     let layer = {
                         dataX: dataArray.map(d => d.x),
@@ -1387,8 +1395,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         dataZ3: dataArray.map(d => d.z3),
                         regColor: self.getColor(zone, well),
                         layerColor: self.getColor(zone, well),
-                        name: `${well.name}.${zone.zone_template.name}_${zone._idx}`,
-                        zone: `${zone.zone_template.name}_${zone._idx}`,
+                        name: `${well.name}.${zone.zone_template.name}:${zone._idx}`,
+                        zone: `${zone.zone_template.name}`,
                         curveXInfo: `${datasetX.name}.${curveX.name}`,
                         curveYInfo: `${datasetY.name}.${curveY.name}`,
                         curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
@@ -1437,11 +1445,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 for (let j = 0; j < zones.length; j++) {
                     let zone = zones[j];
                     if (zone._notUsed) continue;
-                    layer.dataX = layer.dataX.concat(pointset.map(d => d.x));
-                    layer.dataY = layer.dataY.concat(pointset.map(d => d.y));
-                    layer.dataZ1 = layer.dataZ1.concat(pointset.map(d => d.z1));
-                    layer.dataZ2 = layer.dataZ2.concat(pointset.map(d => d.z2));
-                    layer.dataZ3 = layer.dataZ3.concat(pointset.map(d => d.z3));
+                    let dataArray = filterData(pointset, zone);
+                    layer.dataX = layer.dataX.concat(dataArray.map(d => d.x));
+                    layer.dataY = layer.dataY.concat(dataArray.map(d => d.y));
+                    layer.dataZ1 = layer.dataZ1.concat(dataArray.map(d => d.z1));
+                    layer.dataZ2 = layer.dataZ2.concat(dataArray.map(d => d.z2));
+                    layer.dataZ3 = layer.dataZ3.concat(dataArray.map(d => d.z3));
                 }
                 layer.color = curveZ1 && shouldPlotZ1 ? (function(data, idx) {
                     return getTransformZ1()(this.dataZ1[idx]);
