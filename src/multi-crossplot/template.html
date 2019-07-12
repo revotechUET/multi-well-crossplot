@@ -1,15 +1,15 @@
 <wi-droppable style="display: flex;width: 100%;background: #ffffff;z-index: 1;box-shadow: 0 4px 9px #00000014;flex-basis: 40px;border-radius: 2px;" on-drop="self.onDrop"
     container-style="{display:'flex',flex: 1, position: 'relative'}">
     <div class="tab">
-        <div class="tab-name" ng-repeat="wellSpec in self.wellSpecs track by $index" ng-class="{active: tabIndex === $index}"
-            ng-click="self.activateTab($index)">
-            <!-- {{self.wellSpecs[$index][0].idWell}} -->
-            <div ng-if="self.selectionTypes[$index] === 'curve'" class="curve-16x16" style="margin-right: 10px;"></div>
-            <div ng-if="self.selectionTypes[$index] === 'family'" class="family-16x16" style="margin-right: 10px;"></div>
-            <div ng-if="self.selectionTypes[$index] === 'family-group'" class="family-group-16x16"
+        <div class="tab-name" ng-repeat="(stIdx, st) in self.selectionTypes" ng-class="{active: tabIndex === stIdx}"
+            ng-click="self.activateTab(stIdx)">
+            <!-- {{self.wellSpecs[stIdx][0].idWell}} -->
+            <div ng-if="self.selectionTypes[stIdx] === 'curve'" class="curve-16x16" style="margin-right: 10px;"></div>
+            <div ng-if="self.selectionTypes[stIdx] === 'family'" class="family-16x16" style="margin-right: 10px;"></div>
+            <div ng-if="self.selectionTypes[stIdx] === 'family-group'" class="family-group-16x16"
                 style="margin-right: 10px;"></div>
-            {{self.selectionXValues[$index]}} - {{self.selectionYValues[$index]}}
-            <!-- <div ng-click="self.removeTab($event, $index)" style="margin-left: 15px;font-size: 10px; cursor: pointer;" class="ti-close"></div> -->
+            {{self.selectionXValues[stIdx]}} - {{self.selectionYValues[stIdx]}}
+            <!-- <div ng-click="self.removeTab($event, stIdx)" style="margin-left: 15px;font-size: 10px; cursor: pointer;" class="ti-close"></div> -->
         </div>
         <div class="tab-drop">
             Drop curves here
@@ -20,18 +20,18 @@
         DROP CURVES, TRY AGIAN!
     </div>
 </wi-droppable>
-<div ng-show="tabIndex === $index" class="main" ng-repeat="wellSpec in self.wellSpecs track by $index">
-    <multi-well-crossplot well-spec="wellSpec" zoneset-name="self.zoneNames[$index]" 
-        selection-type="self.selectionTypes[$index]" 
+<div ng-show="tabIndex === stIdx" class="main" ng-repeat="(stIdx, st) in self.selectionTypes">
+    <multi-well-crossplot well-spec="self.wellSpecs[stIdx]" zoneset-name="self.zoneNames[stIdx]" 
+        selection-type="self.selectionTypes[stIdx]" 
         selection-value-list="[{
             name: 'X',
             label: 'X Axis',
-            value: self.selectionXValues[$index],
+            value: self.selectionXValues[stIdx],
             isUsed: true
         }, {
             name: 'Y',
             label: 'Y Axis',
-            value: self.selectionYValues[$index],
+            value: self.selectionYValues[stIdx],
             isUsed: true
         }, {
             name: 'Z1',

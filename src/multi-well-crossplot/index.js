@@ -262,25 +262,25 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let selectionValueList = [{
             name: 'X',
             label: 'X Axis',
-            value: 'Slowness',
+            value: '',
             isUsed: true
         }, {
             name: 'Y',
             label: 'Y Axis',
-            value: 'Gamma Ray',
+            value: '',
             isUsed: true
         }, {
             name: 'Z1',
             label: 'Z1 Axis',
-            value: 'Angle'
+            value: ''
         }, {
             name: 'Z2',
             label: 'Z2 Axis',
-            value: 'Diameter'
+            value: ''
         }, {
             name: 'Z3',
             label: 'Z3 Axis',
-            value: 'Density'
+            value: ''
         }]
         return selectionValueList;
     }
@@ -961,7 +961,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                                     self.wellSpec.push({idWell});
                                     let curveX = getCurve(well, 'xAxis');
                                     let curveY = getCurve(well, 'yAxis');
-                                    if (!curveX || !curveY) {
+                                    if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
                                         self.wellSpec.pop();
                                         let msg = `Well ${well.name} does not meet requirement`;
                                         if (__toastr) __toastr.error(msg);
