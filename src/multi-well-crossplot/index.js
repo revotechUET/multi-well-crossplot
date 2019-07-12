@@ -35,10 +35,10 @@ app.component(componentName, {
         polygonExclude: '<',
         regressionType: '<',
         silent: "<",
-        pickettLines: '<',
-        pickettParams: '<',
         pointSize: '<',
-        udlsAssetId: '<'
+        udlsAssetId: '<',
+        pickettSets: '<',
+        swParamList: '<'
     },
     transclude: true
 });
@@ -76,6 +76,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.$onInit = function () {
+        self.allPickettLines = [];
+        self.pickettSets = self.pickettSets || [
+            {rw: 0.03, m: 2, n: 2, a: 1, color: 'blue'},
+        ];
+        self.swParamList = self.swParamList || [{sw: 1}];
         self.pointSize = self.pointSize || 10;
         self.isSettingChange = true;
         self.defaultConfig = self.defaultConfig || {};
@@ -100,7 +105,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true,true];
         self.regressionType = self.regressionType || 'Linear';
         getRegressionTypeList();
-        self.pickettParams = self.pickettParams || {rw: 0.03, m: 2, n: 2, a: 1};
         if (self.udlsAssetId) {
             initUDL();
         } else {
@@ -112,11 +116,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wiToken.setToken(self.token);
         $timeout(() => {
             getTree();
-            $scope.$watch(() => (self.pickettParams), () => {
-                if (self.pickettLines) {
-                    self.pickettLines = self.pickettLines.map(p => ({...p, ...self.pickettParams}));
-                }
-            })
+            $scope.$watch(() => {
+                let clone = angular.copy(self.pickettSets);
+                clone.forEach(pickettSet => {
+                    delete pickettSet._notHidden;
+                })
+                return clone;
+            }, () => {
+                self.isSettingChange = true;
+            },true)
             $scope.$watch(() => self.config, (newVal, oldVal) => {
                 self.isSettingChange = true;
             }, true)
@@ -132,7 +140,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }, true)
             $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
                 self.isSettingChange = true;
-                //getTree();
             }, true);
             $scope.$watch(() => {
                 return self.wellSpec.map(wsp => {
@@ -769,10 +776,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             polygonExclude: self.polygonExclude,
             regressionType: self.regressionType,
             config: self.config,
-            pickettLines: self.pickettLines,
-            pickettParams: self.pickettParams,
             pointSize: self.pointSize,
-            udlsAssetId: self.udlsAssetId
+            udlsAssetId: self.udlsAssetId,
+            pickettSets: self.pickettSets,
+            swParamList: self.swParamList
         }
         if (!self.idCrossplot) {
             wiDialog.promptDialog({
@@ -820,10 +827,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 polygonExclude: self.polygonExclude,
                 regressionType: self.regressionType,
                 config: {...self.config, title: name},
-                pickettLines: self.pickettLines,
-                pickettParams: self.pickettParams,
                 pointSize: self.pointSize,
-                udlsAssetId: self.udlsAssetId
+                udlsAssetId: self.udlsAssetId,
+                pickettSets: self.pickettSets,
+                swParamList: self.swParamList
             }
             wiApi.newAssetPromise(self.idProject, name, type, content)
                 .then(res => {
@@ -1164,36 +1171,68 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }).bind(udl);
         }
     }
+    function setParamForPickettLine(index, paramName, value) {
+        let pickettLines = self.allPickettLines.filter(pickettLine => pickettLine.pickettSetIdx == index);
+        pickettLines.forEach(pickettLine => {
+            pickettLine[paramName] = value;
+        })
+    }
     this.getRwParam = function(index) {
-        return self.pickettParams.rw || '[empty]';
+        return self.pickettSets[index].rw || '[empty]';
     }
     this.setRwParam = function(index, newValue) {
-        self.pickettParams.rw = newValue;
+        self.pickettSets[index].rw = newValue;
+        setParamForPickettLine(index, 'rw', newValue)
     }
     this.getAParam = function(index) {
-        return self.pickettParams.a || '[empty]';
+        return self.pickettSets[index].a || '[empty]';
     }
     this.setAParam = function(index, newValue) {
-        self.pickettParams.a = newValue;
+        self.pickettSets[index].a = newValue;
+        setParamForPickettLine(index, 'a', newValue)
     }
     this.getMParam = function(index) {
-        return self.pickettParams.m || '[empty]';
+        return self.pickettSets[index].m || '[empty]';
     }
     this.setMParam = function(index, newValue) {
-        self.pickettParams.m = newValue;
+        self.pickettSets[index].m = newValue;
+        setParamForPickettLine(index, 'm', newValue)
     }
     this.getNParam = function(index) {
-        return self.pickettParams.n || '[empty]';
+        return self.pickettSets[index].n || '[empty]';
     }
     this.setNParam = function(index, newValue) {
-        self.pickettParams.n = newValue;
+        self.pickettSets[index].n = newValue;
+        setParamForPickettLine(index, 'n', newValue)
     }
     this.getSwParam = function(index) {
-        return self.pickettLines[index].sw || '[empty]';
+        return self.swParamList[index].sw || '[empty]';
     }
     this.setSwParam = function(index, newValue) {
-        self.pickettLines[index].sw = newValue;
-        self.pickettLines[index].label = `Sw = ${newValue}`;
+        self.swParamList[index].sw = newValue;
+        let pickettLines = self.allPickettLines.filter(pickettLine => pickettLine.swParamIdx == index);
+        pickettLines.forEach(pickettLine => {
+            pickettLine.sw = newValue;
+            pickettLine.label = `${self.pickettSets[pickettLine.pickettSetIdx].name}, Sw = ${newValue}`;
+        })
+    }
+    this.getPickettSetName = function(index) {
+        return self.pickettSets[index].name || `[empty]`;
+    }
+    this.setPickettSetName = function(index, newVal) {
+        self.pickettSets[index].name = newVal;
+        let pickettLines = self.allPickettLines.filter(pickettLine => pickettLine.pickettSetIdx == index);
+        pickettLines.forEach(pickettLine => {
+            pickettLine.label = `${newVal}, Sw = ${pickettLine.sw}`;
+        })
+    }
+    this.toggleShowPickettSet = function(index) {
+        self.pickettSets[index]._notHidden = !self.pickettSets[index]._notHidden;
+        self.pickettSets.forEach((pickettSet, pickettSetIdx) => {
+            if(pickettSetIdx != index) {
+                pickettSet._notHidden = false;
+            }
+        })
     }
     this.getFnUDL = function(index) {
         return (self.udls[index].text || '').length ? self.udls[index].text : '[empty]';
@@ -1426,7 +1465,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
 
         if (conditionForPickettPlot()) {
-            self.pickettLines = self.pickettLines || [{family: 'pickett', label: 'Sw = 1', sw: 1, ...self.pickettParams}];
+            self.updateAllPickettLines();
         }
         self.layers = layers;
         self._notUsedLayer = _notUsedLayer;
@@ -1783,20 +1822,67 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return wiApi.getPalette('BGR');
     }
 
-    this.addPickettLine = function() {
-        if (!self.pickettLines) self.pickettLines = [];
-        if (self.pickettLines.length >= _PICKETT_LIMIT) return;
-        self.pickettLines.push({
-            family: 'pickett',
-            label: 'Sw = 1',
-            sw: 1,
-            ...self.pickettParams
+    this.addPickettSet = function() {
+        self.pickettSets.push({rw: 0.03, m: 2, n: 2, a: 1, color: 'blue'});
+    }
+    this.addSwParam = function() {
+        if (self.swParamList.length >= _PICKETT_LIMIT) {
+            let msg = "Too many picketts";
+            if (__toastr) __toastr.error(msg);
+            console.error(new Error(msg));
+            return;
+        }
+        let swValue = 1;
+        self.swParamList.push({sw: swValue});
+        self.pickettSets.forEach((pickettSet, pickettSetIdx) => {
+            self.allPickettLines.push({
+                rw: pickettSet.rw,
+                m: pickettSet.m,
+                n: pickettSet.n,
+                a: pickettSet.a,
+                sw: 1,
+                swParamIdx: self.swParamList.length - 1,
+                pickettSetIdx,
+                label: `${pickettSet.name || '[empty]'}, Sw = ${swValue}`,
+                style: {
+                    fill: pickettSet.color
+                },
+                family: 'pickett'
+            })
         })
     }
-    this.removePickett = ($index) => {
-        self.pickettLines.splice($index, 1);
+    this.removeSwParam = function(index) {
+        self.swParamList.splice(index,1);
+        let toRemovePickettLine = self.allPickettLines.filter(pickettLine => pickettLine.swParamIdx == index);
+        toRemovePickettLine.forEach(pickettLine => {
+            let idx = self.allPickettLines.indexOf(pickettLine);
+            if (idx) {
+                self.allPickettLines.splice(idx, 1);
+            }
+        })
     }
-
+    this.updateAllPickettLines = function() {
+        if (!self.pickettSets.length) return;
+        self.allPickettLines.length = 0;
+        self.swParamList.forEach((swParam, swParamIdx) => {
+            self.pickettSets.forEach((pickettSet, pickettSetIdx) => {
+                self.allPickettLines.push({
+                    rw: pickettSet.rw,
+                    m: pickettSet.m,
+                    n: pickettSet.n,
+                    a: pickettSet.a,
+                    sw: swParam.sw,
+                    swParamIdx,
+                    pickettSetIdx,
+                    label: `${pickettSet.name || '[empty]'}, Sw = ${swParam.sw}`,
+                    style: {
+                        fill: pickettSet.color
+                    },
+                    family: 'pickett'
+                })
+            })
+        })
+    }
     this.conditionForPickettPlot = conditionForPickettPlot;
     function conditionForPickettPlot() {
         let familyGroupX;
@@ -1910,7 +1996,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 displayEquation: udl.displayEquation
             }
         })
-        
+
     }
     function fromFormulaArray2UDLs(formulaArray) {
         return formulaArray.map(udl => {

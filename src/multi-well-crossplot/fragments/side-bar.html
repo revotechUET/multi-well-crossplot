@@ -3,42 +3,42 @@
         <div style="display: flex; flex-direction: column; width: 100%; height: 100%;">
             <!-- -----WELLS----- -->
             <div ng-show="isSet(1)" style="overflow: auto;flex: 1;display:flex;flex-direction:column;">
-                ${require('./tab1.html')}
+                ${require('./wells.html')}
             </div>
             <!-- -----ZONE----- -->
             <div ng-show="isSet(2)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab2.html')}
+                ${require('./zone.html')}
             </div>
             <!-- -----CONFIG----- -->
             <div ng-show="isSet(3)" style="overflow: hidden; flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab3.html')}
+                ${require('./config.html')}
             </div>
             <!-- -----FORMULA----- -->
             <div ng-show="isSet(4)"
                 style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab4.html')}
+                ${require('./udl.html')}
             </div>
             <!-- -----REGRESSION----- -->
             <div ng-show="isSet(5)" ng-if="self.getColorPalette();"
                 style="overflow: auto;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab5.html')}
+                ${require('./regression.html')}
             </div>
             <!-- -----LAYERS----- -->
             <div ng-show="isSet(6)"
                 style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab6.html')}
+                ${require('./layers.html')}
             </div>
             <!-- -----PRINT SETTINGS----- -->
             <div ng-show="isSet(7)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab7.html')}
+                ${require('./print-settings.html')}
             </div>
             <!-- -----Overlay Line----- -->
             <div ng-show="isSet(8)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab8.html')}
+                ${require('./overlay-line.html')}
             </div>
             <!-- -----Pickett Line----- -->
             <div ng-show="isSet(9)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
-                ${require('./tab9.html')}
+                ${require('./pickett-line.html')}
             </div>
         </div>
         <div style="display: flex;" >
