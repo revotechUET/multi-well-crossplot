@@ -962,10 +962,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                                     let curveX = getCurve(well, 'xAxis');
                                     let curveY = getCurve(well, 'yAxis');
                                     if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
-                                        self.wellSpec.pop();
+                                        //self.wellSpec.pop();
                                         let msg = `Well ${well.name} does not meet requirement`;
-                                        if (__toastr) __toastr.error(msg);
-                                        console.error(new Error(msg));
+                                        if (__toastr) __toastr.warning(msg);
+                                        console.warning(msg);
                                     }
                                 } else if (!hasZonesetName) {
                                     let msg = `User dataset do not have ${self.zonesetName}`;
