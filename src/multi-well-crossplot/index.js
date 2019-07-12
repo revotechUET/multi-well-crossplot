@@ -858,33 +858,40 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.hideSelectedZone = function() {
         if(!self.selectedZones) return;
-        let _notUsed = true;
         self.selectedZones.forEach(layer => {
             layer._notUsed = true;
-            self.onUseZoneChange(layer);
+        });
+        $timeout(() => {
+            self.onUseZoneChange(self.selectedZones);
         });
     }
     this.showSelectedZone = function() {
         if(!self.selectedZones) return;
         self.selectedZones.forEach(layer => {
             layer._notUsed = false;
-            self.onUseZoneChange(layer);
         });
-        $timeout(() => {});
+        $timeout(() => {
+            self.onUseZoneChange(self.selectedZones);
+        });
     }
     this.hideAllZone = function() {
-        self.zoneTree.forEach(bins => {
+        self.zoneTreeUniq.forEach(bins => {
             bins._notUsed = true;
-            self.onUseZoneChange(bins);
         });
-        $timeout(() => {});
+        $timeout(() => {
+            //self.onUseZoneChange(bins);
+            self.layers.length = 0;
+        });
     }
     this.showAllZone = function() {
-        self.zoneTree.forEach(bins => {
+        self.zoneTreeUniq.forEach(bins => {
             bins._notUsed = false
-            self.onUseZoneChange(bins);
         });
-        $timeout(() => {});
+        $timeout(() => {
+            //self.onUseZoneChange(bins);
+            self.isSettingChange = true;
+            self.genLayers();
+        });
     }
     self._hiddenZone = [];
     this.getHiddenZone = function() {
@@ -901,23 +908,25 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.onUseZoneChange = (zone) => {
         switch(self.getColorMode()) {
             case 'zone':
-                if (zone._notUsed) {
-                    let layers = self.layers.filter(layer => {
-                        return layer.zone == `${zone.name}`;
-                    })
-                    layers.forEach(layer => {
-                        self._notUsedLayer.push(layer);
-                        self.layers.splice(self.layers.indexOf(layer), 1);
-                    })
-                } else {
-                    let layers = self._notUsedLayer.filter(layer => {
-                        return layer.zone == `${zone.name}`;
-                    })
-                    self.layers = self.layers.concat(layers);
-                    self._notUsedLayer = self._notUsedLayer.filter(layer => {
-                        return layer.zone != `${zone.name}`;
-                    })
-                }
+                zones.forEach(zone => {
+                    if (zone._notUsed) {
+                        let layers = self.layers.filter(layer => {
+                            return layer.zone == `${zone.name}`;
+                        })
+                        layers.forEach(layer => {
+                            self._notUsedLayer.push(layer);
+                            self.layers.splice(self.layers.indexOf(layer), 1);
+                        })
+                    } else {
+                        let layers = self._notUsedLayer.filter(layer => {
+                            return layer.zone == `${zone.name}`;
+                        })
+                        self.layers = self.layers.concat(layers);
+                        self._notUsedLayer = self._notUsedLayer.filter(layer => {
+                            return layer.zone != `${zone.name}`;
+                        })
+                    }
+                })
                 break;
             case 'well':
                 self.genLayers();
