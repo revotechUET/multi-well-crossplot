@@ -32,16 +32,23 @@ function multiCrossplotController($scope, $timeout, $element, wiToken, wiApi, wi
     let self = this;
     self.silent = true;
     $scope.tabIndex = 0;
+    const svl = [];
 
     this.$onInit = async function () {
         if (self.token)
             wiToken.setToken(self.token);
+        for (let i = 0; i < self.selectionXValues.length; i++) svl.push([]);
     }
     self.activateTab = function ($index){
         $timeout(()=>{
             $scope.tabIndex = $index;
         })
 
+    }
+    this.getSelectionValueList = function(idx) {
+        svl[idx].length = 0;
+        svl[idx].push(self.selectionXValues[idx], self.selectionYValues[idx], self.selectionZ1Values[idx], self.selectionZ2Values[idx], self.selectionZ3Values[idx]);
+        return svl[idx];
     }
     this.onDrop = function (event, helper, myData) {
         let idCurves = helper.data("idCurves");
