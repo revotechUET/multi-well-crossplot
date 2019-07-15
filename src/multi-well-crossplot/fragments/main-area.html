@@ -7,68 +7,63 @@
     <span class="fn-button">PRINT</span>
 </div>
 <div style="flex: 1; display: flex; flex-direction: column;">
-    <div class="main-body-center border-style" style="display: flex; flex-direction: column;" id='layer-collection'>
-        <div style="flex-basis: 30px; display: flex; align-items: center; justify-content: center;font-weight: bold;text-transform: uppercase;">
-            <span>{{self.getConfigTitle()}}</span>
-        </div>
-        <div style="flex: 1; display: flex;">
-            <div style="flex-basis: 30px;font-weight: bold;width: 30px;display: flex;">
-                <p style="position: absolute;left: 18px; top: 50%;font-weight: bold;transform: translate(-50%, -50%) rotate(-90deg);">
-                    {{self.getConfigYLabel()}}</p>
-            </div>
-            <div style="flex: 1;">
-                <layer-collection v-padding="vPadding" h-padding='hPadding'>
-                        <axis-layer min-val='self.getLeft()' max-val='self.getRight()' n-ticks="self.getMajorX() * self.getMinorX()"
-                            minor-ticks="self.getMinorX()" loga="self.getLogaX()" precision="4" grid="!!self.config.grid"
-                            placement="1" get-min-val='self.getLeft' get-max-val='self.getRight'></axis-layer>
-                        <axis-layer min-val='self.getBottom()' max-val='self.getTop()' n-ticks="self.getMajorY() * self.getMinorY()"
-                            minor-ticks="self.getMinorY()" loga="self.getLogaY()" precision="4" grid="!!self.config.grid"
-                            axis-direction="'up'" placement="0" get-min-val='self.getBottom' get-max-val='self.getTop'></axis-layer>
-                        <scatter-layer ng-show="!layer._notUsed" min-val="self.getLeft()" max-val="self.getRight()"
-                            min-y="self.getBottom()" max-y="self.getTop()" loga="self.getLogaX()" ortho-loga="self.getLogaY()"
-                            my-data-x="layer.dataX" my-data-y="layer.dataY"
-                            symbol="self.getSelectionValue('Z3').isUsed ? 'textSymbol' : 'circle'" symbol-size="5"
-                            symbol-fill-style="layer.color" symbol-stroke-style="'transparent'" color-func="layer.color"
-                            point-size-func="layer.size" symbol-func="layer.textSymbol" ng-repeat="layer in self.layers">
-                        </scatter-layer>
-                        <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
-                            max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()" max-y="self.getTop()"
-                            max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="self.regLine"
-                            eqn-offsets="['50px', '0%']" line-color="self.regLine.lineColor"
-                            line-dash="self.regLine.lineStyle.join(' ')" line-width="self.regLine.lineWidth" show-equation='true'
-                            mse="self.mse" ng-if='self.regLine && self.regLine.family' resolution='500'>
-                        </line-formula-layer>
-                        <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
-                            max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()" max-y="self.getTop()"
-                            max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="udl"
-                            eqn-offsets="['65px', self.eqnOffsetY(udlIdx)]" line-color="udl.lineStyle.lineColor"
-                            line-dash="udl.lineStyle.lineStyle.join(' ')" line-width="udl.lineStyle.lineWidth"
-                            ng-repeat="(udlIdx, udl) in self.udls" show-equation='udl.displayEquation' ng-show='!udl._notUsed'
-                            resolution='500' ng-if="self.validPlotRegion()">
-                        </line-formula-layer>
-                        <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
-                            max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"
-                            max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="pickett"
-                            show-equation='false' ng-repeat="(pickettIdx, pickett) in self.allPickettLines"
-                            ng-if='self.conditionForPickettPlot() && self.allPickettLines && !self.notShowPickett' resolution='5000'
-                            line-label='pickett.label' line-label-style="pickett.style" ng-show='pickett._used'>
-                        </line-formula-layer>
-                        <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
-                            min-y="self.getBottom()" max-y="self.getTop()" ng-repeat="polygon in self.polygons"
-                            points="polygon.points" mode="polygon.mode"
-                            fill-style="self.polygonFillStyle(polygon)" stroke-style="self.polygonStrokeStyle(polygon)" stroke-width="self.polygonStrokeWidth(polygon)">
-                        </polygon-layer>
-                        <overlay-line-layer ng-if="self.overlayLineSpec" min-val='self.getLeft()' max-val="self.getRight()"
-                            min-draw='self.getLeft()' max-draw="self.getRight()" min-y="self.getBottom()"
-                            min-draw-y="self.getBottom()" max-y="self.getTop()" max-draw-y="self.getTop()"
-                            ortho-loga="self.getLogaY()" loga="self.getLogaX()" overlay-line-spec="self.overlayLineSpec">
-                        </overlay-line-layer>
-                </layer-collection>
-            </div>
-        </div>
-        <div style="flex-basis: 30px; display: flex; align-items: center; justify-content: center;font-weight: bold;">
-            <span>{{self.getConfigXLabel()}}</span>
-        </div>
+    <div class="main-body-center border-style" style="position: relative;" id='layer-collection'>
+        <layer-collection v-padding="vPadding" h-padding='hPadding'>
+            <axis-layer min-val='self.getLeft()' max-val='self.getRight()' n-ticks="self.getMajorX() * self.getMinorX()"
+                minor-ticks="self.getMinorX()" loga="self.getLogaX()" precision="4" grid="!!self.config.grid"
+                placement="1" get-min-val='self.getLeft' get-max-val='self.getRight'></axis-layer>
+            <axis-layer min-val='self.getBottom()' max-val='self.getTop()' n-ticks="self.getMajorY() * self.getMinorY()"
+                minor-ticks="self.getMinorY()" loga="self.getLogaY()" precision="4" grid="!!self.config.grid"
+                axis-direction="'up'" placement="0" get-min-val='self.getBottom' get-max-val='self.getTop'></axis-layer>
+            <scatter-layer ng-show="!layer._notUsed" min-val="self.getLeft()" max-val="self.getRight()"
+                min-y="self.getBottom()" max-y="self.getTop()" loga="self.getLogaX()" ortho-loga="self.getLogaY()"
+                my-data-x="layer.dataX" my-data-y="layer.dataY"
+                symbol="self.getSelectionValue('Z3').isUsed ? 'textSymbol' : 'circle'" symbol-size="5"
+                symbol-fill-style="layer.color" symbol-stroke-style="'transparent'" color-func="layer.color"
+                point-size-func="layer.size" symbol-func="layer.textSymbol" ng-repeat="layer in self.layers">
+            </scatter-layer>
+            <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
+                max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()" max-y="self.getTop()"
+                max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="self.regLine"
+                eqn-offsets="['50px', '0%']" line-color="self.regLine.lineColor"
+                line-dash="self.regLine.lineStyle.join(' ')" line-width="self.regLine.lineWidth" show-equation='true'
+                mse="self.mse" ng-if='self.regLine && self.regLine.family' resolution='500'>
+            </line-formula-layer>
+            <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
+                max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()" max-y="self.getTop()"
+                max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="udl"
+                eqn-offsets="['65px', self.eqnOffsetY(udlIdx)]" line-color="udl.lineStyle.lineColor"
+                line-dash="udl.lineStyle.lineStyle.join(' ')" line-width="udl.lineStyle.lineWidth"
+                ng-repeat="(udlIdx, udl) in self.udls" show-equation='udl.displayEquation' ng-show='!udl._notUsed'
+                resolution='500' ng-if="self.validPlotRegion()">
+            </line-formula-layer>
+            <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
+                max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"
+                max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="pickett"
+                show-equation='false' ng-repeat="(pickettIdx, pickett) in self.allPickettLines"
+                ng-if='self.conditionForPickettPlot() && self.allPickettLines && !self.notShowPickett' resolution='5000'
+                line-label='pickett.label' line-label-style="pickett.style" ng-show='pickett._used'>
+            </line-formula-layer>
+            <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
+                min-y="self.getBottom()" max-y="self.getTop()" ng-repeat="polygon in self.polygons"
+                points="polygon.points" mode="polygon.mode"
+                fill-style="self.polygonFillStyle(polygon)" stroke-style="self.polygonStrokeStyle(polygon)" stroke-width="self.polygonStrokeWidth(polygon)">
+            </polygon-layer>
+            <overlay-line-layer ng-if="self.overlayLineSpec" min-val='self.getLeft()' max-val="self.getRight()"
+                min-draw='self.getLeft()' max-draw="self.getRight()" min-y="self.getBottom()"
+                min-draw-y="self.getBottom()" max-y="self.getTop()" max-draw-y="self.getTop()"
+                ortho-loga="self.getLogaY()" loga="self.getLogaX()" overlay-line-spec="self.overlayLineSpec">
+            </overlay-line-layer>
+        </layer-collection>
+        <p style="position: absolute; font-weight: bold; left: 50%; transform: translateX(-50%); bottom: 0">
+            {{self.getConfigXLabel()}} </p>
+        <p style="position: absolute; top: 23px; right: 45%;text-transform: uppercase; font-weight: bold; transform: translateY(-50%);">
+            {{self.getConfigTitle()}}</p>
+        <p style="position: absolute;left: 18px; top: 50%;font-weight: bold;transform: translate(-50%, -50%) rotate(-90deg);">
+            {{self.getConfigYLabel()}}</p>
+
+
+        
     </div>
 
     <div class="axis-info" ng-if="(self.getSelectionValue('Z1').isUsed && self.zColors) || (self.getSelectionValue('Z2').isUsed && self.zSizes) || (self.getSelectionValue('Z3').isUsed && self.zSymbols)">
