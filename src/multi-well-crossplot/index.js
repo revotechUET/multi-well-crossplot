@@ -74,6 +74,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         });
         return curves;
     }
+    this.getFamilyTable = function() {
+        return wiApi.getFamilyTable();
+    }
+    this.getPals = function() {
+        return wiApi.getPalettes();
+    }
 
     this.$onInit = function () {
         self.allPickettLines = [];
@@ -152,6 +158,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }).join('');
             }, () => {
                 self.isSettingChange = true;
+                updateDefaultConfig();
             }, true);
             $scope.$watch(() => (self.selectionType), (newVal, oldVal) => {
                 self.isSettingChange = true;
@@ -305,7 +312,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     function setOnChangeFn(obj) {
         if (!obj.onChange) {
             obj.onChange = (function(selectedItemProps) {
-                self.onSelectionValueListChange(this.name);
+                //self.onSelectionValueListChange(this.name);
                 this.value = (selectedItemProps || {}).name;
             }).bind(obj);
         }
@@ -634,8 +641,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.setZ1Min = function(notUse, newValue) {
         self.config.z1Min = parseFloat(newValue);
     }
+    this.getConfigZ1Min = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.z1Min) ? "[empty]": wiApi.bestNumberFormat(self.config.z1Min, 3);
+    }
     this.setZ1Max = function(notUse, newValue) {
         self.config.z1Max = parseFloat(newValue);
+    }
+    this.getConfigZ1Max = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.z1Max) ? "[empty]": wiApi.bestNumberFormat(self.config.z1Max, 3);
     }
     this.setZ1N = function(notUse, newValue) {
         self.config.z1N = parseFloat(newValue);
@@ -643,8 +658,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.setZ2Min = function(notUse, newValue) {
         self.config.z2Min = parseFloat(newValue);
     }
+    this.getConfigZ2Min = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.z2Min) ? "[empty]": wiApi.bestNumberFormat(self.config.z2Min, 3);
+    }
     this.setZ2Max = function(notUse, newValue) {
         self.config.z2Max = parseFloat(newValue);
+    }
+    this.getConfigZ2Max = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.z2Max) ? "[empty]": wiApi.bestNumberFormat(self.config.z2Max, 3);
     }
     this.setZ2N = function(notUse, newValue) {
         self.config.z2N = parseFloat(newValue);
@@ -652,8 +675,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.setZ3Min = function(notUse, newValue) {
         self.config.z3Min = parseFloat(newValue);
     }
+    this.getConfigZ3Min = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.z3Min) ? "[empty]": wiApi.bestNumberFormat(self.config.z3Min, 3);
+    }
     this.setZ3Max = function(notUse, newValue) {
         self.config.z3Max = parseFloat(newValue);
+    }
+    this.getConfigZ3Max = function() {
+        self.config = self.config || {};
+        return isNaN(self.config.z3Max) ? "[empty]": wiApi.bestNumberFormat(self.config.z3Max, 3);
     }
     this.setZ3N = function(notUse, newValue) {
         self.config.z3N = parseFloat(newValue);
@@ -675,8 +706,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.getMajorY = () => ( isNaN(self.config.majorY) ? (self.defaultConfig.majorY || 5) : self.config.majorY)
     this.getMinorX = () => ( isNaN(self.config.minorX) ? (self.defaultConfig.minorX || 1) : self.config.minorX)
     this.getMinorY = () => ( isNaN(self.config.minorY) ? (self.defaultConfig.minorY || 1) : self.config.minorY)
-    this.getLogaX = () => (self.config.logaX || self.defaultConfig.logaX || false)
-    this.getLogaY = () => (self.config.logaY || self.defaultConfig.logaY || false)
+    this.getLogaX = () => (self.config.logaX == undefined ? (self.defaultConfig.logaX || false) : self.config.logaX)
+    this.getLogaY = () => (self.config.logaY == undefined ? (self.defaultConfig.logaY || false) : self.config.logaY)
     this.getColorMode = () => (self.config.colorMode || self.defaultConfig.colorMode || 'zone')
     this.getColor = (zone, well) => {
         let cMode = self.getColorMode();
@@ -1556,13 +1587,21 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (!doHaveColorAxis) return [];
         if (numColor <= 0) return [];
         let colors = [];
-        if (numColor == 1) return ['rgb(255, 0, 0)'];
-        let rotateTime = Math.round(numColor / 3);
-        let redPoints = points(numColor);
-        let greenPoints = angular.copy(redPoints).rotate(rotateTime);
-        let bluePoints = angular.copy(greenPoints).rotate(rotateTime);
-        for (let i = 0; i < numColor; i++) {
-            colors.push('rgb(' + redPoints[i] + ',' + greenPoints[i] + ',' + bluePoints[i] + ')');
+
+        if (self.palProps && self.palProps.palette) {
+            for (let i = 0; i < numColor; i++) {
+                colors.push(palette2RGB(self.palProps.palette[i % self.palProps.palette.length], false));
+            }
+        }
+        else {
+            if (numColor == 1) return ['rgb(255, 0, 0)'];
+            let rotateTime = Math.round(numColor / 3);
+            let redPoints = points(numColor);
+            let greenPoints = angular.copy(redPoints).rotate(rotateTime);
+            let bluePoints = angular.copy(greenPoints).rotate(rotateTime);
+            for (let i = 0; i < numColor; i++) {
+                colors.push('rgb(' + redPoints[i] + ',' + greenPoints[i] + ',' + bluePoints[i] + ')');
+            }
         }
         return colors;
     }
@@ -1846,6 +1885,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         let n = Math.abs(string2Int(seed));
         let colorTable = getColorPalette();
+        if (!colorTable.length) return;
         return colorTable[n % colorTable.length];
     }
 
@@ -1860,6 +1900,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return hash;
     };
     function palette2RGB(palette, semiTransparent = true) {
+        if (!Object.keys(palette).length) return 'transparent';
         return `rgb(${palette.red},${palette.green},${palette.blue},${semiTransparent ? palette.alpha / 2 : 1})`
     }
 
@@ -2069,5 +2110,31 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             z._idx = idx;
             keys[z.idZoneTemplate] = idx;
         }
+    }
+
+    this.onChangePal = function (palProps) {
+        self.isSettingChange = true;
+        self.palProps = palProps;
+    }
+    this.onPalsDropdownInit = function(wiDropdownCtrl) {
+        let palTable = wiApi.getPalettes();
+        wiDropdownCtrl.items = Object.keys(palTable).map(palName => ({
+            data: {
+                label: palName
+            },
+            properties: {
+                name: palName,
+                palette: palTable[palName]
+            }
+        }));
+        wiDropdownCtrl.items.unshift({
+            data: {
+                name: "[No Palette]"
+            },
+            properties: {
+                name: '[No Palette]',
+                palette: null
+            }
+        })
     }
 }

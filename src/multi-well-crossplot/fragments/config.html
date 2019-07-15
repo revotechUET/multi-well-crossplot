@@ -30,14 +30,14 @@
         <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                        item-label="'Left'" item-value="self.getLeft" set-value="self.setConfigLeft" enabled="true" label-style="{}"
+                        item-label="'Left'" item-value="self.getConfigLeft" set-value="self.setConfigLeft" enabled="true" label-style="{}"
                         content-style="{flex:1,float:'none','text-align':'right'}">
                     </editable>
                 </div>
                 <div style="margin-right: 15px; "></div>
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                        item-label="'Right'" item-value="self.getRight"
+                        item-label="'Right'" item-value="self.getConfigRight"
                         set-value="self.setConfigRight" enabled="true" label-style="{}"
                         content-style="{flex:1,float:'none','text-align':'right'}">
                     </editable>
@@ -79,7 +79,7 @@
         <div style="display: flex;">
             <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                    item-label="'Top'" item-value="self.getTop" set-value="self.setConfigTop"
+                    item-label="'Top'" item-value="self.getConfigTop" set-value="self.setConfigTop"
                     enabled="true" label-style="{}"
                     content-style="{flex:1,float:'none','text-align':'right'}">
                 </editable>
@@ -87,7 +87,7 @@
             <div style="margin-right: 15px; "></div>
             <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;flex: 1;">
                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                    item-label="'Bottom'" item-value="self.getBottom"
+                    item-label="'Bottom'" item-value="self.getConfigBottom"
                     set-value="self.setConfigBottom" enabled="true" label-style="{}"
                     content-style="{flex:1,float:'none','text-align':'right'}">
                 </editable>
@@ -133,7 +133,7 @@
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                        item-label="'Min'" item-value="self.getZ1Min" set-value="self.setZ1Min"
+                        item-label="'Min'" item-value="self.getConfigZ1Min" set-value="self.setZ1Min"
                         enabled="true" label-style="{}"
                         content-style="{flex:1,float:'none','text-align':'right'}">
                     </editable>
@@ -141,7 +141,7 @@
                 <div style="margin-right: 15px; "></div>
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                        item-label="'Max'" item-value="self.getZ1Max"
+                        item-label="'Max'" item-value="self.getConfigZ1Max"
                         set-value="self.setZ1Max" enabled="true" label-style="{}"
                         content-style="{flex:1,float:'none','text-align':'right'}">
                     </editable>
@@ -178,7 +178,7 @@
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                        item-label="'Min'" item-value="self.getZ2Min" set-value="self.setZ2Min"
+                        item-label="'Min'" item-value="self.getConfigZ2Min" set-value="self.setZ2Min"
                         enabled="true" label-style="{}"
                         content-style="{flex:1,float:'none','text-align':'right'}">
                     </editable>
@@ -186,7 +186,7 @@
                 <div style="margin-right: 15px; "></div>
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                        item-label="'Max'" item-value="self.getZ2Max"
+                        item-label="'Max'" item-value="self.getConfigZ2Max"
                         set-value="self.setZ2Max" enabled="true" label-style="{}"
                         content-style="{flex:1,float:'none','text-align':'right'}">
                     </editable>
@@ -219,7 +219,7 @@
             <div style="display: flex;">
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                        item-label="'Min'" item-value="self.getZ3Min" set-value="self.setZ3Min"
+                        item-label="'Min'" item-value="self.getConfigZ3Min" set-value="self.setZ3Min"
                         enabled="true" label-style="{}"
                         content-style="{flex:1,float:'none','text-align':'right'}">
                     </editable>
@@ -227,7 +227,7 @@
                 <div style="margin-right: 15px; "></div>
                 <div class="selection-sidebar" style="padding: 9px 10px 5px 10px; flex: 1;">
                     <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
-                        item-label="'Max'" item-value="self.getZ3Max"
+                        item-label="'Max'" item-value="self.getConfigZ3Max"
                         set-value="self.setZ3Max" enabled="true" label-style="{}"
                         content-style="{flex:1,float:'none','text-align':'right'}">
                     </editable>
@@ -241,6 +241,19 @@
                     set-value="self.setZ3N" enabled="true" label-style="{}"
                     content-style="{flex:1,float:'none','text-align':'right'}">
                 </editable>
+            </div>
+        </div>
+    </div>
+    <div class="label-option-sidebar"
+        style="padding: 10px 15px; display: flex; justify-content: space-between;  flex-direction: column;">
+        <div>
+            <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">
+                <span>Color Palette</span>
+                <wi-dropdown-list style="flex:1; margin-left: 10px;"
+                    current-select="self.currentPalName"
+                    on-item-changed="self.onChangePal"
+                    on-wi-dropdown-init="self.onPalsDropdownInit">
+                </wi-dropdown-list>
             </div>
         </div>
     </div>
