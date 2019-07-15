@@ -31,16 +31,16 @@
                     content-style="{flex:1,float:'none','text-align':'left'}" params="pickettSetIdx">
                 </editable>
             </div>
-            <!--<div>-->
-                <!--<span-->
-                    <!--ng-class="{'red-color fa fa-eye-slash': well._notUsed, 'blue-color fa fa-eye': !well._notUsed }"-->
-                    <!--ng-click="self.toggleWell(well)"-->
-                    <!--style="cursor: pointer; margin-right: 15px;">-->
-                <!--</span>-->
-                <!--<span class="fa fa-times-circle" ng-click="self.removeWell(well)"-->
-                    <!--style="color: rgb(163, 163, 163);cursor: pointer;margin-right: 5px;">-->
-                <!--</span>-->
-            <!--</div>-->
+            <div>
+                <span
+                    ng-class="{'red-color fa fa-eye-slash': !pickettSet._used, 'blue-color fa fa-eye': pickettSet._used }"
+                    ng-click="self.turnOnPickettSet(pickettSetIdx)"
+                    style="cursor: pointer; margin-right: 15px;">
+                </span>
+                <span class="fa fa-times-circle" ng-click="self.removePickettSet(pickettSetIdx)"
+                    style="color: rgb(163, 163, 163);cursor: pointer;margin-right: 5px;">
+                </span>
+            </div>
         </div>
         <div class="label-option-sidebar" ng-show="pickettSet._notHidden">
             <div class="selection-sidebar" style="padding: 9px 10px 5px 10px;">

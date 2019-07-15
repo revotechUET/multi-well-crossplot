@@ -414,10 +414,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
     }
     this.refresh = function(){
-        self.isSettingChange = true;
         getTree(() => {
             getZonesetsFromWells(self.treeConfig);
             self.genLayers();
+            self.isSettingChange = true;
         });
     };
     async function getTree(callback) {
@@ -961,10 +961,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.click2ToggleZone = function ($event, node, selectedObjs) {
         self.isSettingChange = true;
         node._notUsed = !node._notUsed;
-        self.onUseZoneChange(node);
+        self.onUseZoneChange([node]);
         self.selectedZones = Object.values(selectedObjs).map(o => o.data);
     }
-    this.onUseZoneChange = (zone) => {
+    this.onUseZoneChange = (zones) => {
         switch(self.getColorMode()) {
             case 'zone':
                 zones.forEach(zone => {
@@ -1885,7 +1885,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         let n = Math.abs(string2Int(seed));
         let colorTable = getColorPalette();
-        if (!colorTable.length) return;
+        if (!colorTable) return;
         return colorTable[n % colorTable.length];
     }
 
@@ -1900,7 +1900,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return hash;
     };
     function palette2RGB(palette, semiTransparent = true) {
-        if (!Object.keys(palette).length) return 'transparent';
+        if (!palette || !Object.keys(palette).length) return 'transparent';
         return `rgb(${palette.red},${palette.green},${palette.blue},${semiTransparent ? palette.alpha / 2 : 1})`
     }
 
@@ -1911,6 +1911,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
     this.addPickettSet = function() {
         self.pickettSets.push({rw: 0.03, m: 2, n: 2, a: 1, color: 'blue'});
+    }
+    this.turnOnPickettSet = function($index) {
+        self.pickettSets.forEach(pickettSet => pickettSet._used = false);
+        self.pickettSets[$index]._used = true;
+        self.updateAllPickettLines();
     }
     this.addSwParam = function() {
         if (self.swParamList.length >= _PICKETT_LIMIT) {
@@ -1948,6 +1953,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
         })
     }
+    this.removePickettSet = function($index) {
+        self.pickettSets.splice($index, 1);
+    }
     this.updateAllPickettLines = function() {
         if (!self.pickettSets.length) return;
         self.allPickettLines.length = 0;
@@ -1965,7 +1973,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     style: {
                         fill: pickettSet.color
                     },
-                    family: 'pickett'
+                    family: 'pickett',
+                    _used: pickettSet._used
                 })
             })
         })

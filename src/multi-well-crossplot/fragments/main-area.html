@@ -51,7 +51,7 @@
                             max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="pickett"
                             show-equation='false' ng-repeat="(pickettIdx, pickett) in self.allPickettLines"
                             ng-if='self.conditionForPickettPlot() && self.allPickettLines && !self.notShowPickett' resolution='5000'
-                            line-label='pickett.label' line-label-style="pickett.style">
+                            line-label='pickett.label' line-label-style="pickett.style" ng-show='pickett._used'>
                         </line-formula-layer>
                         <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
                             min-y="self.getBottom()" max-y="self.getTop()" ng-repeat="polygon in self.polygons"
