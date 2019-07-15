@@ -33,30 +33,43 @@
 </div>
 <div class="label-option-sidebar"
     style="padding: 15px; display: flex; flex-direction: column; overflow: auto; flex: 1;">
-    <div style="display: flex;margin-bottom: 0;">Polygon
-        <div
-            style="border-bottom: 1px solid #e4e4e4;flex: 1;margin-left: 15px;margin-bottom: 6px;">
-        </div>
+    <div style="display: flex;margin-bottom: 0;align-items: center;">Polygon
+        <div style="border-bottom: 1px solid #e4e4e4;flex: 1;margin: 9px;"></div>
+        <div class="ti ti-plus add-polygon" ng-click="self.addPolygon()"></div>
     </div>
-    <div style="display: flex; padding: 15px 0;">
-        <span ng-click="self.addPolygon()" class="button-with-label-layer"
-            style="margin-left: 0px;">Add</span>
-        <!--<span ng-class="{'active' : self.polygonExclude === true}"-->
-            <!--ng-click="self.polygonExclude = !self.polygonExclude" class="button-with-label-layer"-->
-            <!--style="margin-left: 15px;">Exclude</span>-->
-    </div>
-    <div style="overflow: auto;">
-        <div class="list-formular" ng-repeat="polygon in self.polygons">
-            <div class="selection-sidebar"
-                style="padding: 9px 10px 5px 10px; flex: 4; margin-right: 15px; border: none;">
+    
+    <div style="overflow: auto; padding-top: 15px;">
+        <div class="list-polygon" ng-repeat="polygon in self.polygons">
+            <div style="margin: 0 10px; border: none;">
                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                     item-label="" item-value="polygon.label" params="$index"
                     set-value="self.setPolygonLabel" enabled="true" label-style="{}"
                     content-style="self.polygonContentStyle(polygon)">
                 </editable>
             </div>
-            <div class="selection-sidebar"
-                style="padding: 9px 10px 5px 10px; cursor: pointer; flex: 1; border: none;">
+            <div style="display: flex;">
+                <div ng-class="{'red-color': !polygon.exclude, 'blue-color ': polygon.exclude }"
+                    class="button-list-polygon ti ti-control-play"
+                    ng-click="polygon.exclude = !polygon.exclude" >
+                </div>
+                <div ng-class="{'red-color': polygon._notUsed, 'blue-color ': !polygon._notUsed }"
+                    ng-click="polygon._notUsed = !polygon._notUsed"
+                    class="button-list-polygon ti ti-check">
+                </div>
+                <div ng-class="{'red-color ': polygon._notShow, 'blue-color ': !polygon._notShow }"
+                    class="button-list-polygon ti ti-eye" 
+                    ng-click="polygon._notShow = !polygon._notShow">
+                </div>
+                <div ng-class="{'red-color': !polygon.mode, 'blue-color': polygon.mode == 'edit' }"
+                    class="button-list-polygon ti ti-pencil" 
+                    ng-click="self.toggleEditPolygon(polygon)">
+                </div>
+                <div ng-class="{'red-color': !polygon.mode, 'blue-color': polygon.mode == 'edit' }"
+                    class="button-list-polygon ti ti-close" 
+                    ng-click="self.removePolygon($index)">
+                </div>
+            </div>
+            <!-- <div style="cursor: pointer; flex: 1; border: none;">
                 <span ng-class="{'active' : true}" style="margin-right: 8px;"
                     ng-click="polygon.exclude = !polygon.exclude" class="button-with-label">
                     {{ polygon.exclude ? 'Exclude' : 'Include' }}
@@ -77,7 +90,7 @@
                     style="cursor: pointer; margin-right: 15px;">
                 </span>
             </div>
-            <div class="fa fa-times delete-button" ng-click="self.removePolygon($index)"></div>
+            <div class="fa fa-times delete-button" ng-click="self.removePolygon($index)"></div> -->
         </div>
     </div>
 </div>

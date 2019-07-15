@@ -1,4 +1,12 @@
 multi-well-crossplot {
+	layer-collection {
+		circle {
+			fill: #3b9fda;
+			stroke: #0a2d42;
+			stroke-width: 1px;
+			r: 10px;
+		}
+	}
 	.rg-bottom span, .rg-top span {
 		margin: 3px 0 0 -10px;
 	}
@@ -82,6 +90,37 @@ multi-well-crossplot {
 	::-webkit-scrollbar-button:vertical:decrement { /* Up */
 		background-image: none;
 	}
+	.list-polygon {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 15px;
+		border-radius: 2px;
+		border: 1px solid #ddd;
+		transition: all 0.2s ease-in;
+		.button-list-polygon{
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 12px;
+			border-left: 1px solid #ccc; 
+		}
+	}
+	.add-polygon {
+		width: 20px;
+		height: 20px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: 1px solid #ccc;
+		border-radius: 50%;
+		cursor: pointer;
+		&:hover {
+			border-color: #0077be;
+			color: #0077be;
+			transition: all ease-in 0.3s;
+		}
+	}
 	.disable-node-caret {
         .node-caret {
             display: none;
@@ -160,7 +199,10 @@ multi-well-crossplot {
 
       .slider.round:before {
         border-radius: 50%;
-      }
+	  }
+	  input, select {
+		box-shadow: none;
+	}
 	/* change style special of wi-base-treeview for basemap */
 	wi-tree-view, wi-tree-view-virtual {
 		& div input {
@@ -204,7 +246,13 @@ multi-well-crossplot {
             }
 
         }
-    }
+	}
+	segment-layer svg.edit-point, polygon-layer svg.edit-point {
+		background-color: rgba(185, 185, 185, 0.17);
+		cursor: crosshair;
+		pointer-events: all;
+		z-index: 2;
+	}
 	wi-table-view {
 		& div.cell {
 			display: table-cell;
@@ -262,6 +310,10 @@ multi-well-crossplot {
 			background-color: #fff;
 			border-color    : #fff;
 		}
+		.btn-default-focus {
+			box-shadow   : none;
+			outline      : none;
+		}
 
 		.form-control {
 			border: none;
@@ -274,6 +326,8 @@ multi-well-crossplot {
 		.form-control:focus {
 			border    : none;
 			box-shadow: none;
+			outline     : none;
+
 		}
 
 		.btn-default:hover {
@@ -281,6 +335,7 @@ multi-well-crossplot {
 			background-color: #fff;
 			border-color    : #fff;
 		}
+		
 	}
 
 	side-bar>div div.content {
