@@ -1241,12 +1241,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return text.replace(/\+-/g, '-').replace(/--/g, '+');
     }
     function setUDLFn(udl) {
-        if (!udl.fn) {
+        //if (!udl.fn) {
             udl.fn = (function(x) {
                 //this.value = (selected;ItemProps || {}).name;
                 return eval(this.text);
             }).bind(udl);
-        }
+        //}
     }
     function setParamForPickettLine(index, paramName, value) {
         let pickettLines = self.allPickettLines.filter(pickettLine => pickettLine.pickettSetIdx == index);
@@ -1319,6 +1319,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (!udlExisted) {
             self.udls[index].text = newValue;
             self.udls[index].latex = normalizeFormation(`y = ${newValue}`);
+            setUDLFn(self.udls[index]);
         } else {
             wiDialog.errorMessageDialog(`User Defined Line 'y = ${newValue}' has been existed`);
         }
@@ -2145,5 +2146,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 palette: null
             }
         })
+    }
+    this.validPlotRegion = function() {
+        let result = (self.getTop() - self.getBottom()) * (self.getRight() - self.getLeft());
+        return _.isFinite(result) && result != 0;
+
     }
 }

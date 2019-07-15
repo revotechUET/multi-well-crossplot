@@ -44,7 +44,7 @@
                             eqn-offsets="['65px', self.eqnOffsetY(udlIdx)]" line-color="udl.lineStyle.lineColor"
                             line-dash="udl.lineStyle.lineStyle.join(' ')" line-width="udl.lineStyle.lineWidth"
                             ng-repeat="(udlIdx, udl) in self.udls" show-equation='udl.displayEquation' ng-show='!udl._notUsed'
-                            resolution='500'>
+                            resolution='500' ng-if="self.validPlotRegion()">
                         </line-formula-layer>
                         <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
                             max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"
