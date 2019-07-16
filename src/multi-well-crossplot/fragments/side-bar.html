@@ -48,16 +48,19 @@
             </span>
         </div>
     </div>
-    <div class="label-list-view" style=" display :flex;
-            border-left: 1px solid #e4e4e4; 
-            flex-direction: column;
-            justify-content: start;
-            padding: 0px;
-            right: 0;
-            position: sticky;">
-        <div style="overflow-y: overlay; overflow-x: hidden; display :flex; flex:1; flex-direction: column; justify-content: start; box-shadow: 0 10px 10px #00000017;">
+    <div class="label-list-view" style="   
+        border-left: 1px solid #e4e4e4;
+        position: relative;
+        overflow-y: overlay;
+        width: 44px;
+        right: 0;">
+        <div style="
+            transform-origin: left;
+            transform: translate(3.6%, -50%) rotate(90deg);
+            display: flex;
+            position: absolute;">
             <div class="tab-with-label" ng-class="{'active' : isSet(1)}" ng-click="setTab(1)">
-                <div style="margin: 10px;">
+                <div >
                     Wells
                 </div>
             </div>
@@ -67,37 +70,37 @@
                 </div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(2)}" ng-click="setTab(2)">
-                <div style="margin: 22px;">
+                <div >
                     Zone
                 </div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(4)}" ng-click="setTab(4)">
-                <div style="margin: 0px;">
+                <div >
                     Formula
                 </div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(5)}" ng-click="setTab(5)">
-                <div style="margin: 10px;">
+                <div >
                     Regression Line
                 </div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(6)}" ng-click="setTab(6)">
-                <div style="margin: 30px;">
+                <div >
                     Layers
                 </div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(8)}" ng-click="setTab(8)">
-                <div style="margin: 3px;">
+                <div >
                     Overlay Line
                 </div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(9)}" ng-click="setTab(9)" ng-if='self.conditionForPickettPlot()'>
-                <div style="margin: 20px;">
+                <div >
                     Pickett Plot
                 </div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(7)}" ng-click="setTab(7)">
-                <div style="margin: 19px;">
+                <div >
                     Print Setting
                 </div>
             </div>
