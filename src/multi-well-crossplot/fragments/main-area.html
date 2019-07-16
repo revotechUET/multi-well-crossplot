@@ -41,8 +41,9 @@
                 max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"
                 max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="pickett"
                 show-equation='false' ng-repeat="(pickettIdx, pickett) in self.allPickettLines"
-                ng-if='self.conditionForPickettPlot() && self.allPickettLines && !self.notShowPickett' resolution='5000'
-                line-label='pickett.label' line-label-style="pickett.style" ng-show='pickett._used'>
+                ng-if='self.validPlotRegion() && self.conditionForPickettPlot() && self.allPickettLines && !self.notShowPickett' resolution='5000'
+                line-label='pickett.label' line-label-style="pickett.style" ng-show='pickett._used'
+                line-color="self.getPickettLineColor(pickett)">
             </line-formula-layer>
             <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
                 min-y="self.getBottom()" max-y="self.getTop()" ng-repeat="polygon in self.polygons"
@@ -61,9 +62,6 @@
             {{self.getConfigTitle()}}</p>
         <p style="position: absolute;left: 18px; top: 50%;font-weight: bold;transform: translate(-50%, -50%) rotate(-90deg);">
             {{self.getConfigYLabel()}}</p>
-
-
-        
     </div>
 
     <div class="axis-info" ng-if="(self.getSelectionValue('Z1').isUsed && self.zColors) || (self.getSelectionValue('Z2').isUsed && self.zSizes) || (self.getSelectionValue('Z3').isUsed && self.zSymbols)">

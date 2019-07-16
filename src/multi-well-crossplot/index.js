@@ -1910,6 +1910,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return wiApi.getPalette('BGR');
     }
 
+    this.getPickettLineColor = function(pickett) {
+        if (pickett.sw == 1) {
+            return 'red';
+        }
+        return 'black';
+    }
     this.addPickettSet = function() {
         self.pickettSets.push({rw: 0.03, m: 2, n: 2, a: 1, color: 'blue'});
     }
