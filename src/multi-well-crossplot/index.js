@@ -190,7 +190,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
         $scope.vPadding = 50;
         $scope.hPadding = 60;
-
+        /*
         self.paramGroups = self.paramGroups || [{
             name: "paramGroup1",
             points: [{
@@ -233,7 +233,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     value: 0.1
                 }]
             }]
-        }]
+        }]*/
     }
 
     this.eqnOffsetY = function($index) {
@@ -1102,7 +1102,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                                     let curveX = getCurve(well, 'xAxis');
                                     let curveY = getCurve(well, 'yAxis');
                                     if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
-                                        //self.wellSpec.pop();
                                         let msg = `Well ${well.name} does not meet requirement`;
                                         if (__toastr) __toastr.warning(msg);
                                         console.warning(msg);
@@ -2059,8 +2058,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             let curveX = self.getCurve(self.treeConfig[0], 'xAxis');
             let curveY = self.getCurve(self.treeConfig[0], 'yAxis');
             if (!curveX || !curveY) return false;
-            familyGroupX = wiApi.getFamily(curveX.idFamily).familyGroup;
-            familyGroupY = wiApi.getFamily(curveY.idFamily).familyGroup;
+            let familyX = wiApi.getFamily(curveX.idFamily);
+            let familyY = wiApi.getFamily(curveY.idFamily);
+            if (!familyX || !familyY) return false;
+            familyGroupX = familyX.familyGroup;
+            familyGroupY = familyY.familyGroup;
         }
         return self.getLogaX() && self.getLogaY()
             && ((familyGroupX == 'Porosity' && familyGroupY == 'Resistivity')
