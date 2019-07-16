@@ -55,7 +55,7 @@
                 min-draw-y="self.getBottom()" max-y="self.getTop()" max-draw-y="self.getTop()"
                 ortho-loga="self.getLogaY()" loga="self.getLogaX()" overlay-line-spec="self.overlayLineSpec">
             </overlay-line-layer>
-            <polygon-layer ng-show="!paramGroup._notShow" ng-repeat="paramGroup in self.paramGroups"
+            <polygon-layer ng-if="self.paramGroups && self.paramGroups.length" ng-show="!paramGroup._notShow" ng-repeat="paramGroup in self.paramGroups"
                 min-val="self.getLeft()" max-val="self.getRight()"
                 min-y="self.getBottom()" max-y="self.getTop()" 
                 points="self.paramGroupPointsFn(paramGroup, $index)" get-x-fn="self.getParamGroupX" get-y-fn="self.getParamGroupY" 

@@ -485,6 +485,18 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             self.genLayers();
             self.isSettingChange = true;
         });
+        wiApi.updatePalettes(() => {
+            let palTable = wiApi.getPalettes();
+            self.wiDropdownCtrl.items = Object.keys(palTable).map(palName => ({
+                data: {
+                    label: palName
+                },
+                properties: {
+                    name: palName,
+                    palette: palTable[palName]
+                }
+            }));
+        });
     };
     async function getTree(callback) {
         wiLoading.show($element.find('.main')[0], self.silent);
@@ -2154,6 +2166,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             inputName: 'User Defined Lines Name',
             input: '',
         }, function(name) {
+            self.udls.name = name;
             let type = 'FormulaArray';
             let content = fromUDLs2FormulaArray(self.udls);
             wiApi.newAssetPromise(self.idProject, name, type, content)
@@ -2208,6 +2221,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.palProps = palProps;
     }
     this.onPalsDropdownInit = function(wiDropdownCtrl) {
+        self.wiDropdownCtrl = wiDropdownCtrl;
         let palTable = wiApi.getPalettes();
         wiDropdownCtrl.items = Object.keys(palTable).map(palName => ({
             data: {
