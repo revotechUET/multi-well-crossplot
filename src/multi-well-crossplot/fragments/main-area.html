@@ -58,8 +58,11 @@
             <polygon-layer ng-show="!paramGroup._notShow" ng-repeat="paramGroup in self.paramGroups"
                 min-val="self.getLeft()" max-val="self.getRight()"
                 min-y="self.getBottom()" max-y="self.getTop()" 
-                points="paramGroup.points" get-x-fn="self.getParamGroupX" get-y-fn="self.getParamGroupY" 
-                set-x-fn="self.setParamGroupX" set-y-fn="self.setParamGroupY" mode="!paramGroup._notShow">
+                points="self.paramGroupPointsFn(paramGroup, $index)" get-x-fn="self.getParamGroupX" get-y-fn="self.getParamGroupY" 
+                set-x-fn="self.setParamGroupX" set-y-fn="self.setParamGroupY"
+                get-point-label="self.getParamGroupPointLabel"
+                params="[$index]"
+                mode="!paramGroup._notShow">
             </polygon-layer>
         </layer-collection>
         <p style="position: absolute; font-weight: bold; left: 50%; transform: translateX(-50%); bottom: 0">

@@ -23,7 +23,14 @@ app.component(componentName, {
 		configs: '<',
         onSave: '<',
         onSaveAs: '<',
-		titles: '<'
+		titles: '<',
+        paramGroups: '<',
+        paramGroupPointsFn: "<",
+        getParamGroupX: "<",
+        getParamGroupY: "<",
+        setParamGroupX: "<",
+        setParamGroupY: "<",
+        getParamGroupPointLabel: "<"
     },
     transclude: true
 });

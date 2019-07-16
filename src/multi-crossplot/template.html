@@ -21,6 +21,15 @@
 <div ng-show="tabIndex === idx" class="main" ng-repeat="(idx, xVal) in self.selectionXValues">
     <multi-well-crossplot well-spec="self.wellSpecs[idx]" zoneset-name="self.zonesetNames[idx]" 
         selection-type="self.selectionTypes[idx]" 
-        selection-value-list="self.getSelectionValueList(idx)">
+        selection-value-list="self.getSelectionValueList(idx)"
+        param-groups="self.paramGroups"
+        param-group-points-fn="self.paramGroupPointsFn"
+        get-param-group-x="self.getParamGroupX"
+        get-param-group-y="self.getParamGroupY"
+        set-param-group-x="self.setParamGroupX"
+        set-param-group-y="self.setParamGroupY"
+        get-param-group-point-label="self.getParamGroupPointLabel"
+        silent="true"
+        >
     </multi-well-crossplot>
 </div>
