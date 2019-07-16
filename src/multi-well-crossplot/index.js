@@ -38,7 +38,8 @@ app.component(componentName, {
         pointSize: '<',
         udlsAssetId: '<',
         pickettSets: '<',
-        swParamList: '<'
+        swParamList: '<',
+        paramGroups: '<'
     },
     transclude: true
 });
@@ -189,6 +190,50 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
         $scope.vPadding = 50;
         $scope.hPadding = 60;
+
+        self.paramGroups = self.paramGroups || [{
+            name: "paramGroup1",
+            points: [{
+                name: 'point1',
+                params: [{
+                    name: 'param1',
+                    value: 2.5
+                },{
+                    name: 'param2',
+                    value: 0
+                }]
+            },{
+                name: 'point2',
+                params: [{
+                    name: 'param3',
+                    value: 2.1
+                },{
+                    name: 'param4',
+                    value: 0
+                }]
+            }]
+        }, {
+            name: "paramGroup2",
+            points: [{
+                name: 'point1',
+                params: [{
+                    name: 'param1',
+                    value: 2.5
+                },{
+                    name: 'param2',
+                    value: 0.1
+                }]
+            },{
+                name: 'point2',
+                params: [{
+                    name: 'param3',
+                    value: 2.1
+                },{
+                    name: 'param4',
+                    value: 0.1
+                }]
+            }]
+        }]
     }
 
     this.eqnOffsetY = function($index) {
@@ -1017,7 +1062,25 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         return `${node.name}`;
     }
-
+    // ---PARAMETER GROUP
+    this.getParamGroupLabel = (node) => (node.name || "N/A")
+    this.getParamGroupIcon = (node) => ((node && !node._notShow)?'parameter-management-16x16':'fa fa-eye-slash')
+    this.runParamGroupMatch = this.runZoneMatch;
+    this.click2ToggleParamGroup = function($event, node) {
+        node._notShow = !node._notShow;
+    }
+    this.getParamGroupX = function(point) {
+        return point.params[0].value;
+    }
+    this.getParamGroupY = function(point) {
+        return point.params[1].value;
+    }
+    this.setParamGroupX = function (point, value) {
+        point.params[0].value = value;
+    }
+    this.setParamGroupY = function (point, value) {
+        point.params[1].value = value;
+    }
     // ---WELL
     this.getWellSpec = getWellSpec;
     function getWellSpec(well) {
