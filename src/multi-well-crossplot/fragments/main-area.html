@@ -45,6 +45,18 @@
                 line-label='pickett.label' line-label-style="pickett.style" ng-show='pickett._used'
                 line-color="self.getPickettLineColor(pickett)">
             </line-formula-layer>
+            <segment-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
+                max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"
+                max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" 
+                ng-if='self.validPlotRegion() && self.conditionForPickettPlot() && self.allPickettLines && !self.notShowPickett'
+                ng-repeat="(pickettSetIdx, pickettSet) in self.pickettSets"
+                show-equation='false'
+                points="self.pickettAdjusterArray[pickettSetIdx]"
+                ng-show='pickettSet._used' mode="pickettSet._used ? 'edit' : ''"
+                on-eqn-changed="self.getUpdatePickettParamsFn(pickettSetIdx)"
+                get-point-label="self.noLabel"
+                loga-two-axis="true">
+            </segment-layer>
             <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
                 min-y="self.getBottom()" max-y="self.getTop()" ng-repeat="polygon in self.polygons"
                 points="polygon.points" mode="polygon.mode"

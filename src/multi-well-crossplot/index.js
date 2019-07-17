@@ -45,7 +45,15 @@ app.component(componentName, {
         getParamGroupY: "<",
         setParamGroupX: "<",
         setParamGroupY: "<",
-        getParamGroupPointLabel: "<"
+        getParamGroupPointLabel: "<",
+        getPickettSetRw: '<',
+        getPickettSetA: "<",
+        getPickettSetM: "<",
+        getPickettSetN: "<",
+        setPickettSetRw: '<',
+        setPickettSetA: "<",
+        setPickettSetM: "<",
+        setPickettSetN: "<"
     },
     transclude: true
 });
@@ -89,11 +97,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.$onInit = function () {
+        self.pickettAdjusterArray = [];
         self.allPickettLines = [];
         self.pickettSets = self.pickettSets || [
             {rw: 0.03, m: 2, n: 2, a: 1, color: 'blue'},
         ];
-        self.swParamList = self.swParamList || [{sw: 1}];
+        self.pickettSets.forEach(pickettSet => {
+            pickettSet._used = false;
+        })
+        self.swParamList = self.swParamList || [{sw: 1}, {sw: 0.5}, {sw: 0.3}, {sw: 0.2}];
         self.pointSize = self.pointSize || 10;
         self.isSettingChange = true;
         self.defaultConfig = self.defaultConfig || {};
@@ -129,6 +141,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wiToken.setToken(self.token);
         $timeout(() => {
             getTree();
+            /*
             $scope.$watch(() => {
                 let clone = angular.copy(self.pickettSets);
                 clone.forEach(pickettSet => {
@@ -138,6 +151,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }, () => {
                 self.isSettingChange = true;
             },true)
+            */
             $scope.$watch(() => self.config, (newVal, oldVal) => {
                 self.isSettingChange = true;
             }, true)
@@ -212,49 +226,31 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             point.params[1].value = value;
         }
         self.paramGroups = self.paramGroups || [];
-            //[{
-                //name: "paramGroup1",
-                //points: [{
-                    //name: 'point1',
-                    //params: [{
-                        //name: 'param1',
-                        //value: 2.5
-                    //},{
-                        //name: 'param2',
-                        //value: 0
-                    //}]
-                //},{
-                    //name: 'point2',
-                    //params: [{
-                        //name: 'param3',
-                        //value: 2.1
-                    //},{
-                        //name: 'param4',
-                        //value: 0
-                    //}]
-                //}]
-            //}, {
-                //name: "paramGroup2",
-                //points: [{
-                    //name: 'point1',
-                    //params: [{
-                        //name: 'param1',
-                        //value: 2.5
-                    //},{
-                        //name: 'param2',
-                        //value: 0.1
-                    //}]
-                //},{
-                    //name: 'point2',
-                    //params: [{
-                        //name: 'param3',
-                        //value: 2.1
-                    //},{
-                        //name: 'param4',
-                        //value: 0.1
-                    //}]
-                //}]
-            //}]
+
+        self.getPickettSetRw = self.getPickettSetRw || function(pickettSet, index) {
+            return pickettSet.rw || '[empty]';
+        }
+        self.setPickettSetRw = self.setPickettSetRw || function(pickettSet, index, newValue) {
+            pickettSet.rw = newValue;
+        }
+        self.getPickettSetA = self.getPickettSetA || function(pickettSet, index) {
+            return pickettSet.a || '[empty]';
+        }
+        self.setPickettSetA = self.setPickettSetA || function(pickettSet, index, newValue) {
+            pickettSet.a = newValue;
+        }
+        self.getPickettSetM = self.getPickettSetM || function(pickettSet, index) {
+            return pickettSet.m || '[empty]';
+        }
+        self.setPickettSetM = self.setPickettSetM || function(pickettSet, index, newValue) {
+            pickettSet.m = newValue;
+        }
+        self.getPickettSetN = self.getPickettSetN || function(pickettSet, index) {
+            return pickettSet.n || '[empty]';
+        }
+        self.setPickettSetN = self.setPickettSetN || function(pickettSet, index, newValue) {
+            pickettSet.n = newValue;
+        }
     }
 
     this.eqnOffsetY = function($index) {
@@ -378,7 +374,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     function setOnChangeFn(obj) {
         if (!obj.onChange) {
             obj.onChange = (function(selectedItemProps) {
-                //self.onSelectionValueListChange(this.name);
                 this.value = (selectedItemProps || {}).name;
             }).bind(obj);
         }
@@ -447,31 +442,26 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
         switch(treeRoot.isSettingAxis) {
             case 'X':
-                //if(node.idDataset != wellSpec.yAxis.idDataset) return;
                 wellSpec.xAxis = {};
                 wellSpec.xAxis.idCurve = node.idCurve;
                 wellSpec.xAxis.idDataset = node.idDataset;
                 break;
             case 'Y':
-                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.yAxis = {};
                 wellSpec.yAxis.idCurve = node.idCurve;
                 wellSpec.yAxis.idDataset = node.idDataset;
                 break;
             case 'Z1':
-                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z1Axis = {};
                 wellSpec.z1Axis.idCurve = node.idCurve;
                 wellSpec.z1Axis.idDataset = node.idDataset;
                 break;
             case 'Z2':
-                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z2Axis = {};
                 wellSpec.z2Axis.idCurve = node.idCurve;
                 wellSpec.z2Axis.idDataset = node.idDataset;
                 break;
             case 'Z3':
-                if(node.idDataset != wellSpec.xAxis.idDataset) return;
                 wellSpec.z3Axis = {};
                 wellSpec.z3Axis.idCurve = node.idCurve;
                 wellSpec.z3Axis.idDataset = node.idDataset;
@@ -500,7 +490,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     };
     async function getTree(callback) {
         wiLoading.show($element.find('.main')[0], self.silent);
-        //self.treeConfig = [];
         self.treeConfig.length = 0;
         let promises = [];
         for (let w of self.wellSpec) {
@@ -601,6 +590,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     const EMPTY_ARRAY = []
     this.noChildren = function (node) {
         return EMPTY_ARRAY;
+    }
+    this.noLabel = function() {
+        return '';
     }
 
     // ---CONFIG---
@@ -840,42 +832,27 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         self.defaultConfig.left = family.family_spec[0].minScale;
                         self.defaultConfig.right = family.family_spec[0].maxScale;
                         self.defaultConfig.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
-                        //self.config.left = family.family_spec[0].minScale || 0;
-                        //self.config.right = family.family_spec[0].maxScale || 100;
-                        //self.config.logaX = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
                         break;
                     case 'yAxis':
                         self.defaultConfig.yLabel = self.getSelectionValue('Y').value;
                         self.defaultConfig.top = family.family_spec[0].maxScale;
                         self.defaultConfig.bottom = family.family_spec[0].minScale;
                         self.defaultConfig.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
-                        //self.config.top = family.family_spec[0].maxScale || 0;
-                        //self.config.bottom = family.family_spec[0].minScale || 100;
-                        //self.config.logaY = family.family_spec[0].displayType.toLowerCase() === 'logarithmic';
                         break;
                     case 'z1Axis':
                         self.defaultConfig.z1Max = family.family_spec[0].maxScale || 100;
                         self.defaultConfig.z1Min = family.family_spec[0].minScale || 0;
                         self.defaultConfig.z1N = 5;
-                        //self.config.z1Max = family.family_spec[0].maxScale || 100;
-                        //self.config.z1Min = family.family_spec[0].minScale || 0;
-                        //self.config.z1N = 5;
                         break;
                     case 'z2Axis':
                         self.defaultConfig.z2Max = family.family_spec[0].maxScale || 100;
                         self.defaultConfig.z2Min = family.family_spec[0].minScale || 0;
                         self.defaultConfig.z2N = 5;
-                        //self.config.z2Max = family.family_spec[0].maxScale || 100;
-                        //self.config.z2Min = family.family_spec[0].minScale || 0;
-                        //self.config.z2N = 5;
                         break;
                     case 'z3Axis':
                         self.defaultConfig.z3max = family.family_spec[0].maxscale || 100;
                         self.defaultConfig.z3min = family.family_spec[0].minscale || 0;
                         self.defaultConfig.z3n = 5;
-                        //self.config.z3max = family.family_spec[0].maxscale || 100;
-                        //self.config.z3min = family.family_spec[0].minscale || 0;
-                        //self.config.z3n = 5;
                         break;
                     default:
                 }
@@ -1016,7 +993,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             bins._notUsed = true;
         });
         $timeout(() => {
-            //self.onUseZoneChange(bins);
             self.layers.length = 0;
         });
     }
@@ -1025,7 +1001,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             bins._notUsed = false
         });
         $timeout(() => {
-            //self.onUseZoneChange(bins);
             self.isSettingChange = true;
             self.genLayers();
         });
@@ -1325,12 +1300,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return text.replace(/\+-/g, '-').replace(/--/g, '+');
     }
     function setUDLFn(udl) {
-        //if (!udl.fn) {
             udl.fn = (function(x) {
-                //this.value = (selected;ItemProps || {}).name;
                 return eval(this.text);
             }).bind(udl);
-        //}
     }
     function setParamForPickettLine(index, paramName, value) {
         let pickettLines = self.allPickettLines.filter(pickettLine => pickettLine.pickettSetIdx == index);
@@ -1338,42 +1310,44 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             pickettLine[paramName] = value;
         })
     }
+
+
     this.getRwParam = function(index) {
-        return self.pickettSets[index].rw || '[empty]';
+        return self.getPickettSetRw(self.pickettSets[index], index);
     }
     this.setRwParam = function(index, newValue) {
-        self.pickettSets[index].rw = newValue;
+        self.setPickettSetRw(self.pickettSets[index], index, newValue);
         setParamForPickettLine(index, 'rw', newValue)
     }
     this.getAParam = function(index) {
-        return self.pickettSets[index].a || '[empty]';
+        return self.getPickettSetA(self.pickettSets[index], index);
     }
     this.setAParam = function(index, newValue) {
-        self.pickettSets[index].a = newValue;
+        self.setPickettSetA(self.pickettSets[index], index, newValue);
         setParamForPickettLine(index, 'a', newValue)
     }
     this.getMParam = function(index) {
-        return self.pickettSets[index].m || '[empty]';
+        return self.getPickettSetM(self.pickettSets[index], index);
     }
     this.setMParam = function(index, newValue) {
-        self.pickettSets[index].m = newValue;
+        self.setPickettSetM(self.pickettSets[index], index, newValue);
         setParamForPickettLine(index, 'm', newValue)
     }
     this.getNParam = function(index) {
-        return self.pickettSets[index].n || '[empty]';
+        return self.getPickettSetN(self.pickettSets[index], index);
     }
     this.setNParam = function(index, newValue) {
-        self.pickettSets[index].n = newValue;
+        self.setPickettSetN(self.pickettSets[index], index, newValue);
         setParamForPickettLine(index, 'n', newValue)
     }
     this.getSwParam = function(index) {
         return self.swParamList[index].sw || '[empty]';
     }
     this.setSwParam = function(index, newValue) {
-        self.swParamList[index].sw = newValue;
+        self.swParamList[index].sw = parseFloat(newValue);
         let pickettLines = self.allPickettLines.filter(pickettLine => pickettLine.swParamIdx == index);
         pickettLines.forEach(pickettLine => {
-            pickettLine.sw = newValue;
+            pickettLine.sw = parseFloat(newValue);
             pickettLine.label = `${self.pickettSets[pickettLine.pickettSetIdx].name}, Sw = ${newValue}`;
         })
     }
@@ -1519,6 +1493,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     ...d,
                     depth: datasetStepX > 0 ? (datasetTopX + d.y * datasetStepX) : d.y
                 }));
+            curveDataY = curveDataY
+                .map(d => ({
+                    ...d,
+                    depth: datasetStepY > 0 ? (datasetTopY + d.y * datasetStepY) : d.y
+                }));
             let pointset = getPointSet(curveDataX, curveDataY, curveDataZ1, curveDataZ2, curveDataZ3);
             pointset = pointset.filter(ps => {
                 return _.isFinite(ps.x) && _.isFinite(ps.y)
@@ -1635,16 +1614,43 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     function getPointSet(xData, yData, z1Data, z2Data, z3Data) {
         let pointset = [];
-        xData.forEach((eX, idx) => {
+        xData.forEach((eX) => {
+            let depth = eX.depth;
+            if (!eX.x) return;
+
+            let ySample = wiApi.binarySearch(yData, function(oneYData) { 
+                return parseFloat(eX.depth.toFixed(4) - oneYData.depth.toFixed(4));
+            }, 0, yData.length - 1);
+
+            if (!ySample || !ySample.x) return;
+            let z1Sample, z2Sample, z3Sample;
+            if (z1Data) {
+                z1Sample = wiApi.binarySearch(z1Data, function(oneZ1Data) { 
+                    return (eX.depth - oneZ1Data.depth).parseFloat(4);
+                }, 0, z1Data.length - 1);
+                if (!z1Sample || !z1Sample.x) return;
+            }
+            if (z2Data) {
+                z2Sample = wiApi.binarySearch(z2Data, function(oneZ2Data) { 
+                    return (eX.depth - oneZ2Data.depth).parseFloat(4);
+                }, 0, z2Data.length - 1);
+                if (!z2Sample || !z2Sample.x) return;
+            }
+            if (z3Data) {
+                z3Sample = wiApi.binarySearch(z3Data, function(oneZ3Data) { 
+                    return (eX.depth - oneZ3Data.depth).parseFloat(4);
+                }, 0, z3Data.length - 1);
+                if (!z3Sample || !z3Sample.x) return;
+            }
             pointset.push({
                 x: eX.x,
-                y: yData[idx].x,
-                z1: z1Data ? z1Data[idx].x : undefined,
-                z2: z2Data ? z2Data[idx].x : undefined,
-                z3: z3Data ? z3Data[idx].x : undefined,
+                y: ySample.x,
+                z1: z1Sample?z1Sample.x:undefined,
+                z2: z2Sample?z2Sample.x:undefined,
+                z3: z3Sample?z3Sample.x:undefined,
                 depth: eX.depth
-            })
-        })
+            });
+        });
         return pointset;
     }
     function getTransformZ1() {
@@ -2004,9 +2010,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.pickettSets.push({rw: 0.03, m: 2, n: 2, a: 1, color: 'blue'});
     }
     this.turnOnPickettSet = function($index) {
+        if (self.pickettSets[$index]._used) return;
         self.pickettSets.forEach(pickettSet => pickettSet._used = false);
         self.pickettSets[$index]._used = true;
         self.updateAllPickettLines();
+        self.pickettAdjusterArray.length = 0;
+        self.pickettSets.forEach((pickettSet, pickettSetIdx) => {
+            self.pickettAdjusterArray.push(initPickettControlPoints(pickettSet));
+        })
     }
     this.addSwParam = function() {
         if (self.swParamList.length >= _PICKETT_LIMIT) {
@@ -2047,16 +2058,18 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.removePickettSet = function($index) {
         self.pickettSets.splice($index, 1);
     }
-    this.updateAllPickettLines = function() {
+    this.updateAllPickettLines = updateAllPickettLines;
+    this.updateAllPickettLinesDebounce = _.debounce(updateAllPickettLines, 300);
+    function updateAllPickettLines() {
         if (!self.pickettSets.length) return;
         self.allPickettLines.length = 0;
         self.swParamList.forEach((swParam, swParamIdx) => {
             self.pickettSets.forEach((pickettSet, pickettSetIdx) => {
-                self.allPickettLines.push({
-                    rw: pickettSet.rw,
-                    m: pickettSet.m,
-                    n: pickettSet.n,
-                    a: pickettSet.a,
+                let pickett = {
+                    rw: self.getPickettSetRw(pickettSet, pickettSetIdx),
+                    m: self.getPickettSetM(pickettSet, pickettSetIdx),
+                    n: self.getPickettSetN(pickettSet, pickettSetIdx),
+                    a: self.getPickettSetA(pickettSet, pickettSetIdx),
                     sw: swParam.sw,
                     swParamIdx,
                     pickettSetIdx,
@@ -2066,8 +2079,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     },
                     family: 'pickett',
                     _used: pickettSet._used
-                })
-            })
+                }
+                self.allPickettLines.push(pickett);
+            });
         })
     }
     this.conditionForPickettPlot = conditionForPickettPlot;
@@ -2087,8 +2101,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             familyGroupY = familyY.familyGroup;
         }
         return self.getLogaX() && self.getLogaY()
-            && ((familyGroupX == 'Porosity' && familyGroupY == 'Resistivity')
-                || (familyGroupX == 'Resistivity' && familyGroupY == 'Porosity'))
+            && (((familyGroupX == 'Porosity' || familyGroupX == 'Void Fraction') && familyGroupY == 'Resistivity')
+                || (familyGroupX == 'Resistivity' && (familyGroupY == 'Porosity' || familyGroupY == 'Void Fraction')))
     }
 
     function initUDL() {
@@ -2246,5 +2260,57 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let result = (self.getTop() - self.getBottom()) * (self.getRight() - self.getLeft());
         return _.isFinite(result) && result != 0;
 
+    }
+    
+    let pickettControlPoints = [
+            {x: 0.1, y: 0.5},
+            {x: 0.03, y: 1}
+        ];
+    function initPickettControlPoints(pickettSet) {
+        let hRange = [self.getLeft() == 0 ? 0.01 : self.getLeft(), self.getRight() == 0 ? 0.01 : self.getRight()].map(v => Math.log10(v));
+        let firstPointX = Math.pow(10 , (hRange[0] + (hRange[1] - hRange[0])/3) );
+        let secondPointX = Math.pow(10 , (hRange[0] + 2*(hRange[1] - hRange[0])/3) );
+        let firstPointY = pickettFn(firstPointX);
+        let secondPointY = pickettFn(secondPointX);
+        return [{x: firstPointX, y:firstPointY}, {x:secondPointX, y:secondPointY}];
+        function pickettFn(x) {
+            let sw = 1;
+            let rw = self.getPickettSetRw(pickettSet);
+            let n = self.getPickettSetN(pickettSet);
+            let m = self.getPickettSetM(pickettSet);
+            let a = self.getPickettSetA(pickettSet);
+            return Math.pow(10, (-m) * (Math.log10(x)) + Math.log10((a*rw) / (sw ** n)));
+        }
+    }
+    function updatePickettParams(formula) {
+        let pickettSet = this;
+        let slope = formula.slope;
+        let intercept = formula.intercept;
+        let mValue = Number(parseFloat(calcPickettParamM(slope, intercept, pickettSet)).toFixed(4));
+        let rwValue = Number(parseFloat(calcPickettParamRw(slope, intercept, pickettSet)).toFixed(4));
+        if (_.isFinite(mValue) && _.isFinite(rwValue)) {
+            self.setPickettSetM(pickettSet, -1, mValue);
+            self.setPickettSetRw(pickettSet, -1, rwValue );
+        }
+        self.updateAllPickettLinesDebounce();
+    }
+    function calcPickettParamM(slope, intercept, pickettSet) {
+        return -slope;
+    }
+    function calcPickettParamRw(slope, intercept, pickettSet) {
+        // intercept = lg((a*Rw)/(Sw^n))
+        // 10 ^ intercept = a*Rw/(Sw^n)
+        // Rw = (10 ^ intercept) * (sw^n) / a
+        let sw = 1;
+        return (Math.pow(10, intercept) * Math.pow(sw, self.getPickettSetN(pickettSet)) / self.getPickettSetA(pickettSet));
+    }
+    const pickettUpdateFnArray = [];
+    this.getUpdatePickettParamsFn = function(pickettIdx) {
+        let updateFn = pickettUpdateFnArray[pickettIdx];
+        if (!updateFn) {
+            pickettUpdateFnArray[pickettIdx] = updatePickettParams.bind(self.pickettSets[pickettIdx]);
+            updateFn = pickettUpdateFnArray[pickettIdx];
+        }
+        return updateFn;
     }
 }

@@ -30,7 +30,16 @@ app.component(componentName, {
         getParamGroupY: "<",
         setParamGroupX: "<",
         setParamGroupY: "<",
-        getParamGroupPointLabel: "<"
+        getParamGroupPointLabel: "<",
+        pickettSets: "<",
+        getPickettSetRw: '<',
+        getPickettSetA: "<",
+        getPickettSetM: "<",
+        getPickettSetN: "<",
+        setPickettSetRw: '<',
+        setPickettSetA: "<",
+        setPickettSetM: "<",
+        setPickettSetN: "<"
     },
     transclude: true
 });
