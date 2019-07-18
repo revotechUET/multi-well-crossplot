@@ -31,6 +31,7 @@ app.component(componentName, {
         printSettings: '<',
         onSave: '<',
         onSaveAs: '<',
+        onInitFn: '<',
         polygons: '<',
         polygonExclude: '<',
         regressionType: '<',
@@ -100,6 +101,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.$onInit = function () {
+        self.onInitFn && self.onInitFn(self);
         self.pickettAdjusterArray = [];
         self.allPickettLines = [];
         self.pickettSets = self.pickettSets || [
@@ -891,7 +893,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     // ---ASSET
-    this.saveToAsset = function() {
+    this.saveToAsset = function(close) {
         let type = 'CROSSPLOT';
         let content = {
             wellSpec: self.wellSpec,
@@ -913,14 +915,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 inputName: 'Crossplot Name',
                 input: self.getConfigTitle(),
             }, function(name) {
-                content.config.title = name;
                 wiLoading.show($element.find('.main')[0],self.silent);
-                wiApi.newAssetPromise(self.idProject, name, type, content).then(res => {
-                    self.setConfigTitle(null, name);
-                    self.idCrossplot = res.idParameterSet;
-                    wiLoading.hide();
-                    self.onSave && self.onSave(res);
-                })
+                wiApi.newAssetPromise(self.idProject, name, type, content)
+                    .then(res => {
+                        self.idCrossplot = res.idParameterSet;
+                        wiLoading.hide();
+                        close();
+                        self.onSave && self.onSave(res);
+                    })
                     .catch(e => {
                         wiLoading.hide();
                         wiDialog.errorMessageDialog(`Asset ${name} has been existed`, self.saveToAsset())
@@ -931,6 +933,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             content.idParameterSet = self.idParameterSet;
             wiApi.editAssetPromise(self.idCrossplot, content).then(res => {
                 wiLoading.hide();
+                close();
             })
                 .catch(e => {
                     wiLoading.hide();
@@ -952,7 +955,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 polygons: self.polygons,
                 polygonExclude: self.polygonExclude,
                 regressionType: self.regressionType,
-                config: {...self.config, title: name},
+                config: self.config,
                 pointSize: self.pointSize,
                 udlsAssetId: self.udlsAssetId,
                 pickettSets: self.pickettSets,
@@ -960,7 +963,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
             wiApi.newAssetPromise(self.idProject, name, type, content)
                 .then(res => {
-                    //self.idCrossplot = res.idParameterSet;
                     self.onSaveAs && self.onSaveAs(res);
                 })
                 .catch(e => {
