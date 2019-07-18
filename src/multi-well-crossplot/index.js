@@ -47,6 +47,7 @@ app.component(componentName, {
         setParamGroupX: "<",
         setParamGroupY: "<",
         getParamGroupPointLabel: "<",
+        showAdjuster: '<',
         getPickettSetRw: '<',
         getPickettSetA: "<",
         getPickettSetM: "<",
@@ -2034,10 +2035,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.pickettSets.forEach(pickettSet => pickettSet._used = false);
         self.pickettSets[$index]._used = true;
         self.updateAllPickettLines();
-        self.pickettAdjusterArray.length = 0;
-        self.pickettSets.forEach((pickettSet, pickettSetIdx) => {
-            self.pickettAdjusterArray.push(initPickettControlPoints(pickettSet));
-        })
+        if (self.showAdjuster) {
+            self.pickettAdjusterArray.length = 0;
+            self.pickettSets.forEach((pickettSet, pickettSetIdx) => {
+                self.pickettAdjusterArray.push(initPickettControlPoints(pickettSet));
+            })
+        }
     }
     this.addSwParam = function() {
         if (self.swParamList.length >= _PICKETT_LIMIT) {
@@ -2093,7 +2096,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     sw: swParam.sw,
                     swParamIdx,
                     pickettSetIdx,
-                    label: `${self.getPickettSetName(pickettSet)}, Sw = ${swParam.sw}`,
+                    label: `${self.getPickettSetName(pickettSet, pickettSetIdx)}, Sw = ${swParam.sw}`,
                     style: {
                         fill: pickettSet.color
                     },

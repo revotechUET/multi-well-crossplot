@@ -32,6 +32,7 @@ app.component(componentName, {
         setParamGroupY: "<",
         getParamGroupPointLabel: "<",
         pickettSets: "<",
+        showAdjuster: '<',
         getPickettSetRw: '<',
         getPickettSetA: "<",
         getPickettSetM: "<",

@@ -104,7 +104,7 @@
                     Overlay Line
                 </div>
             </div>
-            <div class="tab-with-label" ng-class="{'active' : isSet(9)}" ng-click="setTab(9)" ng-if='self.conditionForPickettPlot()'>
+            <div class="tab-with-label" ng-class="{'active' : isSet(9)}" ng-click="setTab(9)" ng-if='self.validPlotRegion() && self.conditionForPickettPlot() && self.allPickettLines && !self.notShowPickett'>
                 <div >
                     Pickett Plot
                 </div>
