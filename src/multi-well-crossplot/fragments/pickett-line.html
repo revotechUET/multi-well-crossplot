@@ -27,7 +27,7 @@
                     ng-class="{'fa fa-caret-down': pickettSet._notHidden, 'fa fa-caret-right': !pickettSet._notHidden}"
                     ng-click="self.toggleShowPickettSet(pickettSetIdx)"></i>
                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;margin-top:5px;"
-                    item-label="'Name: '" item-value="self.getPickettSetName" set-value="self.setPickettSetName" enabled="true" label-style="{}"
+                    item-label="'Name: '" item-value="self.pickettSetName" set-value="self.changePickettSetName" enabled="true" label-style="{}"
                     content-style="{flex:1,float:'none','text-align':'left'}" params="pickettSetIdx">
                 </editable>
             </div>

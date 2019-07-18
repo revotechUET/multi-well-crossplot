@@ -53,7 +53,10 @@ app.component(componentName, {
         setPickettSetRw: '<',
         setPickettSetA: "<",
         setPickettSetM: "<",
-        setPickettSetN: "<"
+        setPickettSetN: "<",
+        getPickettSetName: "<",
+        setPickettSetName: "<",
+        getPickettSetColor: '<'
     },
     transclude: true
 });
@@ -250,6 +253,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         self.setPickettSetN = self.setPickettSetN || function(pickettSet, index, newValue) {
             pickettSet.n = newValue;
+        }
+        self.getPickettSetName = self.getPickettSetName || function(pickettSet, index) {
+            return self.pickettSets[index].name || `[empty]`;
+        }
+        self.setPickettSetName = self.setPickettSetName || function(pickettSet, index, newVal) {
+            self.pickettSets[index].name = newVal;
+        }
+        self.getPickettSetColor = self.getPickettSetColor || function(pickettSet, idx) {
+            return pickettSet.color || 'black';
         }
     }
 
@@ -1351,11 +1363,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             pickettLine.label = `${self.pickettSets[pickettLine.pickettSetIdx].name}, Sw = ${newValue}`;
         })
     }
-    this.getPickettSetName = function(index) {
-        return self.pickettSets[index].name || `[empty]`;
+    this.pickettSetName = function(index) {
+        return self.getPickettSetName(self.pickettSets[index], index);
+        //return self.pickettSets[index].name || `[empty]`;
     }
-    this.setPickettSetName = function(index, newVal) {
-        self.pickettSets[index].name = newVal;
+    this.changePickettSetName = function(index, newVal) {
+        setPickettSetName(self.pickettSets[index], index, newVal);
         let pickettLines = self.allPickettLines.filter(pickettLine => pickettLine.pickettSetIdx == index);
         pickettLines.forEach(pickettLine => {
             pickettLine.label = `${newVal}, Sw = ${pickettLine.sw}`;
@@ -1999,12 +2012,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     function getColorPalette() {
         return wiApi.getPalette('BGR');
     }
-
-    this.getPickettLineColor = function(pickett) {
+    this.pickettLineColor = function(pickett) {
         if (pickett.sw == 1) {
             return 'red';
         }
-        return 'black';
+        return self.getPickettSetColor(self.pickettSets[pickett.pickettSetIdx], pickett.pickettSetIdx);
     }
     this.addPickettSet = function() {
         self.pickettSets.push({rw: 0.03, m: 2, n: 2, a: 1, color: 'blue'});
@@ -2030,14 +2042,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.swParamList.push({sw: swValue});
         self.pickettSets.forEach((pickettSet, pickettSetIdx) => {
             self.allPickettLines.push({
-                rw: pickettSet.rw,
-                m: pickettSet.m,
-                n: pickettSet.n,
-                a: pickettSet.a,
+                rw: self.getPickettSetRw(pickettSet, pickettSetIdx),
+                m: self.getPickettSetM(pickettSet, pickettSetIdx),
+                n: self.getPickettSetN(pickettSet, pickettSetIdx),
+                a: self.getPickettSetA(pickettSet, pickettSetIdx),
                 sw: 1,
                 swParamIdx: self.swParamList.length - 1,
                 pickettSetIdx,
-                label: `${pickettSet.name || '[empty]'}, Sw = ${swValue}`,
+                label: `${self.getPickettSetName(pickettSet, pickettSetIdx)}, Sw = ${swValue}`,
                 style: {
                     fill: pickettSet.color
                 },
@@ -2059,7 +2071,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.pickettSets.splice($index, 1);
     }
     this.updateAllPickettLines = updateAllPickettLines;
-    this.updateAllPickettLinesDebounce = _.debounce(updateAllPickettLines, 300);
+    this.updateAllPickettLinesDebounce = _.debounce(updateAllPickettLines, 100);
     function updateAllPickettLines() {
         if (!self.pickettSets.length) return;
         self.allPickettLines.length = 0;
@@ -2073,7 +2085,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     sw: swParam.sw,
                     swParamIdx,
                     pickettSetIdx,
-                    label: `${pickettSet.name || '[empty]'}, Sw = ${swParam.sw}`,
+                    label: `${self.getPickettSetName(pickettSet)}, Sw = ${swParam.sw}`,
                     style: {
                         fill: pickettSet.color
                     },

@@ -43,7 +43,7 @@
                 show-equation='false' ng-repeat="(pickettIdx, pickett) in self.allPickettLines"
                 ng-if='self.validPlotRegion() && self.conditionForPickettPlot() && self.allPickettLines && !self.notShowPickett' resolution='5000'
                 line-label='pickett.label' line-label-style="pickett.style" ng-show='pickett._used'
-                line-color="self.getPickettLineColor(pickett)">
+                line-color="self.pickettLineColor(pickett)">
             </line-formula-layer>
             <segment-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
                 max-draw="self.getRight()" min-y="self.getBottom()" max-y="self.getTop()" min-draw-y="self.getBottom()"
@@ -54,8 +54,7 @@
                 points="self.pickettAdjusterArray[pickettSetIdx]"
                 ng-show='pickettSet._used' mode="pickettSet._used ? 'edit' : ''"
                 on-eqn-changed="self.getUpdatePickettParamsFn(pickettSetIdx)"
-                get-point-label="self.noLabel"
-                loga-two-axis="true">
+                get-point-label="self.noLabel">
             </segment-layer>
             <polygon-layer ng-show="!polygon._notShow" min-val="self.getLeft()" max-val="self.getRight()"
                 min-y="self.getBottom()" max-y="self.getTop()" ng-repeat="polygon in self.polygons"
@@ -75,8 +74,7 @@
                 get-point-label="self.getParamGroupPointLabel"
                 params="[$index]"
                 mode="!paramGroup._notShow"
-                show-vertex="true"
-                fill-style="'transparent'" stroke-style="'transparent'">
+                show-vertex="true">
             </polygon-layer>
         </layer-collection>
         <p style="position: absolute; font-weight: bold; left: 50%; transform: translateX(-50%); bottom: 0">

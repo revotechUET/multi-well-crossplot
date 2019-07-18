@@ -39,7 +39,10 @@ app.component(componentName, {
         setPickettSetRw: '<',
         setPickettSetA: "<",
         setPickettSetM: "<",
-        setPickettSetN: "<"
+        setPickettSetN: "<",
+        getPickettSetName: "<",
+        setPickettSetName: "<",
+        getPickettSetColor: "<"
     },
     transclude: true
 });
