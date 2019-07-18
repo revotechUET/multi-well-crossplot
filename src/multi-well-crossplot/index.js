@@ -960,7 +960,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }
             wiApi.newAssetPromise(self.idProject, name, type, content)
                 .then(res => {
-                    self.idCrossplot = res.idParameterSet;
+                    //self.idCrossplot = res.idParameterSet;
                     self.onSaveAs && self.onSaveAs(res);
                 })
                 .catch(e => {
@@ -1113,7 +1113,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                                     if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
                                         let msg = `Well ${well.name} does not meet requirement`;
                                         if (__toastr) __toastr.warning(msg);
-                                        console.warning(msg);
+                                        console.warn(msg);
                                     }
                                 } else if (!hasZonesetName) {
                                     let msg = `User dataset do not have ${self.zonesetName}`;
@@ -1164,6 +1164,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.toggleWell = function(well) {
         well._notUsed = !well._notUsed;
+        let layers = self.layers.filter(layer => layer.well == well.name);
+        layers.forEach(layer => {
+            layer._notUsed = well._notUsed;
+        })
     }
     this.removeWell = function(well) {
         let index = self.wellSpec.findIndex(wsp => wsp.idWell === well.idWell);
@@ -1541,6 +1545,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         regColor: self.getColor(zone, well),
                         layerColor: self.getColor(zone, well),
                         name: `${well.name}.${zone.zone_template.name}:${zone._idx}`,
+                        well: `${well.name}`,
                         zone: `${zone.zone_template.name}`,
                         curveXInfo: `${datasetX.name}.${curveX.name}`,
                         curveYInfo: `${datasetY.name}.${curveY.name}`,
@@ -1581,6 +1586,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     regColor: well.color,
                     layerColor: well.color,
                     name: `${well.name}`,
+                    well: `${well.name}`,
                     curveXInfo: `${datasetX.name}.${curveX.name}`,
                     curveYInfo: `${datasetY.name}.${curveY.name}`,
                     curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',

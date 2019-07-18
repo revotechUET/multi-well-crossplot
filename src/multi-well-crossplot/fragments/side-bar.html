@@ -41,7 +41,7 @@
                 ${require('./pickett-line.html')}
             </div>
             <!-- ---- PARAMETERS ----- -->
-            <div ng-if="self.paramGroups" ng-show="isSet(10)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
+            <div ng-if="self.paramGroups && self.paramGroups.length" ng-show="isSet(10)" style="overflow: hidden;flex: 1; display: flex; flex-direction: column;">
                 ${require('./parameters.html')}
             </div>
         </div>
@@ -85,7 +85,7 @@
                     Zone
                 </div>
             </div>
-            <div ng-if="self.paramGroups" class="tab-with-label" ng-class="{'active' : isSet(10)}" ng-click="setTab(10)">
+            <div ng-if="self.paramGroups && self.paramGroups.length" class="tab-with-label" ng-class="{'active' : isSet(10)}" ng-click="setTab(10)">
                 <div>Parameters</div>
             </div>
             <div class="tab-with-label" ng-class="{'active' : isSet(4)}" ng-click="setTab(4)">
