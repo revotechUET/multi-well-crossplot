@@ -454,7 +454,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.clickFunction = clickFunction;
     function clickFunction($event, node, selectedObjs, treeRoot) {
-        let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell);
+        let wellSpec = self.wellSpec.find(wsp => wsp.idWell === treeRoot.idWell && wsp._idx === treeRoot._idx);
         switch(treeRoot.isSettingAxis) {
             case 'X':
                 wellSpec.xAxis = {};
@@ -510,7 +510,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         for (let w of self.wellSpec) {
             try {
                 let well = await wiApi.getCachedWellPromise(w.idWell || w);
+                well = Object.assign({}, well);
                 well.isSettingAxis = 'X';
+                well._idx = w._idx;
                 $timeout(() => {
                     self.treeConfig.push(well);
                 });
@@ -921,7 +923,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     .then(res => {
                         self.idCrossplot = res.idParameterSet;
                         wiLoading.hide();
-                        close();
+                        close && close();
                         self.onSave && self.onSave(res);
                     })
                     .catch(e => {
@@ -934,7 +936,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             content.idParameterSet = self.idParameterSet;
             wiApi.editAssetPromise(self.idCrossplot, content).then(res => {
                 wiLoading.hide();
-                close();
+                close && close();
             })
                 .catch(e => {
                     wiLoading.hide();
@@ -1097,7 +1099,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.getWellSpec = getWellSpec;
     function getWellSpec(well) {
         if (!well) return {};
-        return self.wellSpec.find(wsp => wsp.idWell === well.idWell);
+        return self.wellSpec.find(wsp => wsp.idWell === well.idWell && well._idx === wsp._idx);
     }
     this.onDrop = function (event, helper, myData) {
         let idWells = helper.data('idWells');
@@ -1109,7 +1111,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                             let zonesets = well.zone_sets;
                             let hasZonesetName = self.zonesetName != 'ZonationAll' ? zonesets.some(zs => zs.name == self.zonesetName) : true;
                             $timeout(() => {
-                                if (!self.wellSpec.find(wsp => wsp.idWell === idWell) && hasZonesetName) {
+                                if (hasZonesetName) {
                                     self.wellSpec.push({idWell});
                                     let curveX = getCurve(well, 'xAxis');
                                     let curveY = getCurve(well, 'yAxis');
@@ -1125,6 +1127,23 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                                 }
                                 next();
                             })
+                            //$timeout(() => {
+                                //if (!self.wellSpec.find(wsp => wsp.idWell === idWell) && hasZonesetName) {
+                                    //self.wellSpec.push({idWell});
+                                    //let curveX = getCurve(well, 'xAxis');
+                                    //let curveY = getCurve(well, 'yAxis');
+                                    //if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
+                                        //let msg = `Well ${well.name} does not meet requirement`;
+                                        //if (__toastr) __toastr.warning(msg);
+                                        //console.warn(msg);
+                                    //}
+                                //} else if (!hasZonesetName) {
+                                    //let msg = `User dataset do not have ${self.zonesetName}`;
+                                    //if (__toastr) __toastr.error(msg);
+                                    //console.error(new Error(msg));
+                                //}
+                                //next();
+                            //})
                         })
                         .catch(e => {
                             console.error(e);
@@ -1132,6 +1151,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         });
                 }, err => {
                     if (!err) {
+                        indexWellSpecsForCorrelation(self.wellSpec);
                         getTree();
                     }
                 })
@@ -1173,7 +1193,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         })
     }
     this.removeWell = function(well) {
-        let index = self.wellSpec.findIndex(wsp => wsp.idWell === well.idWell);
+        let index = self.wellSpec.findIndex(wsp => wsp.idWell === well.idWell && wsp._idx === well._idx);
         if(index >= 0) {
             self.wellSpec.splice(index, 1);
         }
@@ -1474,12 +1494,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetY, self.wellSpec[i].discriminator);
                 curveDataY = curveDataY.filter((d, idx) => discriminatorCurve[idx]);
             }
-            let curveDataZ1 = null;
-            let curveDataZ2 = null;
-            let curveDataZ3 = null;
-            let datasetZ1 = null;
-            let datasetZ2 = null;
-            let datasetZ3 = null;
+            let curveDataZ1;
+            let curveDataZ2;
+            let curveDataZ3;
+            let datasetZ1;
+            let datasetZ2;
+            let datasetZ3;
             if (shouldPlotZ1 && curveZ1) {
                 datasetZ1 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z1Axis.idDataset);
                 self.zColors = zColorsFn(self.getZ1N(), curveZ1.idCurve);
@@ -1488,6 +1508,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ1, self.wellSpec[i].discriminator);
                     curveDataZ1 = curveDataZ1.filter((d, idx) => discriminatorCurve[idx]);
                 }
+                let datasetTopZ1 = self.wellSpec[i].z1Axis.datasetTop;
+                let datasetBottomZ1 = self.wellSpec[i].z1Axis.datasetBottom;
+                let datasetStepZ1 = self.wellSpec[i].z1Axis.datasetStep;
+                curveDataZ1 = curveDataZ1
+                    .map(d => ({
+                        ...d,
+                        depth: datasetStepZ1 > 0 ? (datasetTopZ1 + d.y * datasetStepZ1) : d.y
+                    }));
             }
             if (shouldPlotZ2 && curveZ2) {
                 datasetZ2 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z2Axis.idDataset);
@@ -1497,6 +1525,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ2, self.wellSpec[i].discriminator);
                     curveDataZ2 = curveDataZ2.filter((d, idx) => discriminatorCurve[idx]);
                 }
+                let datasetTopZ2 = self.wellSpec[i].z2Axis.datasetTop;
+                let datasetBottomZ2 = self.wellSpec[i].z2Axis.datasetBottom;
+                let datasetStepZ2 = self.wellSpec[i].z2Axis.datasetStep;
+                curveDataZ2 = curveDataZ2
+                    .map(d => ({
+                        ...d,
+                        depth: datasetStepZ2 > 0 ? (datasetTopZ2 + d.y * datasetStepZ2) : d.y
+                    }));
             }
             if (shouldPlotZ3 && curveZ3) {
                 datasetZ3 = well.datasets.find(ds => ds.idDataset === self.wellSpec[i].z3Axis.idDataset);
@@ -1506,6 +1542,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     let discriminatorCurve = await wiApi.evalDiscriminatorPromise(datasetZ3, self.wellSpec[i].discriminator);
                     curveDataZ3 = curveDataZ3.filter((d, idx) => discriminatorCurve[idx]);
                 }
+                let datasetTopZ3 = self.wellSpec[i].z3Axis.datasetTop;
+                let datasetBottomZ3 = self.wellSpec[i].z3Axis.datasetBottom;
+                let datasetStepZ3 = self.wellSpec[i].z3Axis.datasetStep;
+                curveDataZ3 = curveDataZ3
+                    .map(d => ({
+                        ...d,
+                        depth: datasetStepZ3 > 0 ? (datasetTopZ3 + d.y * datasetStepZ3) : d.y
+                    }));
             }
 
             curveDataX = curveDataX
@@ -2250,6 +2294,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             else idx ++;
             z._idx = idx;
             keys[z.idZoneTemplate] = idx;
+        }
+    }
+    function indexWellSpecsForCorrelation(wellSpec) {
+        let keys = {};
+        for(let well of wellSpec) {
+            let idx = keys[well.idWell];
+            if(idx == undefined) idx = 0;
+            else idx ++;
+            well._idx = idx;
+            keys[well.idWell] = idx;
         }
     }
 

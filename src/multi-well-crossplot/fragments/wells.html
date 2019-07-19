@@ -46,7 +46,7 @@
 </div>
 <div style="overflow: overlay; display:flex; flex-direction: column;">
     <div style="border: 1px solid #e4e4e4;margin: 5px 15px;border-radius: 2px; cursor: pointer;"
-        ng-repeat='well in self.treeConfig'>
+        ng-repeat='well in self.treeConfig track by $index'>
         <div style="display: flex; flex-direction: row;padding: 10px;background: #f4f4f4; align-items: center;justify-content: space-between;text-align: center;">
                 <div style=" display: flex;align-items: center;">
                     <i class="header-icon"
