@@ -504,7 +504,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         });
     };
     async function getTree(wellSpec, callback) {
-        // TODO: ...
+        let wellIdx = self.treeConfig.findIndex(wellTree => wellTree.idWell === wellSpec.idWell && wellTree._idx === wellSpec._idx);
+        let well = await wiApi.getCachedWellPromise(wellSpec.idWell);
+        well = Object.assign({}, well);
+        well._idx = wellSpec._idx;
+        $timeout(() => {
+            self.treeConfig.push(well);
+        })
+        return well;
     }
     async function getTrees(callback) {
         wiLoading.show($element.find('.main')[0], self.silent);
@@ -1072,7 +1079,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return zonesets.find(zs => zs.name === zonesetName);
     }
     this.onZonesetSelectionChanged = function(selectedItemProps) {
-        indexZonesForCorrelation((selectedItemProps || {}).zones)
+        wiApi.indexZonesForCorrelation((selectedItemProps || {}).zones)
         self.zoneTree = (selectedItemProps || {}).zones;
         self.zoneTreeUniq = _.uniqBy(self.zoneTree.map(zone => ({name: zone.zone_template.name})), zone => {
             return zone.name;
@@ -1142,9 +1149,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                             let hasZonesetName = self.zonesetName != 'ZonationAll' ? zonesets.some(zs => zs.name == self.zonesetName) : true;
                             $timeout(() => {
                                 if (hasZonesetName) {
-                                    self.wellSpec.push({idWell});
-                                    let curveX = getCurve(well, 'xAxis');
-                                    let curveY = getCurve(well, 'yAxis');
+                                    let _idx = _.max(self.wellSpec.filter(ws => ws.idWell === idWell).map(ws => ws._idx));
+                                    _idx = (_idx >= 0 ? _idx : -1) + 1;
+                                    self.wellSpec.push({idWell, _idx});
+                                    let wellTree = getTree({idWell, _idx});
+                                    let curveX = getCurve({...well, _idx}, 'xAxis');
+                                    let curveY = getCurve({...well, _idx}, 'yAxis');
                                     if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
                                         let msg = `Well ${well.name} does not meet requirement`;
                                         if (__toastr) __toastr.warning(msg);
@@ -1157,32 +1167,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                                 }
                                 next();
                             })
-                            //$timeout(() => {
-                                //if (!self.wellSpec.find(wsp => wsp.idWell === idWell) && hasZonesetName) {
-                                    //self.wellSpec.push({idWell});
-                                    //let curveX = getCurve(well, 'xAxis');
-                                    //let curveY = getCurve(well, 'yAxis');
-                                    //if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
-                                        //let msg = `Well ${well.name} does not meet requirement`;
-                                        //if (__toastr) __toastr.warning(msg);
-                                        //console.warn(msg);
-                                    //}
-                                //} else if (!hasZonesetName) {
-                                    //let msg = `User dataset do not have ${self.zonesetName}`;
-                                    //if (__toastr) __toastr.error(msg);
-                                    //console.error(new Error(msg));
-                                //}
-                                //next();
-                            //})
                         })
                         .catch(e => {
                             console.error(e);
                             next();
                         });
                 }, err => {
-                    if (!err) {
-                        indexWellSpecsForCorrelation(self.wellSpec);
-                        getTrees();
+                    if (err) {
+                        console.error(err);
                     }
                 })
             })
@@ -1607,7 +1599,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 zone._notUsed = z._notUsed;
                 return true;
             });
-            indexZonesForCorrelation(zones);
+            wiApi.indexZonesForCorrelation(zones);
 
             if (self.getColorMode() == 'zone') {
                 for (let j = 0; j < zones.length; j++) {
@@ -2323,26 +2315,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 _notUsed: !udl.displayLine
             }
         })
-    }
-    function indexZonesForCorrelation(zones) {
-        let keys = {};
-        for(let z of zones) {
-            let idx = keys[z.idZoneTemplate];
-            if(idx == undefined) idx = 0;
-            else idx ++;
-            z._idx = idx;
-            keys[z.idZoneTemplate] = idx;
-        }
-    }
-    function indexWellSpecsForCorrelation(wellSpec) {
-        let keys = {};
-        for(let well of wellSpec) {
-            let idx = keys[well.idWell];
-            if(idx == undefined) idx = 0;
-            else idx ++;
-            well._idx = idx;
-            keys[well.idWell] = idx;
-        }
     }
 
     this.onChangePal = function (palProps) {
