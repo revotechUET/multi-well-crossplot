@@ -146,7 +146,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (self.token)
             wiToken.setToken(self.token);
         $timeout(() => {
-            getTree();
+            getTrees();
             /*
             $scope.$watch(() => {
                 let clone = angular.copy(self.pickettSets);
@@ -485,7 +485,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
     }
     this.refresh = function(){
-        getTree(() => {
+        getTrees(() => {
             getZonesetsFromWells(self.treeConfig);
             self.genLayers();
             self.isSettingChange = true;
@@ -503,7 +503,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             }));
         });
     };
-    async function getTree(callback) {
+    async function getTree(wellSpec, callback) {
+        // TODO: ...
+    }
+    async function getTrees(callback) {
         wiLoading.show($element.find('.main')[0], self.silent);
         self.treeConfig.length = 0;
         let promises = [];
@@ -1152,7 +1155,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 }, err => {
                     if (!err) {
                         indexWellSpecsForCorrelation(self.wellSpec);
-                        getTree();
+                        getTrees();
                     }
                 })
             })
@@ -1197,7 +1200,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if(index >= 0) {
             self.wellSpec.splice(index, 1);
         }
-        getTree();
+        getTrees();
     }
     this.getFilterForWell = (axis) => {
         switch(axis) {
