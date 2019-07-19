@@ -1093,9 +1093,36 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     // ---PARAMETER GROUP
     this.getParamGroupLabel = (node) => (node.properties.zone_template.name || "N/A")
     this.getParamGroupIcon = (node) => ((node && !node._notShow)?'parameter-management-16x16':'fa fa-eye-slash')
-    this.runParamGroupMatch = this.runZoneMatch;
-    this.click2ToggleParamGroup = function($event, node) {
+    this.runParamGroupMatch = (node, criteria) => {
+        let keySearch = criteria.toLowerCase();
+        let searchArray = self.getParamGroupLabel(node).toLowerCase();
+        return searchArray.includes(keySearch);
+    };
+    this.click2ToggleParamGroup = function($event, node, selectedObjs) {
         node._notShow = !node._notShow;
+        self.selectedParamGroup = Object.values(selectedObjs).map(o => o.data);
+    }
+    this.showAllParamGroup = function() {
+        self.paramGroups.forEach(param => {
+            param._notShow = false;
+        })
+    }
+    this.hideAllParamGroup = function() {
+        self.paramGroups.forEach(param => {
+            param._notShow = true;
+        })
+    }
+    this.showSelectedParamGroup = function() {
+        if (!self.selectedParamGroup || !self.selectedParamGroup.length) return;
+        self.selectedParamGroup.forEach(param => {
+            param._notShow = false;
+        })
+    }
+    this.hideSelectedParamGroup = function() {
+        if (!self.selectedParamGroup || !self.selectedParamGroup.length) return;
+        self.selectedParamGroup.forEach(param => {
+            param._notShow = true;
+        })
     }
     
     // ---WELL
@@ -2030,7 +2057,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         [self.config.majorX, self.config.majorY] = [self.config.majorY, self.config.majorX];
         [self.config.minorX, self.config.minorY] = [self.config.minorY, self.config.minorX];
         [self.config.xLabel, self.config.yLabel] = [self.config.yLabel, self.config.xLabel];
+        reverseOverlayLine();
         self.genLayers();
+    }
+    function reverseOverlayLine() {
+        self.overlayLineSpec.lines.forEach(ovlLine => {
+            ovlLine.data.forEach(point => {
+                [point.x, point.y] = [point.y, point.x];
+            })
+        })
     }
     function swapPropObj(obj, key1, key2) {
         [obj[key1], obj[key2]] = [obj[key2], obj[key1]];
