@@ -152,8 +152,22 @@
                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                     item-label="'N'" item-value="self.getZ1N"
                     set-value="self.setZ1N" enabled="true" label-style="{}"
-                    content-style="{flex:1,float:'none','text-align':'right'}">
+                    content-style="{flex:1,float:'none','text-align':'right'}"
+                    edit-type="'number'" min-value="1" max-value="10">
                 </editable>
+            </div>
+        </div>
+        <div class="label-option-sidebar"
+             style="padding: 15px 15px 5px 15px; display: flex; justify-content: space-between;  flex-direction: column;">
+            <div>
+                <div class="selection-sidebar" >
+                    <span>Color Palette</span>
+                    <wi-dropdown-list style="flex:1; margin-left: 10px;"
+                                      current-select="self.currentPalName"
+                                      on-item-changed="self.onChangePal"
+                                      on-wi-dropdown-init="self.onPalsDropdownInit">
+                    </wi-dropdown-list>
+                </div>
             </div>
         </div>
         <!-- <div style="padding: 15px 20px; display: flex; justify-content: space-between;  flex-direction: column;">
@@ -197,7 +211,8 @@
                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                     item-label="'N'" item-value="self.getZ2N"
                     set-value="self.setZ2N" enabled="true" label-style="{}"
-                    content-style="{flex:1,float:'none','text-align':'right'}">
+                    content-style="{flex:1,float:'none','text-align':'right'}"
+                    edit-type="'number'" min-value="1" max-value="10">
                 </editable>
             </div>
         </div>
@@ -239,21 +254,9 @@
                 <editable style="flex:1;display:flex;flex-direction:row;overflow:hidden;"
                     item-label="'N'" item-value="self.getZ3N"
                     set-value="self.setZ3N" enabled="true" label-style="{}"
-                    content-style="{flex:1,float:'none','text-align':'right'}">
+                    content-style="{flex:1,float:'none','text-align':'right'}"
+                    edit-type="'number'" min-value="1" max-value="10">
                 </editable>
-            </div>
-        </div>
-    </div>
-    <div class="label-option-sidebar"
-        style="padding: 15px 15px 5px 15px; display: flex; justify-content: space-between;  flex-direction: column;">
-        <div>
-            <div class="selection-sidebar" >
-                <span>Color Palette</span>
-                <wi-dropdown-list style="flex:1; margin-left: 10px;"
-                    current-select="self.currentPalName"
-                    on-item-changed="self.onChangePal"
-                    on-wi-dropdown-init="self.onPalsDropdownInit">
-                </wi-dropdown-list>
             </div>
         </div>
     </div>

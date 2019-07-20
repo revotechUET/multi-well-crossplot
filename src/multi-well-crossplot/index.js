@@ -147,34 +147,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             wiToken.setToken(self.token);
         $timeout(() => {
             getTrees();
-            /*
-            $scope.$watch(() => {
-                let clone = angular.copy(self.pickettSets);
-                clone.forEach(pickettSet => {
-                    delete pickettSet._notHidden;
-                })
-                return clone;
-            }, () => {
-                self.isSettingChange = true;
-            },true)
-            */
             $scope.$watch(() => self.config, (newVal, oldVal) => {
                 self.isSettingChange = true;
-            }, true)
-            $scope.$watch(() => self.zonesetName, (newVal, oldVal) => {
-                self.isSettingChange = true;
-            })
-            $scope.$watch(() => (self.wellSpec.map(wsp => wsp.discriminator)), () => {
-                self.isSettingChange = true;
-            }, true)
-            $scope.$watch(() => (self.polygons), () => {
-                self.isSettingChange = true;
-                self.updateRegressionLine(self.regressionType, self.polygons);
-            }, true)
-            $scope.$watch(() => (self.wellSpec.map(wsp => wsp.idWell)), () => {
-                self.isSettingChange = true;
-                updateDefaultConfig();
             }, true);
+            $scope.$watch(() => (self.selectionType), (newVal, oldVal) => {
+                self.isSettingChange = true;
+                getSelectionList(self.selectionType, self.treeConfig);
+                updateDefaultConfig();
+            });
             $scope.$watch(() => {
                 return self.wellSpec.map(wsp => {
                     return `${wsp.xAxis ? wsp.xAxis.idCurve : ''}-
@@ -187,11 +167,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 self.isSettingChange = true;
                 updateDefaultConfig();
             }, true);
-            $scope.$watch(() => (self.selectionType), (newVal, oldVal) => {
-                self.isSettingChange = true;
-                getSelectionList(self.selectionType, self.treeConfig);
-                updateDefaultConfig();
-            });
             $scope.$watch(() => {
                 return `${JSON.stringify(self.selectionValueList)}`;
             }, () => {
@@ -200,12 +175,17 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 updateDefaultConfig()
             });
             $scope.$watch(() => (self.treeConfig.map(w => w.idWell)), () => {
+                self.isSettingChange = true;
                 getSelectionList(self.selectionType, self.treeConfig);
                 getZonesetsFromWells(self.treeConfig);
                 updateDefaultConfig();
             }, true);
-            $scope.$watch(() => `${self.regressionType}-${self.polygonExclude}-${JSON.stringify(self.polygons)}`, () => {
+            $scope.$watch(() => `${self.regressionType}-${JSON.stringify(self.polygons)}`, () => {
+                self.isSettingChange = true;
                 self.updateRegressionLine(self.regressionType, self.polygons);
+            })
+            $scope.$watch('tab', () => {
+                onTabChange();
             })
         }, 700);
 
@@ -265,6 +245,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         self.getPickettSetColor = self.getPickettSetColor || function(pickettSet, idx) {
             return pickettSet.color || 'black';
+        }
+    }
+    function onTabChange() {
+        if ($scope.tab != 5) {
+            self.polygons.forEach(polygon => {
+                polygon.mode = null;
+            })
         }
     }
 
@@ -877,9 +864,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         self.defaultConfig.z2N = 5;
                         break;
                     case 'z3Axis':
-                        self.defaultConfig.z3max = family.family_spec[0].maxscale || 100;
-                        self.defaultConfig.z3min = family.family_spec[0].minscale || 0;
-                        self.defaultConfig.z3n = 5;
+                        self.defaultConfig.z3Max = family.family_spec[0].maxScale || 100;
+                        self.defaultConfig.z3Min = family.family_spec[0].minScale || 0;
+                        self.defaultConfig.z3N = 5;
                         break;
                     default:
                 }
@@ -1079,6 +1066,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         return zonesets.find(zs => zs.name === zonesetName);
     }
     this.onZonesetSelectionChanged = function(selectedItemProps) {
+        self.isSettingChange = true;
         wiApi.indexZonesForCorrelation((selectedItemProps || {}).zones)
         self.zoneTree = (selectedItemProps || {}).zones;
         self.zoneTreeUniq = _.uniqBy(self.zoneTree.map(zone => ({name: zone.zone_template.name})), zone => {
@@ -1209,7 +1197,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.toggleWell = function(well) {
         well._notUsed = !well._notUsed;
-        let layers = self.layers.filter(layer => layer.well == well.name);
+        let layers = self.layers.filter(layer => layer.well === `${well.name}:${well._idx}`);
         layers.forEach(layer => {
             layer._notUsed = well._notUsed;
         })
@@ -1218,8 +1206,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let index = self.wellSpec.findIndex(wsp => wsp.idWell === well.idWell && wsp._idx === well._idx);
         if(index >= 0) {
             self.wellSpec.splice(index, 1);
+            let wellTreeIdx = self.treeConfig.findIndex(wTI => wTI.idWell === well.idWell && wTI._idx === well._idx);
+            self.treeConfig.splice(wellTreeIdx, 1);
         }
-        getTrees();
     }
     this.getFilterForWell = (axis) => {
         switch(axis) {
@@ -1273,11 +1262,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         polygon.exclude = true;
         polygon.points = [];
         polygon.lineStyle = {
-            fillStyle: palette2RGB(colorGenerator(polygon.label)),
+            fillStyle: colorGenerator(null, true),
             strokeStyle: '',
             strokeWidth: '2'
         }
-        polygon.contentStyle = {flex:1,float:'none','text-align':'left', color: palette2RGB(colorGenerator(polygon.label), false)}
+        polygon.contentStyle = {flex:1,float:'none','text-align':'left', color: polygon.lineStyle.fillStyle.replace(/\d+\.?\d*\s*\)$/g, '1)')}
         Object.assign(self.currentPolygon, polygon);
         self.polygons.forEach(p => {
             p.mode = null;
@@ -1318,10 +1307,10 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     this.polygonContentStyle = (polygon) => {
-        polygon.contentStyle.color = palette2RGB(colorGenerator(polygon.label), false);
+        //polygon.contentStyle.color = colorGenerator(polygon.label);
         return polygon.contentStyle;
     }
-    this.polygonFillStyle = polygon => palette2RGB(colorGenerator(polygon.label)) 
+    this.polygonFillStyle = polygon => polygon.lineStyle.fillStyle
     this.polygonStrokeStyle = polygon => polygon.lineStyle.strokeStyle
     this.polygonStrokeWidth = polygon => polygon.lineStyle.strokeWidth
 
@@ -1614,7 +1603,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         regColor: self.getColor(zone, well),
                         layerColor: self.getColor(zone, well),
                         name: `${well.name}.${zone.zone_template.name}:${zone._idx}`,
-                        well: `${well.name}`,
+                        well: `${well.name}:${well._idx}`,
                         zone: `${zone.zone_template.name}`,
                         curveXInfo: `${datasetX.name}.${curveX.name}`,
                         curveYInfo: `${datasetY.name}.${curveY.name}`,
@@ -1655,7 +1644,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     regColor: well.color,
                     layerColor: well.color,
                     name: `${well.name}`,
-                    well: `${well.name}`,
+                    well: `${well.name}:${well._idx}`,
                     curveXInfo: `${datasetX.name}.${curveX.name}`,
                     curveYInfo: `${datasetY.name}.${curveY.name}`,
                     curveZ1Info: shouldPlotZ1 ? `${datasetZ1.name}.${curveZ1.name}` : 'N/A',
@@ -1787,7 +1776,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     function zSizesFn(numSize, doHaveSizeAxis) {
         if (!doHaveSizeAxis) return [];
         if (numSize <= 0) return [];
-        const minSize = 5;
+        const minSize = self.getPointSize();
         const step = 2;
         let sizes = []
         for (let i = 0; i < numSize; i++) {
@@ -2029,6 +2018,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
         let curvesArr = dataset.curves.map( c => ({type:'curve',name:c.name}) );
         wiDialog.discriminator(wSpec.discriminator, curvesArr, function(discrmnt) {
+            self.isSettingChange = true;
             wSpec.discriminator = discrmnt;
         });
     }                                                                           
@@ -2063,17 +2053,18 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         [obj[key1], obj[key2]] = [obj[key2], obj[key1]];
     }
 
-    function colorGenerator(seed) {
+    function colorGenerator(seed, semiTransparent) {
         if (!seed || !seed.length) {
+            let transparent = semiTransparent ? 0.5 : 1;
             let rand = function () {
                 return Math.floor(Math.random() * 255);
             }
-            return "rgb(" + rand() + "," + rand() + "," + rand() + ")";
+            return "rgb(" + rand() + "," + rand() + "," + rand() + "," + transparent + ")";
         }
         let n = Math.abs(string2Int(seed));
         let colorTable = getColorPalette();
         if (!colorTable) return;
-        return colorTable[n % colorTable.length];
+        return palette2RGB(colorTable[n % colorTable.length], semiTransparent);
     }
 
     function string2Int(str) {
@@ -2086,7 +2077,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         }
         return hash;
     };
-    function palette2RGB(palette, semiTransparent = true) {
+    function palette2RGB(palette, semiTransparent) {
         if (!palette || !Object.keys(palette).length) return 'transparent';
         return `rgb(${palette.red},${palette.green},${palette.blue},${semiTransparent ? palette.alpha / 2 : 1})`
     }
@@ -2349,10 +2340,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
 
     }
     
-    let pickettControlPoints = [
-            {x: 0.1, y: 0.5},
-            {x: 0.03, y: 1}
-        ];
     function initPickettControlPoints(pickettSet) {
         let hRange = [self.getLeft() == 0 ? 0.01 : self.getLeft(), self.getRight() == 0 ? 0.01 : self.getRight()].map(v => Math.log10(v));
         let firstPointX = Math.pow(10 , (hRange[0] + (hRange[1] - hRange[0])/3) );
