@@ -50,22 +50,27 @@
             <div style="display: flex;">
                 <div ng-class="{'red-color': !polygon.exclude, 'blue-color ': polygon.exclude }"
                     class="button-list-polygon ti ti-control-play"
+                    title="Include"
                     ng-click="polygon.exclude = !polygon.exclude" >
                 </div>
                 <div ng-class="{'red-color': polygon._notUsed, 'blue-color ': !polygon._notUsed }"
                     ng-click="polygon._notUsed = !polygon._notUsed"
+                    title="Use"
                     class="button-list-polygon ti ti-check">
                 </div>
                 <div ng-class="{'red-color ': polygon._notShow, 'blue-color ': !polygon._notShow }"
                     class="button-list-polygon ti ti-eye" 
+                    title="Show/hide"
                     ng-click="polygon._notShow = !polygon._notShow">
                 </div>
                 <div ng-class="{'red-color': !polygon.mode, 'blue-color': polygon.mode == 'edit' }"
-                    class="button-list-polygon ti ti-pencil" 
+                    class="button-list-polygon ti ti-pencil"
+                    title="Edit"
                     ng-click="self.toggleEditPolygon(polygon)">
                 </div>
                 <div ng-class="{'red-color': !polygon.mode, 'blue-color': polygon.mode == 'edit' }"
-                    class="button-list-polygon ti ti-close" 
+                    class="button-list-polygon ti ti-close"
+                    title="Close"
                     ng-click="self.removePolygon($index)">
                 </div>
             </div>
