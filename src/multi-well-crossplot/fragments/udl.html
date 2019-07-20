@@ -33,14 +33,14 @@
                 <span
                     ng-class="{'red-color ti ti-layout-cta-left': !udl.displayEquation, 'blue-color ti ti-layout-cta-left': udl.displayEquation }"
                     ng-click="udl.displayEquation = !udl.displayEquation"
-                    style="cursor: pointer; margin-right: 15px;">
+                    style="cursor: pointer; margin-right: 15px; margin-top: -5px;">
                 </span>
                 <span
                     ng-class="{'red-color fa fa-eye-slash': udl._notUsed, 'blue-color fa fa-eye': !udl._notUsed }"
                     ng-click="udl._notUsed = !udl._notUsed"
-                    style="cursor: pointer; margin-right: 15px;">
+                    style="cursor: pointer; margin-right: 15px; margin-top: -5px;">
                 </span>
-                <line-style bind-line-style="udl.lineStyle"></line-style>
+                <line-style style="min-width: 30px;" bind-line-style="udl.lineStyle"></line-style>
             </div>
             <div class="fa fa-times delete-button" ng-click="self.removeUDL($index)"></div>
         </div>
