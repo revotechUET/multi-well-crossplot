@@ -1200,6 +1200,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         })
     }
     this.toggleWell = function(well) {
+        self.isSettingChange = true;
         well._notUsed = !well._notUsed;
         let layers = self.layers.filter(layer => layer.well === `${well.name}:${well._idx}`);
         layers.forEach(layer => {
@@ -2348,7 +2349,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.validPlotRegion = function() {
         let result = (self.getTop() - self.getBottom()) * (self.getRight() - self.getLeft());
         return _.isFinite(result) && result != 0;
-
     }
     
     function initPickettControlPoints(pickettSet) {
