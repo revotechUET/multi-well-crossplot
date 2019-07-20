@@ -864,8 +864,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                         self.defaultConfig.z2N = 5;
                         break;
                     case 'z3Axis':
-                        self.defaultConfig.z3Max = family.family_spec[0].maxscale || 100;
-                        self.defaultConfig.z3Min = family.family_spec[0].minscale || 0;
+                        self.defaultConfig.z3Max = family.family_spec[0].maxScale || 100;
+                        self.defaultConfig.z3Min = family.family_spec[0].minScale || 0;
                         self.defaultConfig.z3N = 5;
                         break;
                     default:
