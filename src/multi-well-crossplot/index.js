@@ -1191,9 +1191,15 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         });
         node._used = true;
 
-        wiApi.getOverlayLinePromise(node.idOverlayLine).then((ovlProps) => {
+        let idCurveX = self.wellSpec[0].xAxis.idCurve;
+        let idCurveY = self.wellSpec[0].yAxis.idCurve;
+        wiApi.getOverlayLinePromise(node.idOverlayLine, idCurveX, idCurveY).then((ovlProps) => {
             $timeout(() => {
+                let isSwap = ovlProps.data.isSwap;
                 self.overlayLineSpec = ovlProps.data;
+                if (isSwap) {
+                    reverseOverlayLine();
+                }
             })
         }).catch((err) => {
             console.error(err);
