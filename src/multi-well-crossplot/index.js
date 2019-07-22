@@ -494,6 +494,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         let wellIdx = self.treeConfig.findIndex(wellTree => wellTree.idWell === wellSpec.idWell && wellTree._idx === wellSpec._idx);
         let well = await wiApi.getCachedWellPromise(wellSpec.idWell);
         well = Object.assign({}, well);
+        well.isSettingAxis = 'X';
         well._idx = wellSpec._idx;
         $timeout(() => {
             self.treeConfig.push(well);
