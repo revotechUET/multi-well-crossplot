@@ -43,7 +43,8 @@ app.component(componentName, {
         setPickettSetN: "<",
         getPickettSetName: "<",
         setPickettSetName: "<",
-        getPickettSetColor: "<"
+        getPickettSetColor: "<",
+        overlayLine: "<"
     },
     transclude: true
 });
