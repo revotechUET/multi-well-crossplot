@@ -921,9 +921,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             pointSize: self.pointSize,
             udlsAssetId: self.udlsAssetId,
             pickettSets: self.pickettSets,
-            swParamList: self.swParamList,
-            overlayLine: {idOverlayLine: (self.overlayLineSpec || {}).idOverlayLine,
-                name: (self.overlayLineSpec || {}).name}
+            swParamList: self.swParamList
+        }
+        if (self.overlayLineSpec) {
+            content.overlayLine = {
+                idOverlayLine: self.overlayLineSpec.idOverlayLine,
+                name: self.overlayLineSpec.name
+            };
         }
         if (!self.idCrossplot) {
             wiDialog.promptDialog({
@@ -978,8 +982,12 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 udlsAssetId: self.udlsAssetId,
                 pickettSets: self.pickettSets,
                 swParamList: self.swParamList,
-                overlayLine: {idOverlayLine: (self.overlayLineSpec || {}).idOverlayLine,
-                    name: (self.overlayLineSpec || {}).name}
+            }
+            if (self.overlayLineSpec) {
+                content.overlayLine = {
+                    idOverlayLine: self.overlayLineSpec.idOverlayLine,
+                    name: self.overlayLineSpec.name
+                };
             }
             wiApi.newAssetPromise(self.idProject, name, type, content)
                 .then(res => {
@@ -1205,26 +1213,31 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     this.clickOvlFunction = clickOvlFunction;
     function clickOvlFunction(event, node){
+        let _used = node._used;
         self.listOverlayLine.forEach((item)=>{
             item._used = false;
         });
-        node._used = true;
+        if (!_used) {
+            node._used = true;
 
-        let idCurveX = self.wellSpec[0].xAxis.idCurve;
-        let idCurveY = self.wellSpec[0].yAxis.idCurve;
-        wiApi.getOverlayLinePromise(node.idOverlayLine, idCurveX, idCurveY).then((ovlProps) => {
-            $timeout(() => {
-                let isSwap = ovlProps.data.isSwap;
-                self.overlayLineSpec = ovlProps.data;
-                self.overlayLineSpec.idOverlayLine = ovlProps.idOverlayLine;
-                self.overlayLineSpec.name = ovlProps.name;
-                if (isSwap) {
-                    reverseOverlayLine();
-                }
+            let idCurveX = self.wellSpec[0].xAxis.idCurve;
+            let idCurveY = self.wellSpec[0].yAxis.idCurve;
+            wiApi.getOverlayLinePromise(node.idOverlayLine, idCurveX, idCurveY).then((ovlProps) => {
+                $timeout(() => {
+                    let isSwap = ovlProps.data.isSwap;
+                    self.overlayLineSpec = ovlProps.data;
+                    self.overlayLineSpec.idOverlayLine = ovlProps.idOverlayLine;
+                    self.overlayLineSpec.name = ovlProps.name;
+                    if (isSwap) {
+                        reverseOverlayLine();
+                    }
+                })
+            }).catch((err) => {
+                console.error(err);
             })
-        }).catch((err) => {
-            console.error(err);
-        })
+        } else {
+            self.overlayLineSpec = undefined;
+        }
     }
     this.toggleWell = function(well) {
         self.isSettingChange = true;
@@ -2036,9 +2049,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         $timeout(() => {
             self.regLine = {
                 ...self.regLine,
-                lineStyle: [10, 0],
-                lineColor: self.regLine.lineColor ? self.regLine.lineColor : colorGenerator(),
-                lineWidth: 1
+                lineStyle: {
+                    lineStyle: [10, 0],
+                    lineColor: self.regLine.lineColor ? self.regLine.lineColor : colorGenerator(),
+                    lineWidth: 1
+                }
             };
         })
         self.selectedRegression = Object.values(selectedObjs).map(o => o.data);

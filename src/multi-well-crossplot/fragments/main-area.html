@@ -25,8 +25,8 @@
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
                 max-draw="self.getRight()" min-y="self.getBottom()" min-draw-y="self.getBottom()" max-y="self.getTop()"
                 max-draw-y="self.getTop()" ortho-loga="self.getLogaY()" loga="self.getLogaX()" formula="self.regLine"
-                eqn-offsets="['50px', '0%']" line-color="self.regLine.lineColor"
-                line-dash="self.regLine.lineStyle.join(' ')" line-width="self.regLine.lineWidth" show-equation='true'
+                eqn-offsets="['50px', '0%']" line-color="self.regLine.lineStyle.lineColor"
+                line-dash="self.regLine.lineStyle.lineStyle.join(' ')" line-width="self.regLine.lineStyle.lineWidth" show-equation='true'
                 mse="self.mse" ng-if='self.regLine && self.regLine.family' resolution='500'>
             </line-formula-layer>
             <line-formula-layer min-val='self.getLeft()' max-val="self.getRight()" min-draw='self.getLeft()'
