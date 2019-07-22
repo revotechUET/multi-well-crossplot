@@ -58,7 +58,8 @@ app.component(componentName, {
         setPickettSetN: "<",
         getPickettSetName: "<",
         setPickettSetName: "<",
-        getPickettSetColor: '<'
+        getPickettSetColor: '<',
+        idOverlayLine: "<"
     },
     transclude: true
 });
@@ -141,6 +142,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         } else {
             self.udls = [];
             self.udls.name = 'Untitled';
+        }
+        if (self.idOverlayLine) {
+            self.overlayLineSpec = {idOverlayLine: self.idOverlayLine};
         }
 
         if (self.token)
@@ -825,6 +829,14 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 wiApi.getOverlayLinesPromise(curveX.idCurve, curveY.idCurve).then((data) => {
                     $timeout(()=>{
                         self.listOverlayLine = data;
+                        if (self.overlayLineSpec && self.overlayLineSpec.idOverlayLine) {
+                            let showedOvl = self.listOverlayLine.find(ovl => ovl.idOverlayLine === self.overlayLineSpec.idOverlayLine);
+                            if (showedOvl) {
+                                clickOvlFunction(null, showedOvl);
+                            } else {
+                                self.overlayLineSpec = undefined;
+                            }
+                        }
                     })
                 }).catch((err) => {
                     console.error(err);
@@ -908,7 +920,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             pointSize: self.pointSize,
             udlsAssetId: self.udlsAssetId,
             pickettSets: self.pickettSets,
-            swParamList: self.swParamList
+            swParamList: self.swParamList,
+            idOverlayLine: self.overlayLineSpec.idOverlayLine
         }
         if (!self.idCrossplot) {
             wiDialog.promptDialog({
@@ -962,7 +975,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                 pointSize: self.pointSize,
                 udlsAssetId: self.udlsAssetId,
                 pickettSets: self.pickettSets,
-                swParamList: self.swParamList
+                swParamList: self.swParamList,
+                idOverlayLine: self.overlayLineSpec.idOverlayLine
             }
             wiApi.newAssetPromise(self.idProject, name, type, content)
                 .then(res => {
@@ -1186,7 +1200,8 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.runOvlMatch = function (node, keysearch){
         return node.name.toLowerCase().includes(keysearch.toLowerCase());
     }
-    this.clickOvlFunction = function (event, node){
+    this.clickOvlFunction = clickOvlFunction;
+    function clickOvlFunction(event, node){
         self.listOverlayLine.forEach((item)=>{
             item._used = false;
         });
@@ -1198,6 +1213,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             $timeout(() => {
                 let isSwap = ovlProps.data.isSwap;
                 self.overlayLineSpec = ovlProps.data;
+                self.overlayLineSpec.idOverlayLine = ovlProps.idOverlayLine;
                 if (isSwap) {
                     reverseOverlayLine();
                 }

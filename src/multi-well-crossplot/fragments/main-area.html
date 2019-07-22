@@ -61,7 +61,7 @@
                 points="polygon.points" mode="polygon.mode"
                 fill-style="self.polygonFillStyle(polygon)" stroke-style="self.polygonStrokeStyle(polygon)" stroke-width="self.polygonStrokeWidth(polygon)">
             </polygon-layer>
-            <overlay-line-layer ng-if="self.overlayLineSpec" min-val='self.getLeft()' max-val="self.getRight()"
+            <overlay-line-layer ng-if="self.overlayLineSpec && self.overlayLineSpec.lines" min-val='self.getLeft()' max-val="self.getRight()"
                 min-draw='self.getLeft()' max-draw="self.getRight()" min-y="self.getBottom()"
                 min-draw-y="self.getBottom()" max-y="self.getTop()" max-draw-y="self.getTop()"
                 ortho-loga="self.getLogaY()" loga="self.getLogaX()" overlay-line-spec="self.overlayLineSpec">
