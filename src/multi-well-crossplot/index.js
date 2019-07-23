@@ -28,6 +28,12 @@ app.component(componentName, {
         selectionValueList: '<',
         idCrossplot: "<",
         config: '<',
+        logaX: '<',
+        logaY: "<",
+        scaleLeft: "<",
+        scaleRight: "<",
+        scaleBottom: "<",
+        scaleTop: "<",
         printSettings: '<',
         onSave: '<',
         onSaveAs: '<',
@@ -787,16 +793,16 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.getZ3Min = () => (isNaN(self.config.z3Min) ? (isNaN(self.defaultConfig.z3Min) ? '[empty]' : self.defaultConfig.z3Min) : self.config.z3Min)
     this.getZ3Max = () => (isNaN(self.config.z3Max) ? (isNaN(self.defaultConfig.z3Max) ? '[empty]' : self.defaultConfig.z3Max) : self.config.z3Max)
     this.getZ3N = () => (isNaN(self.config.z3N) ? (isNaN(self.defaultConfig.z3N) ? '[empty]' : self.defaultConfig.z3N) : self.config.z3N)
-    this.getTop = () => (isNaN(self.config.top) ? (self.defaultConfig.top || 0) : self.config.top)
-    this.getBottom = () => (isNaN(self.config.bottom) ? (self.defaultConfig.bottom || 0) : self.config.bottom)
-    this.getLeft = () => (isNaN(self.config.left) ? (self.defaultConfig.left || 0) : self.config.left)
-    this.getRight = () => (isNaN(self.config.right) ? (self.defaultConfig.right || 0) : self.config.right)
+    this.getTop = () => (isNaN(self.config.top) ? (self.scaleTop || self.defaultConfig.top || 0) : self.config.top)
+    this.getBottom = () => (isNaN(self.config.bottom) ? (self.scaleBottom || self.defaultConfig.bottom || 0) : self.config.bottom)
+    this.getLeft = () => (isNaN(self.config.left) ? (self.scaleLeft || self.defaultConfig.left || 0) : self.config.left)
+    this.getRight = () => (isNaN(self.config.right) ? (self.scaleRight || self.defaultConfig.right || 0) : self.config.right)
     this.getMajorX = () => ( isNaN(self.config.majorX) ? (self.defaultConfig.majorX || 5) : self.config.majorX)
     this.getMajorY = () => ( isNaN(self.config.majorY) ? (self.defaultConfig.majorY || 5) : self.config.majorY)
     this.getMinorX = () => ( isNaN(self.config.minorX) ? (self.defaultConfig.minorX || 1) : self.config.minorX)
     this.getMinorY = () => ( isNaN(self.config.minorY) ? (self.defaultConfig.minorY || 1) : self.config.minorY)
-    this.getLogaX = () => (self.config.logaX == undefined ? (self.defaultConfig.logaX || false) : self.config.logaX)
-    this.getLogaY = () => (self.config.logaY == undefined ? (self.defaultConfig.logaY || false) : self.config.logaY)
+    this.getLogaX = () => (self.config.logaX == undefined ? (self.logaX || self.defaultConfig.logaX || false) : self.config.logaX)
+    this.getLogaY = () => (self.config.logaY == undefined ? (self.logaY || self.defaultConfig.logaY || false) : self.config.logaY)
     this.getColorMode = () => (self.config.colorMode || self.defaultConfig.colorMode || 'zone')
     this.getColor = (zone, well) => {
         let cMode = self.getColorMode();
@@ -2394,18 +2400,44 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
     
     function initPickettControlPoints(pickettSet) {
+        let stepDen = 20;
+        let step = 1/stepDen;
         let hRange = [self.getLeft() == 0 ? 0.01 : self.getLeft(), self.getRight() == 0 ? 0.01 : self.getRight()].map(v => Math.log10(v));
-        let firstPointX = Math.pow(10 , (hRange[0] + (hRange[1] - hRange[0])/3) );
-        let secondPointX = Math.pow(10 , (hRange[0] + 2*(hRange[1] - hRange[0])/3) );
+        let firstPointX = Math.pow(10 , hRange[0] + (hRange[1] - hRange[0]) * (1/30));
         let firstPointY = pickettFn(firstPointX);
+        while((firstPointY - self.getBottom()) * (firstPointY - self.getTop()) > 0) {
+            firstPointX = firstPointX + (hRange[1] - hRange[0]) * step;
+            firstPointY = pickettFn(firstPointX);
+        }
+
+        let secondPointX = Math.pow(10 , hRange[1] - (hRange[1] - hRange[0]) * (1/30));
         let secondPointY = pickettFn(secondPointX);
+        while((secondPointY - self.getBottom()) * (secondPointY - self.getTop()) > 0) {
+            secondPointX = secondPointX - (hRange[1] - hRange[0]) * step;
+            if ((secondPointX - firstPointX) * (secondPointX - hRange[1]) > 0) {
+                secondPointX = secondPointX + (hRange[1] - hRange[0]) * step;
+                step = 1/ (stepDen + 10);
+                secondPointX = secondPointX - (hRange[1] - hRange[0]) * step;
+            }
+            secondPointY = pickettFn(secondPointX);
+        }
         return [{x: firstPointX, y:firstPointY}, {x:secondPointX, y:secondPointY}];
+
         function pickettFn(x) {
             let sw = 1;
             let rw = self.getPickettSetRw(pickettSet);
             let n = self.getPickettSetN(pickettSet);
             let m = self.getPickettSetM(pickettSet);
             let a = self.getPickettSetA(pickettSet);
+            return Math.pow(10, (-m) * (Math.log10(x)) + Math.log10((a*rw) / (sw ** n)));
+        }
+        function pickettFnY(y) {
+            let sw = 1;
+            let rw = self.getPickettSetRw(pickettSet);
+            let n = self.getPickettSetN(pickettSet);
+            let m = self.getPickettSetM(pickettSet);
+            let a = self.getPickettSetA(pickettSet);
+            return Math.pow(10, (Math.log10(y) - (Math.log10((a*rw) / (sw ** n)))) / (-m));
             return Math.pow(10, (-m) * (Math.log10(x)) + Math.log10((a*rw) / (sw ** n)));
         }
     }

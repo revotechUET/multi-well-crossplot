@@ -20,6 +20,12 @@
 </wi-droppable>
 <div ng-show="tabIndex === idx" class="main" ng-repeat="(idx, xVal) in self.selectionXValues">
     <multi-well-crossplot well-spec="self.wellSpecs[idx]" zoneset-name="self.zonesetNames[idx]" 
+        loga-x="self.logaX"
+        loga-y="self.logaY"
+        scale-left="self.scaleLeft"
+        scale-right="self.scaleRight"
+        scale-bottom="self.scaleBottom"
+        scale-top="self.scaleTop"
         selection-type="self.selectionTypes[idx]" 
         selection-value-list="self.getSelectionValueList(idx)"
         param-groups="self.paramGroups"
