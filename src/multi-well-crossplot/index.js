@@ -1172,20 +1172,19 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                             let zonesets = well.zone_sets;
                             let hasZonesetName = self.zonesetName != 'ZonationAll' ? zonesets.some(zs => zs.name == self.zonesetName) : true;
                             $timeout(() => {
-                                if (hasZonesetName) {
-                                    let _idx = _.max(self.wellSpec.filter(ws => ws.idWell === idWell).map(ws => ws._idx));
-                                    _idx = (_idx >= 0 ? _idx : -1) + 1;
-                                    self.wellSpec.push({idWell, _idx});
-                                    let wellTree = getTree({idWell, _idx});
-                                    let curveX = getCurve({...well, _idx}, 'xAxis');
-                                    let curveY = getCurve({...well, _idx}, 'yAxis');
-                                    if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
-                                        let msg = `Well ${well.name} does not meet requirement`;
-                                        if (__toastr) __toastr.warning(msg);
-                                        console.warn(msg);
-                                    }
-                                } else if (!hasZonesetName) {
-                                    let msg = `User dataset do not have ${self.zonesetName}`;
+                                let _idx = _.max(self.wellSpec.filter(ws => ws.idWell === idWell).map(ws => ws._idx));
+                                _idx = (_idx >= 0 ? _idx : -1) + 1;
+                                self.wellSpec.push({idWell, _idx});
+                                let wellTree = getTree({idWell, _idx});
+                                let curveX = getCurve({...well, _idx}, 'xAxis');
+                                let curveY = getCurve({...well, _idx}, 'yAxis');
+                                if ((self.getSelectionValue('X').value && !curveX) || (self.getSelectionValue('Y').value && !curveY)) {
+                                    let msg = `Well ${well.name} does not meet requirement`;
+                                    if (__toastr) __toastr.warning(msg);
+                                    console.warn(msg);
+                                }
+                                if (!hasZonesetName) {
+                                    let msg = `"Well ${well.name}" does not meet input "Zone ${self.zonesetName}"`;
                                     if (__toastr) __toastr.error(msg);
                                     console.error(new Error(msg));
                                 }
