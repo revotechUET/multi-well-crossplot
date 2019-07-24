@@ -1330,7 +1330,9 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.filterByPolygons = function(polygons, data, exclude) {
         let ppoints = polygons.map(function(p) {
             return p.points.map(function(point) {
-                return [point.x, point.y];
+                let x = point.x;
+                let y = point.y;
+                return [x, y];
             });
         });
         if (exclude) {
@@ -1995,6 +1997,13 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             return;
         }
         let result;
+        self.regLine = {
+            lineStyle: {
+                lineStyle: [10, 0],
+                lineColor: (self.regLine.lineStyle || {}).lineColor || colorGenerator(),
+                lineWidth: (self.regLine.lineStyle || {}).lineWidth || 1
+            }
+        }
         switch(regressionType) {
             case 'Linear':
                 result = regression.linear(data, {precision: 6});
@@ -2054,12 +2063,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.updateRegressionLine(self.regressionType, self.polygons);
         $timeout(() => {
             self.regLine = {
-                ...self.regLine,
-                lineStyle: {
-                    lineStyle: [10, 0],
-                    lineColor: self.regLine.lineColor ? self.regLine.lineColor : colorGenerator(),
-                    lineWidth: 1
-                }
+                ...self.regLine
             };
         })
         self.selectedRegression = Object.values(selectedObjs).map(o => o.data);
