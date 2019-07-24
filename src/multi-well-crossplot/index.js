@@ -1185,7 +1185,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                                         console.warn(msg);
                                     }
                                 } else {
-                                    let msg = `"Well ${well.name}" does not meet input "Zone ${self.zonesetName}"`;
+                                    let msg = `Well ${well.name} does not meet input Zone ${self.zonesetName}`;
                                     if (__toastr) __toastr.error(msg);
                                     console.error(new Error(msg));
                                 }
@@ -2276,13 +2276,46 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
                     currentSelect: self.udlSelectionList[0].data.label,
                     inputName: 'User Defined Lines'
                 }, (selectedAsset) => {
-                    self.udlsAssetId = selectedAsset.idParameterSet;
-                    self.udls = fromFormulaArray2UDLs(selectedAsset.content);
-                    self.udls.name = selectedAsset.name;
+                    if (self.udls && self.udls.length) {
+                        let actions = [
+                            {title: `Add more`, onClick: (wiModal) => {wiModal.close('Add more')}},
+                            {title: `Replace`, onClick: (wiModal) => {wiModal.close('Replace')}}
+                        ]
+                        wiDialog.confirmDialog(
+                            "Confirmation",
+                            "Which way do you want to import?",
+                            (way) => {
+                                if (way === "Add more") {
+                                    let name = self.udls.name;
+                                    let note = self.udls.node;
+                                    self.udls = self.udls.concat(fromFormulaArray2UDLs(selectedAsset.content));
+                                    self.udls = _.uniqBy(self.udls, (udl) => udl.text)
+                                    self.udls.name = name;
+                                    self.udls.note = note;
+                                } else {
+                                    replaceUDLs(selectedAsset);
+                                }
+                            },
+                            actions
+                        )
+                    } else {
+                        replaceUDLs(selectedAsset);
+                    }
                 });
             });
+        function replaceUDLs(selectedAsset) {
+            self.udlsAssetId = selectedAsset.idParameterSet;
+            self.udls = fromFormulaArray2UDLs(selectedAsset.content);
+            self.udls.name = selectedAsset.name;
+            self.udls.note = selectedAsset.note;
+        }
     }
     this.saveUDL = function() {
+        if (self.udls.note === "System Formula") {
+            let msg = `Can not overwrite "System Formula"`;
+            if (__toastr) __toastr.error(msg);
+            return;
+        }
         let content = fromUDLs2FormulaArray(self.udls);
         if (self.udlsAssetId) {
             wiLoading.show($element.find('.main')[0],self.silent);
