@@ -2,6 +2,8 @@ var componentName = 'multiWellCrossplot';
 module.exports.name = componentName;
 require('./style.less');
 const regression = require('../../bower_components/regression-js/dist/regression.min.js');
+var PrintableController = Printable.klass;
+var component = Printable.component;
 
 const _DECIMAL_LEN = 4;
 const _PICKETT_LIMIT = 5;
@@ -15,10 +17,9 @@ var app = angular.module(componentName, [
     'plot-toolkit', 
     'wiLoading', 'line-style'
 ]);
-app.component(componentName, {
-    template: require('./template.html'),
+app.component(componentName, component({
     controller: multiWellCrossplotController,
-    controllerAs: 'self',
+    template: require('./template.html'),
     bindings: {
         token: "<",
         idProject: "<",
@@ -34,7 +35,7 @@ app.component(componentName, {
         scaleRight: "<",
         scaleBottom: "<",
         scaleTop: "<",
-        printSettings: '<',
+        //printSettings: '<',
         onSave: '<',
         onSaveAs: '<',
         onInitFn: '<',
@@ -68,10 +69,11 @@ app.component(componentName, {
         overlayLine: "<"
     },
     transclude: true
-});
+}));
 
-function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi, wiDialog, wiLoading) {
+function multiWellCrossplotController($scope, $timeout, $element, $compile, wiToken, wiApi, wiDialog, wiLoading) {
     let self = this;
+    PrintableController.call(this, $scope, $element, $timeout, $compile, wiApi);
     self.treeConfig = [];
     self.silent = true;
     self.selectedNode = null;
@@ -107,9 +109,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     this.getPals = function() {
         return wiApi.getPalettes();
     }
+    
+    this.defaultBindings = function() {
+        if (self.token)
+            wiToken.setToken(self.token);
 
-    this.$onInit = function () {
-        self.onInitFn && self.onInitFn(self);
         self.pickettAdjusterArray = [];
         self.allPickettLines = [];
         self.pickettSets = self.pickettSets || [
@@ -128,11 +132,11 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.zoneTree = [];
         self.zonesetName = self.zonesetName || "ZonationAll";
         self.config = self.config || {grid:true, displayMode: 'bar', colorMode: 'zone', stackMode: 'well', binGap: 5, title: self.title || ''};
-        self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left', border: false,
+        /*self.printSettings = self.printSettings || {orientation: 'portrait', aspectRatio: '16:9', alignment: 'left', border: false,
             width: 210,
             vMargin: 0,
             hMargin: 0
-        };
+        };*/
         self.polygons = self.polygons || [];
         self.polygonExclude = self.polygonExclude || false;
         self.selectionValueList = self.selectionValueList || self.initSelectionValueList();
@@ -142,7 +146,18 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.statisticHeaders = ['X-Axis','Y-Axis','Z1-Axis','Z2-Axis','Z3-Axis','Points','Correlation'];
         self.statisticHeaderMasks = [true,true, self.getSelectionValue('Z1').isUsed, self.getSelectionValue('Z2').isUsed, self.getSelectionValue('Z3').isUsed,true,true];
         self.regressionType = self.regressionType || 'Linear';
-        getRegressionTypeList();
+        // regression type list
+        self.regressionTypeList = [{
+            data: {label: 'Linear'},
+            properties: {name: 'Linear'}
+        }, {
+            data: {label: 'Exponential'},
+            properties: {name: 'Exponential'}
+        }, {
+            data: {label: 'Power'},
+            properties: {name: 'Power'}
+        }];
+
         if (self.udlsAssetId) {
             initUDL();
         } else {
@@ -152,52 +167,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         if (self.overlayLine) {
             self.overlayLineSpec = {idOverlayLine: self.overlayLine.idOverlayLine, name: self.overlayLine.name};
         }
-
-        if (self.token)
-            wiToken.setToken(self.token);
-        $timeout(() => {
-            getTrees();
-            $scope.$watch(() => self.config, (newVal, oldVal) => {
-                self.isSettingChange = true;
-            }, true);
-            $scope.$watch(() => (self.selectionType), (newVal, oldVal) => {
-                self.isSettingChange = true;
-                getSelectionList(self.selectionType, self.treeConfig);
-                updateDefaultConfig();
-            });
-            $scope.$watch(() => {
-                return self.wellSpec.map(wsp => {
-                    return `${wsp.xAxis ? wsp.xAxis.idCurve : ''}-
-                        ${wsp.yAxis ? wsp.yAxis.idCurve : ''}-
-                        ${wsp.z1Axis ? wsp.z1Axis.idCurve : ''}-
-                        ${wsp.z2Axis ? wsp.z2Axis.idCurve : ''}-
-                        ${wsp.z3Axis ? wsp.z3Axis.idCurve : ''}`;
-                }).join('');
-            }, () => {
-                self.isSettingChange = true;
-                updateDefaultConfig();
-            }, true);
-            $scope.$watch(() => {
-                return `${JSON.stringify(self.selectionValueList)}`;
-            }, () => {
-                self.isSettingChange = true;
-                self.updateShowZStats();
-                updateDefaultConfig()
-            });
-            $scope.$watch(() => (self.treeConfig.map(w => w.idWell)), () => {
-                self.isSettingChange = true;
-                getSelectionList(self.selectionType, self.treeConfig);
-                getZonesetsFromWells(self.treeConfig);
-                updateDefaultConfig();
-            }, true);
-            $scope.$watch(() => `${self.regressionType}-${JSON.stringify(self.polygons)}`, () => {
-                self.isSettingChange = true;
-                self.updateRegressionLine(self.regressionType, self.polygons);
-            })
-            $scope.$watch('tab', () => {
-                onTabChange();
-            })
-        }, 700);
 
         $scope.vPadding = 50;
         $scope.hPadding = 60;
@@ -256,6 +225,56 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
         self.getPickettSetColor = self.getPickettSetColor || function(pickettSet, idx) {
             return pickettSet.color || 'black';
         }
+    }
+    this.$onInit = function () {
+        self.doInit();
+        self.onInitFn && self.onInitFn(self);
+
+        $timeout(() => {
+            $scope.$watch(() => self.config, (newVal, oldVal) => {
+                self.isSettingChange = true;
+            }, true);
+            $scope.$watch(() => (self.selectionType), (newVal, oldVal) => {
+                self.isSettingChange = true;
+                getSelectionList(self.selectionType, self.treeConfig);
+                updateDefaultConfig();
+            });
+            $scope.$watch(() => {
+                return self.wellSpec.map(wsp => {
+                    return `${wsp.xAxis ? wsp.xAxis.idCurve : ''}-
+                        ${wsp.yAxis ? wsp.yAxis.idCurve : ''}-
+                        ${wsp.z1Axis ? wsp.z1Axis.idCurve : ''}-
+                        ${wsp.z2Axis ? wsp.z2Axis.idCurve : ''}-
+                        ${wsp.z3Axis ? wsp.z3Axis.idCurve : ''}`;
+                }).join('');
+            }, () => {
+                self.isSettingChange = true;
+                updateDefaultConfig();
+            }, true);
+            $scope.$watch(() => {
+                return `${JSON.stringify(self.selectionValueList)}`;
+            }, () => {
+                self.isSettingChange = true;
+                self.updateShowZStats();
+                updateDefaultConfig()
+            });
+            $scope.$watch(() => (self.treeConfig.map(w => w.idWell)), () => {
+                self.isSettingChange = true;
+                getSelectionList(self.selectionType, self.treeConfig);
+                getZonesetsFromWells(self.treeConfig);
+                updateDefaultConfig();
+            }, true);
+            $scope.$watch(() => `${self.regressionType}-${JSON.stringify(self.polygons)}`, () => {
+                self.isSettingChange = true;
+                self.updateRegressionLine(self.regressionType, self.polygons);
+            })
+            $scope.$watch('tab', () => {
+                onTabChange();
+            })
+
+            getTrees();
+        }, 700);
+
     }
     function onTabChange() {
         if ($scope.tab != 5) {
@@ -1948,18 +1967,6 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
     }
 
     // ---REGRESSION---
-    function getRegressionTypeList() {
-        self.regressionTypeList = [{
-            data: {label: 'Linear'},
-            properties: {name: 'Linear'}
-        }, {
-            data: {label: 'Exponential'},
-            properties: {name: 'Exponential'}
-        }, {
-            data: {label: 'Power'},
-            properties: {name: 'Power'}
-        }]
-    }
     this.onRegressionTypeChange = function(selectedItemProps) {
         self.regressionType = (selectedItemProps || {}).name;
     }
@@ -2368,6 +2375,7 @@ function multiWellCrossplotController($scope, $timeout, $element, wiToken, wiApi
             let content = fromUDLs2FormulaArray(self.udls);
             wiApi.newAssetPromise(self.idProject, name, type, content)
                 .then(res => {
+                    self.udls.note = "";
                     self.udlsAssetId = res.idParameterSet;
                 })
                 .catch(e => {
